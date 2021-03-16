@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Yitee</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="MapReduce【Ⅰ】 因为是第一次读MapReduce，并且也是第一次接触到分布式，所以不懂得地方会很多，如果有想要找到相关部分的朋友，可以点对应的索引栏查找，如果没有找到你的问题，欢迎评论，我会及时回复你~  Abstract&lt;1&gt;什么是MapReduce MapReduce为一个programming model 同时也是一个实现了处理和生成超大数据集的算法模型  &lt;2&amp;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Yitee">
+<meta property="og:url" content="https://warmchay.gitee.io/2021/03/16/MapReduce%E3%80%90%E2%85%A0%E3%80%91/index.html">
+<meta property="og:site_name" content="Yitee">
+<meta property="og:description" content="MapReduce【Ⅰ】 因为是第一次读MapReduce，并且也是第一次接触到分布式，所以不懂得地方会很多，如果有想要找到相关部分的朋友，可以点对应的索引栏查找，如果没有找到你的问题，欢迎评论，我会及时回复你~  Abstract&lt;1&gt;什么是MapReduce MapReduce为一个programming model 同时也是一个实现了处理和生成超大数据集的算法模型  &lt;2&amp;">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-03-16T01:24:27.622Z">
+<meta property="article:modified_time" content="2021-03-16T01:24:27.622Z">
+<meta property="article:author" content="Zoris Wang">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Yitee" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.ico">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Yitee</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">[object Object]</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/">主页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+          <a class="main-nav-link" href="/categories">分类</a>
+        
+          <a class="main-nav-link" href="/tags">标签</a>
+        
+          <a class="main-nav-link" href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/">区块链</a>
+        
+          <a class="main-nav-link" href="/friends">友链</a>
+        
+          <a class="main-nav-link" href="/2020/10/25/About%20Me">关于我</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://warmchay.gitee.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-MapReduce【Ⅰ】" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2021/03/16/MapReduce%E3%80%90%E2%85%A0%E3%80%91/" class="article-date">
+  <time datetime="2021-03-16T01:24:27.622Z" itemprop="datePublished">2021-03-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="MapReduce【Ⅰ】"><a href="#MapReduce【Ⅰ】" class="headerlink" title="MapReduce【Ⅰ】"></a>MapReduce【Ⅰ】</h1><blockquote>
+<p>因为是第一次读MapReduce，并且也是第一次接触到分布式，所以不懂得地方会很多，如果有想要找到相关部分的朋友，可以点对应的索引栏查找，如果没有找到你的问题，欢迎评论，我会及时回复你~</p>
+</blockquote>
+<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><h3 id="lt-1-gt-什么是MapReduce"><a href="#lt-1-gt-什么是MapReduce" class="headerlink" title="&lt;1&gt;什么是MapReduce"></a>&lt;1&gt;什么是MapReduce</h3><ul>
+<li>MapReduce为一个programming model</li>
+<li>同时也是一个实现了处理和生成超大数据集的算法模型</li>
+</ul>
+<h3 id="lt-2-gt-Basic-Implemation"><a href="#lt-2-gt-Basic-Implemation" class="headerlink" title="&lt;2&gt;Basic Implemation"></a>&lt;2&gt;Basic Implemation</h3><p>用户首先创建一个<code>Map</code>函数来处理一个基于<code>key/value pair</code>的数据模型，输出中间的基于<code>key/value</code>的数据集合，然后再创建一个Reduce函数来合并所有具有相同<code>intemediate key</code>的<code>intermediate value</code>。</p>
+<h3 id="lt-3-gt-特点"><a href="#lt-3-gt-特点" class="headerlink" title="&lt;3&gt;特点"></a>&lt;3&gt;特点</h3><ul>
+<li>MapReduce架构的程序能够在大量的普通配置的计算机<strong>【commodity machines】</strong>上实行并行化<strong>【parallelized】</strong>处理</li>
+</ul>
+<p>这个<code>run-time system</code>仅关心：</p>
+<ul>
+<li>如何<strong>分割</strong>输入数据【<strong>partitioning the input data</strong>】</li>
+<li>在大量计算机组成的集群上的<strong>调度</strong>【<strong>scheduling the program’s execution accross machines</strong>】</li>
+<li>集群中计算机的错误处理<strong>【handling machines failures】</strong></li>
+<li>管理集群中计算机之间必要的通信【<strong>managing the required communication</strong>】</li>
+</ul>
+<blockquote>
+<p>一个典型的MapReduce计算往往由几千台机器组成、处理以TB计算的数据<strong>【Highly scalable】</strong></p>
+</blockquote>
+<h2 id="1-Introduction"><a href="#1-Introduction" class="headerlink" title="1 Introduction"></a>1 Introduction</h2><h3 id="1-1-为什么提出了MapReduce"><a href="#1-1-为什么提出了MapReduce" class="headerlink" title="1.1 为什么提出了MapReduce"></a>1.1 为什么提出了MapReduce</h3><p><strong>To compute various kinds of derived data【衍生数据】</strong>，例如爬虫爬取的网面数量汇总、每天被请求的最多的查询集合等等。因为输入的数据量巨大，如果要在可接受的时间内完成运算，需要把这些<code>data</code>分布在成百上千的主机上。</p>
+<p>而我们前面提到的如何处理并行运算、如何分发数据、如何处理错误，这些问题综合在一起，需要大量的代码处理，但是这么综合解决需要大量的代码，那么怎么简单处理呢？</p>
+<h3 id="1-2-解决复杂问题"><a href="#1-2-解决复杂问题" class="headerlink" title="1.2 解决复杂问题"></a>1.2 解决复杂问题</h3><p>为了解决这些<code>complexity</code>，我们设计一个<code>new abstraction to express the simple computation</code><strong>【只用表述执行简单的运算】</strong>，不用去关心并行计算<strong>（parallelization）</strong>、容错<strong>（fault-tolerance）</strong>、数据分布<strong>（data distribution）</strong>、负载均衡<strong>（load balancing）</strong>等复杂的细节，而现在这些问题都被封装到了一个库里面，设计这个抽象模型的灵感来源于<code>Lisp</code>和其他函数式语言的<code>Map</code>和<code>Reduce</code>的原语。</p>
+<p>而大多数的运算都包含着这样的操作：</p>
+<ul>
+<li>先在输入数据的“逻辑”记录上应用<code>Map</code>操作得出一个中间<code>key/value pair</code>集合</li>
+<li>之后对所有具有相同<code>key</code>值的<code>value</code>值上应用<code>Reduce</code>操作，从而达到<strong>合并中间的数据</strong>，得到一个想要的结果的目的</li>
+<li>而后使用<code>MapReduce</code>模型，结合用户实现的<code>Map</code>和<code>Reduce</code>函数，从而能较为容易地实现大规模并行化计算</li>
+</ul>
+<p>而通过<code>MapReduce</code>模型自带的<code>re-execution</code>【<strong>“再次执行”</strong>】功能，也提供了初级的容错【<strong>fault tolerance</strong>】实现方案</p>
+<h3 id="1-3-Major-Contribution"><a href="#1-3-Major-Contribution" class="headerlink" title="1.3 Major Contribution"></a>1.3 Major Contribution</h3><blockquote>
+<p>这个工作【<strong>实现一个MapReduce框架模型</strong>】的主要贡献是通过简单的接口来实现<strong>自动的并行化和大规模的分布式计算</strong>，通过使用MapReduce模型接口实现在大量普通的PC机上<strong>高性能计算</strong></p>
+</blockquote>
+<blockquote>
+<p>PC机：个人计算机</p>
+</blockquote>
+<p>接下来几个部分将会讲述：</p>
+<ul>
+<li><strong>Section 2：</strong>Basic programming model and gives examples</li>
+<li><strong>Section 3：</strong>描述了一个经过裁剪的、适合于基于集群的计算环境中的MapReduce实现</li>
+<li><strong>Section 4：</strong>描述 一些在MapReduce编程模型中实用的技巧</li>
+<li><strong>Section 5：</strong>Performance measurements【<strong>测量性能</strong>】 of variety of tasks’ implementation.</li>
+<li><strong>Section 6：</strong>谷歌内部用MapReduce作为基础重写的索引系统产品，以及其他一些使用<strong>MapReduce的经验</strong></li>
+<li><strong>Section 7：</strong>Related and future work.</li>
+</ul>
+<h2 id="2-Progrmming-Model-编程模型"><a href="#2-Progrmming-Model-编程模型" class="headerlink" title="2 Progrmming Model [编程模型]"></a>2 Progrmming Model [编程模型]</h2><h3 id="Intro-–-MapReduce原理"><a href="#Intro-–-MapReduce原理" class="headerlink" title="Intro – MapReduce原理"></a>Intro – MapReduce原理</h3><p>Takes a set of input <code>key/value pairs</code>，produce a set of output <code>key/value pairs</code>.MapReduce的library groups<strong>【用户】</strong>用两个函数来表达该计算：<code>Map</code>and<code>Reduce</code>。</p>
+<p>用户自定义的<code>Map</code>函数接受一个输入的<code>key\value pairs</code>，然后产生一个中间<code>key/value</code>值的集合，<code>MapReduce</code>库把所有具有相同中间<code>key</code>值Ⅰ和相关的一个<code>value</code>值集合在一起传递给<code>reduce</code>函数；</p>
+<p>而用户定义的<code>Reduce</code>函数接受一个中间<code>key</code>的值Ⅰ和一个相关的<code>value</code>值的集合，<code>Reduce</code>函数合并这些<code>value</code>值，形成一个较小的<code>value</code>值的集合。一般的，每个<code>Reduce</code>函数调用只产生$0$或$1$个输出<code>value</code>值。通常我们通过一个迭代器把中间<code>value</code>值提供给<code>Redece</code>函数，这样我们就能够处理无法全部放入内存中的大量<code>value</code>值的集合。</p>
+<h3 id="2-1-例子"><a href="#2-1-例子" class="headerlink" title="2.1 例子"></a>2.1 例子</h3><p>以计算一个大的文档集合中包含每个单词出现的次数，伪代码为：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">map</span>(String Key, String value)&#123;</span><br><span class="line">    <span class="comment">//Key---doucument name</span></span><br><span class="line">    <span class="comment">//Value---documents content</span></span><br><span class="line">    <span class="keyword">for</span> each word w in value:</span><br><span class="line">    	EmitIntermediate(w, <span class="string">&quot;l&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">reduce(String key, Ste=ing)&#123;</span><br><span class="line">    <span class="comment">//key: a word</span></span><br><span class="line">    <span class="comment">//values: a list of counts</span></span><br><span class="line">    <span class="keyword">int</span> result = <span class="number">0</span>；</span><br><span class="line">    <span class="keyword">for</span> each v in values:</span><br><span class="line">    	result += ParseInt(v);</span><br><span class="line">   	Emit(AsString(result));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中， <code>Map</code>函数输出文档中的每个词，以及这个词的出现次数（在这个例子失踪）</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://warmchay.gitee.io/2021/03/16/MapReduce%E3%80%90%E2%85%A0%E3%80%91/" data-id="ckmbc34s80009hr74d1bib2d7" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2021/03/16/LeetCode%E3%80%90%E6%A0%91%E2%85%A0%E2%85%A1%E3%80%91/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          LeetCode--树【递归解题I】
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/03/16/Offer%E7%AC%AC%E4%BA%8C%E6%9C%9F%5B1%5D/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">初入律所</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/LeetCode/">LeetCode</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%93/">分布式数据库</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/">区块链</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%E4%BB%AA/">学习记录仪</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E5%8E%9F%E7%90%86/">计算机基础原理</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%9A%8F%E7%AC%94/">随笔</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Git/" rel="tag">Git</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">分布式数据库</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="tag">区块链</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="tag">字符串</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8E%92%E5%BA%8F/" rel="tag">排序</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%A0%91/" rel="tag">树</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%81%8C%E5%9C%BA/" rel="tag">职场</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Git/" style="font-size: 10px;">Git</a> <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 10px;">分布式数据库</a> <a href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" style="font-size: 10px;">区块链</a> <a href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" style="font-size: 10px;">字符串</a> <a href="/tags/%E6%8E%92%E5%BA%8F/" style="font-size: 10px;">排序</a> <a href="/tags/%E6%A0%91/" style="font-size: 20px;">树</a> <a href="/tags/%E8%81%8C%E5%9C%BA/" style="font-size: 10px;">职场</a> <a href="/tags/%E9%80%92%E5%BD%92/" style="font-size: 20px;">递归</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/03/">三月 2021</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/03/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80--NJU/%E4%B8%80%20C%E8%AF%AD%E8%A8%80%E7%A8%8B%E5%BA%8F%E4%B8%BE%E4%BE%8B/">计算机系统基础 1</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/16/%E6%B1%89%E8%AF%BA%E5%A1%94%EF%BC%8C%E5%BF%AB%E6%8E%92%E4%B8%8E%E6%95%B0%E7%BB%84%E5%86%85%E9%80%86%E5%BA%8F/">学习记录--汉诺塔，快排与数组内逆序</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/16/%E6%AF%94%E7%89%B9%E5%B8%81%E6%98%AF%E4%BB%80%E4%B9%88/">比特币与区块链</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/16/%E5%A4%A7%E6%95%B0%E6%8D%AE%E5%9F%BA%E7%A1%80%E2%85%A0/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/03/16/%E5%AD%97%E7%AC%A6%E4%B8%B2+%E7%BA%BF%E7%B4%A2%E4%BA%8C%E5%8F%89%E6%A0%91/">学习记录--字符串+线索二叉树构建</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2021 Zoris Wang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="/categories" class="mobile-nav-link">分类</a>
+  
+    <a href="/tags" class="mobile-nav-link">标签</a>
+  
+    <a href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" class="mobile-nav-link">区块链</a>
+  
+    <a href="/friends" class="mobile-nav-link">友链</a>
+  
+    <a href="/2020/10/25/About%20Me" class="mobile-nav-link">关于我</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
