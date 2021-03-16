@@ -170,7 +170,7 @@
       </tags>
   </entry>
   <entry>
-    <title></title>
+    <title>MapReduce I</title>
     <url>/2021/03/16/MapReduce%E3%80%90%E2%85%A0%E3%80%91/</url>
     <content><![CDATA[<h1 id="MapReduce【Ⅰ】"><a href="#MapReduce【Ⅰ】" class="headerlink" title="MapReduce【Ⅰ】"></a>MapReduce【Ⅰ】</h1><blockquote>
 <p>因为是第一次读MapReduce，并且也是第一次接触到分布式，所以不懂得地方会很多，如果有想要找到相关部分的朋友，可以点对应的索引栏查找，如果没有找到你的问题，欢迎评论，我会及时回复你~</p>
@@ -226,109 +226,11 @@
 
 <p>其中， <code>Map</code>函数输出文档中的每个词，以及这个词的出现次数（在这个例子失踪）</p>
 ]]></content>
-  </entry>
-  <entry>
-    <title>初入律所</title>
-    <url>/2021/03/16/Offer%E7%AC%AC%E4%BA%8C%E6%9C%9F%5B1%5D/</url>
-    <content><![CDATA[<h1 id="令人心动的Offer第二期（Ⅰ）"><a href="#令人心动的Offer第二期（Ⅰ）" class="headerlink" title="令人心动的Offer第二期（Ⅰ）"></a>令人心动的Offer第二期（Ⅰ）</h1><h2 id="Part-1-首入律所"><a href="#Part-1-首入律所" class="headerlink" title="Part 1 首入律所"></a>Part 1 首入律所</h2><p><strong>王骁：</strong>发现细节，打开话题，愿意扛起责任，打破沉默；收敛一些会比较让人舒服；</p>
-<p><strong>瞿泽林：</strong>准备小礼物，容易让人印象深刻</p>
-<p><strong>詹秋怡：</strong>打电话问HR，会准确知道下一步做什么，给人以礼貌的感觉【但会显得太忐忑了】</p>
-<h2 id="Part-2-自我介绍"><a href="#Part-2-自我介绍" class="headerlink" title="Part 2 自我介绍"></a>Part 2 自我介绍</h2><blockquote>
-<p>一定要懂的生存，“死不了”</p>
-</blockquote>
-<h3 id="2-1-核心竞争力部分"><a href="#2-1-核心竞争力部分" class="headerlink" title="2.1 核心竞争力部分"></a>2.1 核心竞争力部分</h3><p>王颖飞：【武大本】【人大研】【民事诉讼】【两年辩论，逻辑和辩论能力好】</p>
-<p><strong>王骁：</strong>【Stanford】【核心：模拟法庭，临场应变能力和法律检索能力强】</p>
-<p><strong>瞿泽林：</strong>【方方面面都懂地比较多】【小聪明，搜集证据方面很强】<code>给我感觉不是很踏实</code></p>
-<p><strong>詹秋怡：</strong>【坚韧】【学习能力较强】</p>
-<p>刘昱城：【主持经历较多】【民事诉讼，民商事学术水平好】</p>
-<p><strong>李晋晔：</strong>【适应能力特别强】【特别能熬夜】</p>
-<p>朱一暄：【脸皮比较厚】【抗打击能力比较强】【自信】</p>
-<p><strong>丁辉：</strong>【自学能力比较强】</p>
-<blockquote>
-<p>面试成绩：<br>2.王晓：自信、实习经历多、自如应对问题、对答如流、获得高度认同【教科书级别】，但是太骄傲了<br>1.李晋晔：实习经历多</p>
-<p>3.朱一暄【本科生】：能够把话题引导到自己擅长的地方、口齿灵敏</p>
-<p>4.王颖飞：【前期紧张，后期镇定后表达顺利】因此通过，但简历也十分优秀</p>
-<p>5.刘煜成：要求英文演讲，但是推辞了，<strong>要敢说</strong>【英语的能力是必要的，无法英语表达是不合格的】</p>
-<p>6.詹秋怡：【对自己简历不熟悉，五门课程全A不熟悉】【<strong>球扔出去要捡的回来</strong>】【<strong>斗志和韧劲很强</strong>】</p>
-<p>7.瞿泽林：专业和学习上偏弱，英语口语和国外受教育背景不符合【Unreal】，展现的非常阳光自信</p>
-<p>8.丁辉：【裸辞（不推荐）参加面试】【背水一战，<strong>坚持自我选择</strong>，这是被选择的原因】</p>
-</blockquote>
-<h3 id="2-2-初入职场与校园的区别"><a href="#2-2-初入职场与校园的区别" class="headerlink" title="2.2 初入职场与校园的区别"></a>2.2 初入职场与校园的区别</h3><ul>
-<li>一时的成功与失败并不重要</li>
-<li><strong>专业精神</strong>比知识更重要</li>
-<li>更加看重<strong>teamwork</strong></li>
-<li>试错，互相帮助</li>
-</ul>
-<h3 id="2-3-王律师"><a href="#2-3-王律师" class="headerlink" title="2.3 王律师"></a>2.3 王律师</h3><blockquote>
-<p>问的很深，切入关键要点往下问</p>
-</blockquote>
-<h3 id="2-4-谦虚"><a href="#2-4-谦虚" class="headerlink" title="2.4 谦虚"></a>2.4 谦虚</h3><ul>
-<li>自夸用轻松的方式</li>
-<li><strong>言行一致比较好</strong></li>
-<li>凡尔赛文学尽量平</li>
-<li>李晋晔，<strong>低调沉稳，性格内敛，有份量</strong></li>
-</ul>
-<h2 id="Part-3-介绍案件"><a href="#Part-3-介绍案件" class="headerlink" title="Part 3 介绍案件"></a>Part 3 介绍案件</h2><h3 id="3-1-准备表现"><a href="#3-1-准备表现" class="headerlink" title="3.1 准备表现"></a>3.1 准备表现</h3><p><strong>李晋晔：</strong>标注相关信息、修改自动保存时间、整理框架</p>
-<blockquote>
-<p><strong>随时准备好突然到来的DDL</strong></p>
-</blockquote>
-<p><strong>真的赶不及，记得发邮件，说明自己没有完成。注意回邮件</strong></p>
-<h3 id="3-2-回邮件"><a href="#3-2-回邮件" class="headerlink" title="3.2 回邮件"></a>3.2 回邮件</h3><ul>
-<li>回的是谁，受众是谁</li>
-<li>内容要相对明晰、准确</li>
-<li>问的问题有没有必要的回复，很重要</li>
-</ul>
-<h2 id="Part-4-第一次作业情况"><a href="#Part-4-第一次作业情况" class="headerlink" title="Part 4 第一次作业情况"></a>Part 4 第一次作业情况</h2><blockquote>
-<p>按时交，可以修改第二版</p>
-</blockquote>
-<p><strong>既完成别人的作业，也需要对自己有要求</strong></p>
-<blockquote>
-<p>审视要求：</p>
-<ul>
-<li>时间概念</li>
-<li>书写规范</li>
-<li>职场力：邮件有没有发错人群</li>
-<li><strong>专业技能</strong></li>
-<li><strong>注意用力适当</strong></li>
-</ul>
-</blockquote>
-<h3 id="4-1-注意"><a href="#4-1-注意" class="headerlink" title="4.1 注意"></a>4.1 注意</h3><ul>
-<li>有无对比，每个问题应该篇幅适中</li>
-<li>交往是否自如</li>
-</ul>
-<h1 id="第Ⅱ期"><a href="#第Ⅱ期" class="headerlink" title="第Ⅱ期"></a>第Ⅱ期</h1><h2 id="Part-1-–-第一次任务结束陈词"><a href="#Part-1-–-第一次任务结束陈词" class="headerlink" title="Part 1 – 第一次任务结束陈词"></a>Part 1 – 第一次任务结束陈词</h2><blockquote>
-<p>没有选秋怡：可能是因为不够活泼orz，因为慢热和没有展示力量，要学会<strong>主动表达自己</strong></p>
-</blockquote>
-<p>王颖飞：邮件没添加附件，注意要<strong>仔细认真</strong>，注意邮件地址，注意错别字，注意邮件要添加附件</p>
-<p>王律：注意你以往的经验，想想怎么调动到在工作当中</p>
-<p><strong>注意：</strong>从哪跌倒就从哪里爬起来</p>
-<blockquote>
-<p>我发现秋怡没有交流，不知道别人在做什么，消息闭塞可能会造成经验显得不足的情况</p>
-</blockquote>
-<p><strong>总结：</strong></p>
-<ul>
-<li>要努力让别人了解你，不能等待别人看见你，交互行为才能被看见</li>
-<li>坐“冷板凳”的时候，一定要学会去找事做</li>
-<li>职场上两种状态—“温水煮青蛙”、“冷板凳越做越冷”</li>
-<li>人一定要自知，不能心安理得的享受自己，在最高峰的时候要做好准备跌下去的时候，要积蓄好实力重新出发。因为肯定会跌下去的</li>
-</ul>
-<h2 id="Part-2-–-辩论赛【案例焦点辩论】"><a href="#Part-2-–-辩论赛【案例焦点辩论】" class="headerlink" title="Part 2 – 辩论赛【案例焦点辩论】"></a>Part 2 – 辩论赛【案例焦点辩论】</h2><blockquote>
-<p>主动提出分组，拒商，要给出不可抗力的理由</p>
-</blockquote>
-<p>不能冷漠的拒绝，要学会展现出诚意，注意拒绝要坚决，<strong>要明确自己的底线，知道自己不想要的是什么</strong></p>
-<p>拒绝是一种成熟的表现</p>
-<h2 id="职场酒局的问题"><a href="#职场酒局的问题" class="headerlink" title="职场酒局的问题"></a>职场酒局的问题</h2><ul>
-<li>用专业态度来获得工作价值，如果通过劝酒的方式，这样的工作像是施舍来的，不值得。</li>
-</ul>
-<h2 id="Part-3-–-辩论准备"><a href="#Part-3-–-辩论准备" class="headerlink" title="Part 3 – 辩论准备"></a>Part 3 – 辩论准备</h2><p>总是做最坏的打算，但是会做最好的努力和争取</p>
-<p><strong>辩论的时候气势绝对不能输</strong></p>
-<p><strong>惊喜的价值大于满意</strong></p>
-]]></content>
       <categories>
-        <category>随笔</category>
+        <category>分布式</category>
       </categories>
       <tags>
-        <tag>职场</tag>
+        <tag>分布式</tag>
       </tags>
   </entry>
   <entry>
@@ -576,73 +478,6 @@
       <tags>
         <tag>分布式数据库</tag>
       </tags>
-  </entry>
-  <entry>
-    <title></title>
-    <url>/2021/03/16/%E5%A4%A7%E6%95%B0%E6%8D%AE%E5%9F%BA%E7%A1%80%E2%85%A0/</url>
-    <content><![CDATA[<h1 id="大数据基础Ⅰ"><a href="#大数据基础Ⅰ" class="headerlink" title="大数据基础Ⅰ"></a>大数据基础Ⅰ</h1><h2 id="一-导论"><a href="#一-导论" class="headerlink" title="一 导论"></a>一 导论</h2><ul>
-<li>最小的基本单位为bit，按顺序为：<code>bit、Byte、KB、GB、TB、PB、EB、ZB、YB、BB、NB、DB</code></li>
-<li>其中有</li>
-</ul>
-<blockquote>
-<p>1Byte = 8 bit    1K = 1024Byte    1MB = 1024G    </p>
-<p>1T = 1024G    1P = 1024T    1E = 1024Z…</p>
-</blockquote>
-<ul>
-<li>业务流程分析</li>
-</ul>
-<blockquote>
-<p>业务人员提需求–&gt;数据部门处理数据–&gt;数据展示【报表平台组、发邮件Excel等】</p>
-</blockquote>
-<h2 id="二-服务器介绍"><a href="#二-服务器介绍" class="headerlink" title="二 服务器介绍"></a>二 服务器介绍</h2><h3 id="2-1-概念"><a href="#2-1-概念" class="headerlink" title="2.1 概念"></a>2.1 概念</h3><p>服务器为提供计算服务的设备，由于服务其需要响应服务请求，并进行代理，所以一般来说服务器需要具备<strong>承担服务并且保证服务的能力</strong></p>
-<h3 id="2-2-类型、构成与特点"><a href="#2-2-类型、构成与特点" class="headerlink" title="2.2 类型、构成与特点"></a>2.2 类型、构成与特点</h3><h4 id="2-2-1-服务器类型"><a href="#2-2-1-服务器类型" class="headerlink" title="2.2.1 服务器类型"></a>2.2.1 服务器类型</h4><p><strong>在网络环境下</strong>，根据服务其提供的服务类型不同，分为<strong>文件服务器、数据库服务器、WEB服务器【TomCat】等</strong></p>
-<h4 id="2-2-2-服务器构成"><a href="#2-2-2-服务器构成" class="headerlink" title="2.2.2 服务器构成"></a><strong>2.2.2 服务器构成</strong></h4><ul>
-<li><strong>处理器</strong></li>
-<li><strong>硬盘</strong></li>
-<li><strong>内存</strong></li>
-<li><strong>系统总线等</strong></li>
-</ul>
-<p>与通用计算机架构类似，但是因为需要提供高可靠的服务，所以在处理能力、稳定性等方面要求较高。</p>
-<blockquote>
-<p>简单理解为：服务器就是为一台电脑，只不过<strong>硬盘比普通PC机要大</strong>，<strong>CPU【多核】比普通的PC机处理速度快</strong>，而<strong>网卡【千兆+】也比普通PC机【100M】快</strong>orz</p>
-</blockquote>
-<h4 id="2-2-3-服务器特点"><a href="#2-2-3-服务器特点" class="headerlink" title="2.2.3 服务器特点"></a>2.2.3 服务器特点</h4><ul>
-<li>高处理能力</li>
-<li>高扩展性</li>
-<li>高可靠性</li>
-</ul>
-<h2 id="三-存储磁盘介绍"><a href="#三-存储磁盘介绍" class="headerlink" title="三 存储磁盘介绍"></a>三 存储磁盘介绍</h2><blockquote>
-<p>服务器存储数据，缺不了磁盘的支持，并且磁盘就为一类存储介质，专门存储各种类型的数据，而其按照接口类型又能够分为很多种，简单看下各类磁盘的基本特性吧~</p>
-</blockquote>
-<h3 id="3-1-机械硬盘"><a href="#3-1-机械硬盘" class="headerlink" title="3.1 机械硬盘"></a>3.1 机械硬盘</h3><blockquote>
-<p>磁头、磁盘、磁头臂等组成</p>
-</blockquote>
-<p>经典的有：<strong>SCSI接口硬盘、SAC接口硬盘、FDE/SDE接口硬盘、SATA硬盘【串口硬盘。具有自动纠正功能等】</strong></p>
-<h3 id="3-2-固态硬盘"><a href="#3-2-固态硬盘" class="headerlink" title="3.2 固态硬盘"></a>3.2 固态硬盘</h3><blockquote>
-<p>闪存等</p>
-</blockquote>
-<p>速度更快，但也更贵</p>
-<h2 id="四-交换机"><a href="#四-交换机" class="headerlink" title="四 交换机"></a>四 交换机</h2><blockquote>
-<p>交换机为一种存储转发设备，以太网交换机采用存储转发技术或直通技术实现信息帧的转发，也称为<strong>交换式集线器</strong>。</p>
-</blockquote>
-<h3 id="4-1-交换机与网桥"><a href="#4-1-交换机与网桥" class="headerlink" title="4.1 交换机与网桥"></a>4.1 交换机与网桥</h3><p>区别：</p>
-<ul>
-<li><strong>交换机：</strong>端口数较多、<strong>数据传输效率</strong>高、转发延迟很小、吞吐量大且丢失率低，网络整体性能增强，远远超过了普通网桥连接网络时的转发性能</li>
-</ul>
-<h3 id="4-2-交换机主要功能"><a href="#4-2-交换机主要功能" class="headerlink" title="4.2 交换机主要功能"></a>4.2 交换机主要功能</h3><p>主要有物理编址、<strong>网络拓扑结构、</strong>错误校检、帧序列以及流控等</p>
-<p>目前具备的<strong>新功能</strong>还有：对<strong>VLAN【虚拟互联网】</strong>的支持、对<strong>链路</strong>汇聚的支持、甚至有一些还具备有<strong>防火墙</strong>的功能</p>
-<h2 id="五-网卡"><a href="#五-网卡" class="headerlink" title="五 网卡"></a>五 网卡</h2><blockquote>
-<p>网卡为物理上连接计算机与网络的硬件设，是计算机局域网通信介质间的直接接口，因为网络技术的不同，网络的分类也有所不同，熟知的有ATM网卡、令牌环网卡及以太网网卡等，约有80%的局域网使用以太网技术。</p>
-</blockquote>
-<h3 id="5-1-接口方式"><a href="#5-1-接口方式" class="headerlink" title="5.1 接口方式"></a>5.1 接口方式</h3><p>业界广泛采用的为<strong>PCI</strong>总线</p>
-<h3 id="5-2-技术方向"><a href="#5-2-技术方向" class="headerlink" title="5.2 技术方向"></a>5.2 技术方向</h3><p>对于大数据量网络来说，服务器应该采用<strong>千兆以太网</strong>网卡，其多用于服务器和交换机之间的连接，以提高整体系统的响应速率。日常用时，文件<code>50M</code>够，音视频<code>100M</code>就够了</p>
-<h2 id="六-局域网【LAN】、机架与IDC"><a href="#六-局域网【LAN】、机架与IDC" class="headerlink" title="六 局域网【LAN】、机架与IDC"></a>六 局域网【LAN】、机架与IDC</h2><h3 id="6-1-局域网"><a href="#6-1-局域网" class="headerlink" title="6.1 局域网"></a>6.1 局域网</h3><p>局域网是指在某一区域内由多台计算机互联成的计算机组，一般为方圆几千米内。</p>
-<p>局域网能够实现文件管理、共享、工作组内中的一些功能。局域网是封闭式的，可以由两台计算机组成，也能够由许多计算机组成。</p>
-<h3 id="6-2-机架"><a href="#6-2-机架" class="headerlink" title="6.2 机架"></a>6.2 机架</h3><blockquote>
-<p>用于管理维护众多服务器，以及服务器出现问题时快读的定位解决问题。</p>
-</blockquote>
-<p>我们<strong>通过使用机架，能够将众多的服务器归纳到一个个的机架来去</strong>，而机架间的通信问题能够使用<strong>交换机</strong>来组织成为局域网。</p>
-]]></content>
   </entry>
   <entry>
     <title>学习记录--字符串+线索二叉树构建</title>
