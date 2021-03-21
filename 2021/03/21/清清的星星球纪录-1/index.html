@@ -160,7 +160,7 @@
 <p>“因为不能给出完美的答案，所以金融才有意思啊”</p>
 </blockquote>
 <p>可我感到痛苦，编程成功的每一瞬间我不间断的感慨它的完美逻辑</p>
-<p>两个pre的过程当中，我无数次的觉得</p>
+<p>两个<code>pre</code>的过程当中，我无数次的觉得</p>
 <p>一个事实往下还是事实，</p>
 <p>一个数据牵连的无数有关的无关的数据，</p>
 <p>一个报道层层堆叠正确的答案。</p>
@@ -171,9 +171,10 @@
 <blockquote>
 <p>在最后的无厘头的结束，是因为不想再思考下去，想起高中偷笑过一位同学说他最害怕的是未知。</p>
 <p>现在我最害怕最期待的也是未知。</p>
-<p>20岁的我在想，生活没有答案，每一刻都是时间碎片的略过，羡慕源自信息的不对称，偏见来自没有感受的…。<code>...</code>是因为我不知道什么能描述</p>
+<p>20岁的我在想，生活没有答案，每一刻都是时间碎片的略过，羡慕源自信息的不对称，偏见来自没有感受的…。</p>
+<p><code>...</code>是因为我不知道什么能描述</p>
 </blockquote>
-<p>这么结束了文章，感觉心情顺畅了，闭塞着的思路又打开了；</p>
+<p>这么结束了记录，感觉心情顺畅了，闭塞着的空白又充满了生机；</p>
 <p>想会会那位远方的朋友，跟他郑重地说一声谢谢。</p>
 <blockquote>
 <p>努力进p社吧，毒鸡汤hhhh</p>
@@ -613,6 +614,30 @@
 </script>
 
 <!-- MathJax -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
 
 <!-- Katex -->
 
