@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    清清的星星球纪录-1 |  
+    Operating System 3 -- 连续式内存分配 |  
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -45,7 +45,7 @@
     <main class="content on">
       <section class="outer">
   <article
-  id="post-清清的星星球纪录-1"
+  id="post-三 连续式内存分配"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -56,18 +56,18 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  清清的星星球纪录-1
+  Operating System 3 -- 连续式内存分配
 </h1>
  
 
     </header>
      
     <div class="article-meta">
-      <a href="/2021/03/21/%E6%B8%85%E6%B8%85%E7%9A%84%E6%98%9F%E6%98%9F%E7%90%83%E7%BA%AA%E5%BD%95-1/" class="article-date">
-  <time datetime="2021-03-21T11:58:12.654Z" itemprop="datePublished">2021-03-21</time>
+      <a href="/2021/03/19/%E4%B8%89%20%E8%BF%9E%E7%BB%AD%E5%BC%8F%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/" class="article-date">
+  <time datetime="2021-03-19T11:46:36.055Z" itemprop="datePublished">2021-03-19</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%B8%85%E6%B8%85%E7%9A%84%E6%98%9F%E6%98%9F%E7%90%83%E7%BA%AA%E5%BD%95/">清清的星星球纪录</a>
+    <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
   </div>
   
 <div class="word_count">
@@ -84,7 +84,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">3 分钟</span>
+            <span class="post-count">4 分钟</span>
         </span>
     </span>
 </div>
@@ -99,87 +99,169 @@
   
     <div class="article-entry" itemprop="articleBody">
        
-  <script src="/assets/js/APlayer.min.js"> </script><h1 id="清清的星星球纪录-1"><a href="#清清的星星球纪录-1" class="headerlink" title="清清的星星球纪录-1"></a>清清的星星球纪录-1</h1><p>这一周挺混沌的。</p>
-<blockquote>
-<p>“你是一个很理性的人”，小清曾这么对清清说。</p>
-<p>“我不是”，清清镇静地回应了他；</p>
-<p>“不算是”</p>
-<p>“至少我认为不是”，清清着急的补充了两句。</p>
-</blockquote>
-<p>踌躇了一个寒假的激动，转成了巨大的空洞；</p>
-<p>在人来人往的街道上，再次感受那些不了解的，曾忽略过的存在。</p>
-<img src="https://i.loli.net/2021/03/21/YSJTadIuVWDGpl4.jpg" alt="C343E95F496BF7AAAFC9C1AF77B248CA.jpg" style="zoom:50%;">
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="3-连续式内存分配"><a href="#3-连续式内存分配" class="headerlink" title="3 连续式内存分配"></a>3 连续式内存分配</h1><h2 id="3-1-计算机体系结构及内存分层体系"><a href="#3-1-计算机体系结构及内存分层体系" class="headerlink" title="3.1 计算机体系结构及内存分层体系"></a>3.1 计算机体系结构及内存分层体系</h2><h3 id="3-1-1-计算机体系结构"><a href="#3-1-1-计算机体系结构" class="headerlink" title="3.1.1 计算机体系结构"></a>3.1.1 计算机体系结构</h3><p>计算机的组件由：<code>cpu</code>、<code>内存</code>和<code>I/O设备</code>组成</p>
+<img src="https://i.loli.net/2021/03/23/ipqhyfoMmu9COxl.png" alt="1.png" style="zoom:33%;">
 
-<p>周三的晚上，时间滴答滴答的过了九点一刻，333路末班车启动了，隔着两个季节结束了《布达佩斯大饭店》的极致二分。</p>
-<p>难言的心情在下午五点半的《无望》中接受了。</p>
-<blockquote>
-<p>“I LOVE YOU，无望。你甘是这款人“    — 「五月天 feat.茄子蛋」</p>
-</blockquote>
-<p>上周三到现在，每个晚上都做着梦，早上闹钟响起，正是高潮的时刻</p>
-<p>似乎是给躺回去再睡20分钟的理由，第一次连续一周平均睡眠过了六个半小时</p>
-<p>继续做梦。</p>
-<img src="https://i.loli.net/2021/03/21/JQ31yrFcKpUoYzN.jpg" alt="8D88C443020608343AE61769CDC16B78.jpg" style="zoom:50%;">
+<h3 id="3-1-2-内存层次"><a href="#3-1-2-内存层次" class="headerlink" title="3.1.2 内存层次"></a>3.1.2 内存层次</h3><p>内存层次为：<code>高速缓存 --&gt; Main Memory --&gt; Disk（虚拟内存）</code></p>
+<img src="https://i.loli.net/2021/03/23/XMHtc2OEmlA5jC1.png" alt="image-20210319185559865.png" style="zoom:33%;">
 
-<blockquote>
-<p>“梦里有青苔，有很多没再见过的朋友”</p>
-</blockquote>
-<p>这一周，CFA班中作为组长，策划了组内PBL1的两个CASE。</p>
-<p>第一个休闲食品的pre，紧张中把逻辑打散重构，<code>同质化</code>这个准备着强调的切入点，就这么忘了</p>
-<p><code>SWOT</code>分析时，看着手上拿着的空白<code>keynote</code>，恍惚间脱口的<code>Technology</code>硬着头皮分析了下去</p>
-<p><code>weakness</code>老师表扬了把上下游议价引入讨论，我心里知道我把波特五力弄混了。</p>
-<p>下课，背上书包；离开，戴上耳机。</p>
-<p>红了玻璃心，动了脆弱情。</p>
-<blockquote>
-<p>“公元627年，玄奘离开了长安城” — 《玄奘西行》</p>
-</blockquote>
-<img src="https://i.loli.net/2021/03/21/iuEK92s8N6wxhAQ.jpg" alt="008E66641BCD3E4180AC58E620433FF8.jpg" style="zoom:50%;">
+<p>操作系统在内存管理内要完成的目标为：</p>
+<ul>
+<li><strong>抽象：</strong> 逻辑地址空间</li>
+<li><strong>保护：</strong> 独立地址空间</li>
+<li><strong>共享：</strong> 访问相同内存</li>
+<li><strong>虚拟化：</strong> 更多的地址空间</li>
+</ul>
+<img src="https://i.loli.net/2021/03/23/UKTNnpBvkHJj7Gc.png" alt="image-20210319185732039.png" style="zoom:33%;">
 
-<p>等着舍友们烫好头发，把操作系统和计组整理了一下框架</p>
-<p>刹那间，发现自己$CPI$没有弄混，对着面前的牛奶芋头冰傻笑了一下</p>
-<blockquote>
-<p>“宏观上我们还可以根据CPI来分析…”</p>
-<p>“…社会的指令数是多少？”</p>
-</blockquote>
-<p>夜归的烤串，杏皮茶换成豆奶的甜腻</p>
-<p>第一次提出跟舍友们合照，有了第一次的宿舍合照。</p>
-<img src="https://i.loli.net/2021/03/21/L6C7yHxXuMsJmSU.jpg" alt="A7B1EE65BBF4F38CF43D8E2B4C8E8E6B.jpg" style="zoom:50%;">
+<p>其不同的内存管理方式有：</p>
+<ul>
+<li>程序重定位</li>
+<li>分段、分页</li>
+<li>虚拟内存</li>
+<li>大多数（如linux）：需要虚拟内存分页</li>
+</ul>
+<p><strong>实现高度依赖硬件</strong></p>
+<ul>
+<li>必须了解内存架构</li>
+<li>MMU（<strong>内存管理单元</strong>）：负责cpu内存访问请求的硬件</li>
+</ul>
+<h2 id="3-2-地址空间-amp-地址生成"><a href="#3-2-地址空间-amp-地址生成" class="headerlink" title="3.2 地址空间 &amp; 地址生成"></a>3.2 地址空间 &amp; 地址生成</h2><h3 id="3-2-1-地址空间的定义"><a href="#3-2-1-地址空间的定义" class="headerlink" title="3.2.1 地址空间的定义"></a>3.2.1 地址空间的定义</h3><ul>
+<li><strong>物理地址空间：</strong> 硬件支持的地址空间</li>
+<li><strong>逻辑地址空间：</strong> 一个运行的程序所拥有的内存范围</li>
+</ul>
+<h3 id="3-2-2-地址生成"><a href="#3-2-2-地址生成" class="headerlink" title="3.2.2 地址生成"></a>3.2.2 地址生成</h3><p>经历<code>编译--汇编--链接--加载（程序重定位）</code>这四个阶段</p>
+<p><strong>应用程序的逻辑地址是如何映射到物理地址呢？</strong></p>
+<p>这个过程中操作系统负责建设逻辑地址<code>LA</code>和物理地址<code>PA</code>的映射</p>
+<ol>
+<li><strong>编译时</strong></li>
+</ol>
+<ul>
+<li>假设起始地址已知</li>
+<li>如果起始地址改变，必须重新编译</li>
+</ul>
+<ol start="2">
+<li><strong>加载时</strong></li>
+</ol>
+<ul>
+<li>如果编译时刻起始位置未知，那么编译器必须生成可重定位的代码「Relocatable Code」</li>
+<li>加载时，生成绝对地址</li>
+</ul>
+<ol start="3">
+<li><strong>执行时</strong></li>
+</ol>
+<ul>
+<li>程序可以被移动</li>
+<li>需要地址翻译的硬件支持</li>
+</ul>
+<ol start="4">
+<li><strong>CPU</strong></li>
+</ol>
+<ul>
+<li><code>ALU</code>需要逻辑地址的内存内容</li>
+<li><code>MMU</code>进行逻辑地址和物理地址的转换</li>
+<li><code>Controller</code>给总线发送物理地址请求</li>
+</ul>
+<ol start="5">
+<li><strong>Memory</strong></li>
+</ol>
+<ul>
+<li><code>Memory</code>发送物理地址的内容给<code>CPU</code></li>
+</ul>
+<img src="https://i.loli.net/2021/03/23/ipqhyfoMmu9COxl.png" alt="1.png" style="zoom:33%;">
 
-<p>今天的投资报告<code>pre</code>，拿着找到的数据计算出需要的<code>INN</code>和<code>NPV</code></p>
-<p>结束后，发现CASE给了设计的市场规模</p>
-<p>突出的负净现值，坚定的说，“我们认为不适合投资”</p>
-<p>难以忘记的这么笃定的瞬间。</p>
-<p>似乎是想要做到没有漏洞，急促间，红色的箭头隐匿在教室沉静的氛围中。</p>
-<p>“以上是我们组的投资分析，谢谢大家”。</p>
+<h3 id="3-2-3-地址安全检查"><a href="#3-2-3-地址安全检查" class="headerlink" title="3.2.3 地址安全检查"></a>3.2.3 地址安全检查</h3><p>通过<code>LIMIT</code>和<code>BASE</code>寄存器来判断操作系统程序的<strong>起始（base）</strong>和<strong>最大逻辑（limit）</strong>地址空间</p>
+<h2 id="3-3-连续内存分配"><a href="#3-3-连续内存分配" class="headerlink" title="3.3 连续内存分配"></a>3.3 连续内存分配</h2><h3 id="3-3-1-内存碎片"><a href="#3-3-1-内存碎片" class="headerlink" title="3.3.1 内存碎片"></a>3.3.1 内存碎片</h3><p>在内存分配中，主要存在着三个问题：</p>
+<ol>
+<li><strong>空闲内存</strong>不能得到有效利用</li>
+<li><strong>外部碎片</strong></li>
+</ol>
 <blockquote>
-<p>持股比例的漏洞埋在了幻想之中</p>
+<p>分配单元之间的未被使用的内存</p>
 </blockquote>
-<p>竟然又湿了眼眶，在逐渐接触经济的学科中，我对自己一开始的想法感到迷茫</p>
-<p>大自然的统计规律是呈正态分布的，人们生活的周围潜藏的是逻辑的数学</p>
-<p>“所以任何事情都只会有两种结果：存在与不存在”</p>
-<blockquote>
-<p>“因为不能给出完美的答案，所以金融才有意思啊”</p>
-</blockquote>
-<p>可我感到痛苦，编程成功的每一瞬间我不间断的感慨它的完美逻辑</p>
-<p>两个<code>pre</code>的过程当中，我无数次的觉得</p>
-<p>一个事实往下还是事实，</p>
-<p>一个数据牵连的无数有关的无关的数据，</p>
-<p>一个报道层层堆叠正确的答案。</p>
-<p>在无法给出答案的此刻，我记起了每刻为找出答案而努力的所有瞬间。</p>
-<img src="https://i.loli.net/2021/03/21/slw2ofN8cJFvZ1e.jpg" alt="0985B296F668F5989EF9CD6F5A259C4F.jpg" style="zoom:50%;">
+<ol start="3">
+<li>内部碎片</li>
+</ol>
+<ul>
+<li>分配单元内的未被使用内存</li>
+<li>取决于分配单元大小是否固定</li>
+</ul>
+<p>关于内部和外部是这么分的：</p>
+<img src="https://i.loli.net/2021/03/23/6R7KgjId5r9tVf1.png" alt="image-20210319192015981.png" style="zoom:33%;">
 
-<p>图书馆的走廊身影闪烁，世界异常开阔。</p>
+<h3 id="3-3-2-动态分配"><a href="#3-3-2-动态分配" class="headerlink" title="3.3.2 动态分配"></a>3.3.2 动态分配</h3><p>简单的内存管理方式为：</p>
+<ul>
+<li>当程序被允许进入系统时，被<strong>分配内存块</strong></li>
+<li>分配的内存块在地址上是<strong>连续</strong>的</li>
+</ul>
 <blockquote>
-<p>在最后的无厘头的结束，是因为不想再思考下去，想起高中偷笑过一位同学说他最害怕的是未知。</p>
-<p>现在我最害怕最期待的也是未知。</p>
-<p>20岁的我在想，生活没有答案，每一刻都是时间碎片的略过，羡慕源自信息的不对称，偏见来自没有感受的…。</p>
-<p><code>...</code>是因为我不知道什么能描述</p>
+<p>块 = 内存块 = 分区</p>
 </blockquote>
-<p>这么结束了记录，感觉心情顺畅了，闭塞着的空白又充满了生机；</p>
-<p>想会会那位远方的朋友，跟他郑重地说一声谢谢。</p>
-<blockquote>
-<p>努力进p社吧，毒鸡汤hhhh</p>
-<p>傻白甜最好了～～～</p>
-</blockquote>
+<p>对于每一个运行的程序，操作系统持续追踪：</p>
+<ul>
+<li>程序运行中的所有已分配内存块</li>
+<li>当前空闲的内存块<strong>Empty-blocks（“holes”）</strong></li>
+</ul>
+<p>一共有三种关于内存的分配策略：</p>
+<hr>
+<ol>
+<li><strong>First Fit Allocation【首次适配分配机制】</strong></li>
+</ol>
+<img src="https://i.loli.net/2021/03/23/iaGnK8N7LH4pecb.png" alt="image-20210319192458252.png" style="zoom:33%;">
+
+<p>因为在内存中$1K \ bytes$是第一个，而不是$500 \ bytes$</p>
+<p><strong>原理 &amp; 实现</strong></p>
+<ul>
+<li><p>实现简单，在高地址空间有大块的空闲分区</p>
+</li>
+<li><p>要求：</p>
+<ul>
+<li>空闲块列表按照地址排序</li>
+<li>分配过程需要搜索一个合适的分区</li>
+<li>释放分区需要检查其是否能够和邻近的空闲分区合并</li>
+</ul>
+</li>
+<li><p><strong>缺点：</strong><code> 外部碎片</code> 和 <code>不确定因素</code></p>
+</li>
+</ul>
+<hr>
+<ol start="2">
+<li><strong>Best Fit Allocation【最佳适配分配机制】</strong></li>
+</ol>
+<img src="https://i.loli.net/2021/03/23/6mBwnMou7PhK13f.png" alt="image-20210319193211332.png" style="zoom:33%;">
+
+<p><strong>原理 &amp; 实现</strong></p>
+<ul>
+<li><strong>优点：</strong> 避免大的空闲块被拆分，减小了外部碎片的大小</li>
+<li><strong>缺点：</strong> 释放分区较慢，容易产生很多无用的小碎片</li>
+<li><strong>要求：</strong><ul>
+<li>空闲块列表按照<strong>大小排序</strong></li>
+<li>分配过程需要查找一个合适的分区</li>
+<li>释放分区需要查找并且合并邻近的空闲分区【如果能找到】</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ol start="3">
+<li><strong>Worst Fit Allocation【最差适配机制】</strong></li>
+</ol>
+<img src="https://i.loli.net/2021/03/23/uWKGbrQ5TNH6zfR.png" alt="image-20210319193625859.png" style="zoom:33%;">
+
+<p><strong>原理 &amp; 实现</strong></p>
+<ul>
+<li><strong>优点：</strong> 避免出现太多的小碎片，属于中等尺寸的时候，效果最好</li>
+<li><strong>缺点：</strong> 释放分区较慢，容易破坏大的空闲块，后续难以分配大的分区</li>
+<li><strong>要求：</strong><ul>
+<li>空闲块列表从大到小排序</li>
+<li>分配非常快（最大的分区）</li>
+<li>释放分区需要<strong>合并邻近的空闲块</strong>（如果有），然后调整空闲块列表</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="3-3-3-碎片整理"><a href="#3-3-3-碎片整理" class="headerlink" title="3.3.3 碎片整理"></a>3.3.3 碎片整理</h3><h4 id="lt-1-gt-Compaction-–-压实"><a href="#lt-1-gt-Compaction-–-压实" class="headerlink" title="&lt;1&gt; Compaction – 压实"></a>&lt;1&gt; Compaction – 压实</h4><img src="https://i.loli.net/2021/03/23/5X4CI1nBOPJGmD8.png" alt="image-20210319194015415.png" style="zoom:33%;">
+
+<h4 id="lt-2-gt-Swapping-in-out-–-换入换出"><a href="#lt-2-gt-Swapping-in-out-–-换入换出" class="headerlink" title="&lt;2&gt; Swapping in/out – 换入换出"></a>&lt;2&gt; Swapping in/out – 换入换出</h4><p>当运行中的<strong>程序1</strong>需要更多的内存时，抢占内存中等待的<strong>程序2</strong>，回收它们的内存于<code>Disk</code>中，后把<strong>程序1</strong>放入主存中运行</p>
  
       <!-- reward -->
       
@@ -250,12 +332,12 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://warmchay.github.io/2021/03/21/%E6%B8%85%E6%B8%85%E7%9A%84%E6%98%9F%E6%98%9F%E7%90%83%E7%BA%AA%E5%BD%95-1/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://warmchay.github.io/2021/03/19/%E4%B8%89%20%E8%BF%9E%E7%BB%AD%E5%BC%8F%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9C%AD%E8%AE%B0/" rel="tag">札记</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
 
     </footer>
   </div>
@@ -263,19 +345,19 @@
    
   <nav class="article-nav">
     
-      <a href="/2021/03/22/%E4%BA%94%20%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98/" class="article-nav-link">
+      <a href="/2021/03/20/%E5%9B%9B%20%E9%9D%9E%E8%BF%9E%E7%BB%AD%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            Operating System 5 -- 虚拟内存
+            Operating System 4 -- 非连续内存分配
           
         </div>
       </a>
     
     
-      <a href="/2021/03/20/%E5%9B%9B%20%E9%9D%9E%E8%BF%9E%E7%BB%AD%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/" class="article-nav-link">
+      <a href="/2021/03/19/%E4%BA%8C%20%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Operating System 4 -- 非连续内存分配</div>
+        <div class="article-nav-title">Operating System 2 -- 基础操作</div>
       </a>
     
   </nav>

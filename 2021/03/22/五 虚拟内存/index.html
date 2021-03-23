@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    清清的星星球纪录-1 |  
+    Operating System 5 -- 虚拟内存 |  
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -45,7 +45,7 @@
     <main class="content on">
       <section class="outer">
   <article
-  id="post-清清的星星球纪录-1"
+  id="post-五 虚拟内存"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -56,18 +56,18 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  清清的星星球纪录-1
+  Operating System 5 -- 虚拟内存
 </h1>
  
 
     </header>
      
     <div class="article-meta">
-      <a href="/2021/03/21/%E6%B8%85%E6%B8%85%E7%9A%84%E6%98%9F%E6%98%9F%E7%90%83%E7%BA%AA%E5%BD%95-1/" class="article-date">
-  <time datetime="2021-03-21T11:58:12.654Z" itemprop="datePublished">2021-03-21</time>
+      <a href="/2021/03/22/%E4%BA%94%20%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98/" class="article-date">
+  <time datetime="2021-03-22T08:31:40.153Z" itemprop="datePublished">2021-03-22</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%B8%85%E6%B8%85%E7%9A%84%E6%98%9F%E6%98%9F%E7%90%83%E7%BA%AA%E5%BD%95/">清清的星星球纪录</a>
+    <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
   </div>
   
 <div class="word_count">
@@ -75,7 +75,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1.1k</span>
+            <span class="post-count">1.9k</span>
         </span>
     </span>
 
@@ -84,7 +84,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">3 分钟</span>
+            <span class="post-count">6 分钟</span>
         </span>
     </span>
 </div>
@@ -99,87 +99,124 @@
   
     <div class="article-entry" itemprop="articleBody">
        
-  <script src="/assets/js/APlayer.min.js"> </script><h1 id="清清的星星球纪录-1"><a href="#清清的星星球纪录-1" class="headerlink" title="清清的星星球纪录-1"></a>清清的星星球纪录-1</h1><p>这一周挺混沌的。</p>
-<blockquote>
-<p>“你是一个很理性的人”，小清曾这么对清清说。</p>
-<p>“我不是”，清清镇静地回应了他；</p>
-<p>“不算是”</p>
-<p>“至少我认为不是”，清清着急的补充了两句。</p>
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="五-虚拟内存"><a href="#五-虚拟内存" class="headerlink" title="五 虚拟内存"></a>五 虚拟内存</h1><h2 id="5-1-起因"><a href="#5-1-起因" class="headerlink" title="5.1 起因"></a>5.1 起因</h2><blockquote>
+<p>程序规模的增长速度远远大于存储器容量的增长速度</p>
 </blockquote>
-<p>踌躇了一个寒假的激动，转成了巨大的空洞；</p>
-<p>在人来人往的街道上，再次感受那些不了解的，曾忽略过的存在。</p>
-<img src="https://i.loli.net/2021/03/21/YSJTadIuVWDGpl4.jpg" alt="C343E95F496BF7AAAFC9C1AF77B248CA.jpg" style="zoom:50%;">
+<p>理想中的存储器：更大更快更便宜的非易失性存储器</p>
+<p><strong>实际：</strong></p>
+<img src="https://i.loli.net/2021/03/22/VSd2z58utmBQp4L.png" alt="image-20210322144502671.png" style="zoom:50%;">
 
-<p>周三的晚上，时间滴答滴答的过了九点一刻，333路末班车启动了，隔着两个季节结束了《布达佩斯大饭店》的极致二分。</p>
-<p>难言的心情在下午五点半的《无望》中接受了。</p>
+<p>主存储器贵，硬盘大但传输速度慢</p>
+<p><strong>有效管理内存</strong>：分页分段机制，现有的物理内存通过操作系统去获得更快更大的内存空间</p>
+<p><strong>当出现内存不够用的情况怎么办？</strong></p>
+<ul>
+<li>如果程序太大，超出内存容量，可以采用手动的覆盖（overlay），把需要的指令和数据保存在内存当中</li>
+<li>或者采用<strong>自动的交换技术（swapping）</strong>，把暂时不能执行的程序送到外存中</li>
+<li>想要在有限容量的内存中，以<strong>更小的页粒度</strong>为单位装人更多更大的程序，采用<strong>自动的虚拟存储技术</strong></li>
+</ul>
+<h2 id="5-2-覆盖技术"><a href="#5-2-覆盖技术" class="headerlink" title="5.2 覆盖技术"></a>5.2 覆盖技术</h2><h3 id="lt-1-gt-目标"><a href="#lt-1-gt-目标" class="headerlink" title="&lt;1&gt;  目标"></a>&lt;1&gt;  目标</h3><p>在较小的可用内存中运行较大的程序，常用语多道程序系统，和分区存储管理配合使用</p>
+<h3 id="lt-2-gt-原理"><a href="#lt-2-gt-原理" class="headerlink" title="&lt;2&gt; 原理"></a>&lt;2&gt; 原理</h3><p>把程序按照自身逻辑结构，划分为若干个功能上相对独立的程序模块</p>
+<p>将不会同时执行的模块共享同一块内存区域，按照时间先后来运行</p>
+<ul>
+<li><strong>必要部分（常用功能）</strong>的代码和数据常驻内存</li>
+<li><strong>可选部分（不常用功能）</strong>在其他程序模块中实现，平时存在外存，<strong>使用时装入内存</strong></li>
+<li>不存在调用关系的模块不需要同时装入内存中，从而能够相互覆盖，即这些模块共用一个分区【类似<strong>“分时”</strong>】</li>
+</ul>
+<p>举个栗子【<strong>进程树</strong>】</p>
 <blockquote>
-<p>“I LOVE YOU，无望。你甘是这款人“    — 「五月天 feat.茄子蛋」</p>
+<p><strong>同一层</strong>的子进程可以相互覆盖，因此放在同一个覆盖区</p>
 </blockquote>
-<p>上周三到现在，每个晚上都做着梦，早上闹钟响起，正是高潮的时刻</p>
-<p>似乎是给躺回去再睡20分钟的理由，第一次连续一周平均睡眠过了六个半小时</p>
-<p>继续做梦。</p>
-<img src="https://i.loli.net/2021/03/21/JQ31yrFcKpUoYzN.jpg" alt="8D88C443020608343AE61769CDC16B78.jpg" style="zoom:50%;">
+<p>另一种覆盖方法：</p>
+<img src="https://i.loli.net/2021/03/22/quJQm9Hd6XCf3nA.png" alt="image-20210322150451018.png" style="zoom:50%;">
 
-<blockquote>
-<p>“梦里有青苔，有很多没再见过的朋友”</p>
-</blockquote>
-<p>这一周，CFA班中作为组长，策划了组内PBL1的两个CASE。</p>
-<p>第一个休闲食品的pre，紧张中把逻辑打散重构，<code>同质化</code>这个准备着强调的切入点，就这么忘了</p>
-<p><code>SWOT</code>分析时，看着手上拿着的空白<code>keynote</code>，恍惚间脱口的<code>Technology</code>硬着头皮分析了下去</p>
-<p><code>weakness</code>老师表扬了把上下游议价引入讨论，我心里知道我把波特五力弄混了。</p>
-<p>下课，背上书包；离开，戴上耳机。</p>
-<p>红了玻璃心，动了脆弱情。</p>
-<blockquote>
-<p>“公元627年，玄奘离开了长安城” — 《玄奘西行》</p>
-</blockquote>
-<img src="https://i.loli.net/2021/03/21/iuEK92s8N6wxhAQ.jpg" alt="008E66641BCD3E4180AC58E620433FF8.jpg" style="zoom:50%;">
+<h3 id="lt-3-gt-缺点"><a href="#lt-3-gt-缺点" class="headerlink" title="&lt;3&gt; 缺点"></a>&lt;3&gt; 缺点</h3><ul>
+<li>如何将大程序划分为多个小功能模块，来确定各个模块的覆盖关系费时费力</li>
+<li>覆盖模块<strong>从外存装入内存</strong>，是以时间延长换取空间节省</li>
+</ul>
+<h2 id="5-3-交换技术"><a href="#5-3-交换技术" class="headerlink" title="5.3 交换技术"></a>5.3 交换技术</h2><h3 id="lt-1-gt-目标-1"><a href="#lt-1-gt-目标-1" class="headerlink" title="&lt;1&gt; 目标"></a>&lt;1&gt; 目标</h3><p>多道程序在内存中，让正在运行的程序或需要运行的程序获得更多的内存资源</p>
+<h3 id="lt-2-gt-方法"><a href="#lt-2-gt-方法" class="headerlink" title="&lt;2&gt; 方法"></a>&lt;2&gt; 方法</h3><ul>
+<li>可将暂时不能运行的程序送到外存，从而获得空闲内存空间</li>
+<li>操作系统把一个进程的<strong>整个地址空间内容保存到外存</strong>中（swap out）<strong>「os认为这个程序不用执行」</strong>，<strong>将外存中某个进程的地址空间读入内存中</strong>（swap in）。换入换出内容的大小为整个程序的地址空间</li>
+</ul>
+<img src="https://i.loli.net/2021/03/22/aSFpnHUwV8lYhIC.png" alt="image-20210322151545762.png" style="zoom:50%;">
 
-<p>等着舍友们烫好头发，把操作系统和计组整理了一下框架</p>
-<p>刹那间，发现自己$CPI$没有弄混，对着面前的牛奶芋头冰傻笑了一下</p>
-<blockquote>
-<p>“宏观上我们还可以根据CPI来分析…”</p>
-<p>“…社会的指令数是多少？”</p>
-</blockquote>
-<p>夜归的烤串，杏皮茶换成豆奶的甜腻</p>
-<p>第一次提出跟舍友们合照，有了第一次的宿舍合照。</p>
-<img src="https://i.loli.net/2021/03/21/L6C7yHxXuMsJmSU.jpg" alt="A7B1EE65BBF4F38CF43D8E2B4C8E8E6B.jpg" style="zoom:50%;">
+<h3 id="lt-3-gt-问题"><a href="#lt-3-gt-问题" class="headerlink" title="&lt;3&gt; 问题"></a>&lt;3&gt; 问题</h3><ul>
+<li><strong>什么时候需要交换？</strong></li>
+</ul>
+<p>只当内存空间不够或者存在危险时才换出</p>
+<ul>
+<li><strong>交换区的大小？</strong></li>
+</ul>
+<p>需要足够大来存放所有用户进程的所有内存映像的拷贝，才能对这些内存映像进行直接存取</p>
+<ul>
+<li><strong>内存地址固定吗？</strong></li>
+</ul>
+<p>采用<strong>动态地址映射</strong>，换入换出的内存位置不一定相同</p>
+<h3 id="lt-4-gt-覆盖-v-s-交换"><a href="#lt-4-gt-覆盖-v-s-交换" class="headerlink" title="&lt;4&gt; 覆盖 v.s 交换"></a>&lt;4&gt; 覆盖 v.s 交换</h3><ol>
+<li><strong>覆盖：</strong> 覆盖<strong>只能发生相互之间没有调用关系</strong>的程序模块之间，程序员必须给出程序内的各个模块之间逻辑覆盖结构</li>
+<li><strong>交换：</strong> 以内存中的程序大小为单位进行，不需要给出各个模块之间的逻辑覆盖结构</li>
+<li><strong>总结一下：</strong> 交换发生在内存中程序与管理程序或操作系统之间，而覆盖发生在运行程序的内部</li>
+</ol>
+<h2 id="5-4-虚存技术"><a href="#5-4-虚存技术" class="headerlink" title="5.4 虚存技术"></a>5.4 虚存技术</h2><h3 id="5-4-1-目标"><a href="#5-4-1-目标" class="headerlink" title="5.4.1 目标"></a>5.4.1 目标</h3><p><strong>覆盖：</strong> 程序员需要自己确定程序各个模块的覆盖关系</p>
+<p><strong>交换：</strong> 以进程作为交换，需要把进程的整个地址空间都换入换出，增加了处理器开销</p>
+<p><strong>虚存目标：</strong></p>
+<ul>
+<li>不把所有程序放入内存，因而能够运行比当前空闲内存更大的程序，由操作系统自己完成，不需要程序员手动操作</li>
+<li>能够实现内存与外存之间的交换，来获得更多的空闲内存空间。但只对进程的部分内容进行交换，减少了开销。</li>
+</ul>
+<img src="https://i.loli.net/2021/03/22/IQvrAWuk4HsORJM.png" alt="image-20210322153118350.png" style="zoom:50%;">
 
-<p>今天的投资报告<code>pre</code>，拿着找到的数据计算出需要的<code>INN</code>和<code>NPV</code></p>
-<p>结束后，发现CASE给了设计的市场规模</p>
-<p>突出的负净现值，坚定的说，“我们认为不适合投资”</p>
-<p>难以忘记的这么笃定的瞬间。</p>
-<p>似乎是想要做到没有漏洞，急促间，红色的箭头隐匿在教室沉静的氛围中。</p>
-<p>“以上是我们组的投资分析，谢谢大家”。</p>
-<blockquote>
-<p>持股比例的漏洞埋在了幻想之中</p>
+<h3 id="5-4-2-程序局部性原理"><a href="#5-4-2-程序局部性原理" class="headerlink" title="5.4.2 程序局部性原理"></a>5.4.2 程序局部性原理</h3><blockquote>
+<p><strong>局部性原理：</strong> 程序执行过程中的一个较短时期内，所执行的指令地址和指令的操作数地址，<strong>分别局限于一定区域</strong></p>
 </blockquote>
-<p>竟然又湿了眼眶，在逐渐接触经济的学科中，我对自己一开始的想法感到迷茫</p>
-<p>大自然的统计规律是呈正态分布的，人们生活的周围潜藏的是逻辑的数学</p>
-<p>“所以任何事情都只会有两种结果：存在与不存在”</p>
+<ul>
+<li><strong>时间局部性：</strong> 一个数据的一次访问和下次访问集中在较短时期内</li>
+<li><strong>空间局部性：</strong> 当前指令和邻近的几条指令，当前访问的数据和邻近的几个数据都集中在一个较小区域内，<strong>内存中靠的很近</strong>。</li>
+</ul>
+<p><img src="https://i.loli.net/2021/03/22/nTCQV48cqfISBNa.png" alt="image-20210322154212146.png" style="zoom:50%;"><img src="https://i.loli.net/2021/03/22/5GywzFrBdVRWb7c.png" alt="image-20210322162031899.png"></p>
 <blockquote>
-<p>“因为不能给出完美的答案，所以金融才有意思啊”</p>
+<p>默认行优先，如果按列来遍历，时间开销会非常大，因为$a_{0, 0} –&gt; a_{1, 0}$相差$1024KB$.而$a_{0,0} –&gt; a_{0,1}$相差$1KB$.</p>
+<p>因此，按列访问，访问次数为$1024 * 1024$</p>
+<p>而按行为$1024$次</p>
 </blockquote>
-<p>可我感到痛苦，编程成功的每一瞬间我不间断的感慨它的完美逻辑</p>
-<p>两个<code>pre</code>的过程当中，我无数次的觉得</p>
-<p>一个事实往下还是事实，</p>
-<p>一个数据牵连的无数有关的无关的数据，</p>
-<p>一个报道层层堆叠正确的答案。</p>
-<p>在无法给出答案的此刻，我记起了每刻为找出答案而努力的所有瞬间。</p>
-<img src="https://i.loli.net/2021/03/21/slw2ofN8cJFvZ1e.jpg" alt="0985B296F668F5989EF9CD6F5A259C4F.jpg" style="zoom:50%;">
+<h3 id="5-4-3-基本概念"><a href="#5-4-3-基本概念" class="headerlink" title="5.4.3 基本概念"></a>5.4.3 基本概念</h3><blockquote>
+<p>虚存可以在页式或段式内存管理的基础上实现</p>
+</blockquote>
+<ul>
+<li>装入程序时，不用将全部都装入到内存，只需要将当前需要执行的部分页面或段载入主存，让程序执行即可</li>
+<li>程序执行时，如果执行的指令或者访问的数据<strong>没有</strong>在内存<strong>「缺页/缺段」</strong>，由<strong>处理器</strong>通知操作系统将相应的页面或段掉入内存，继续执行程序</li>
+<li>另外，os将内存中暂时不使用的页面或段调出保存在外存上，腾出更多空闲时间存放将要装入的程序及要调入的页面或段</li>
+</ul>
+<h3 id="5-4-4-基本特征"><a href="#5-4-4-基本特征" class="headerlink" title="5.4.4 基本特征"></a>5.4.4 基本特征</h3><ul>
+<li><strong>用户空间大：</strong> 把物理内存与外存相结合，提供给用户的虚存空间通常大于实际的物理内存，实现两者的分离</li>
+<li><strong>部分交换：</strong> 虚存的调入和调出是对部分虚拟地址空间进行的</li>
+<li><strong>不连续性：</strong> 物理内存分配的不连续，虚存地址空间使用的不连续</li>
+</ul>
+<h3 id="5-4-5-虚拟页式内存管理"><a href="#5-4-5-虚拟页式内存管理" class="headerlink" title="5.4.5 虚拟页式内存管理"></a>5.4.5 虚拟页式内存管理</h3><ul>
+<li>大部分虚拟存储系统都采用<strong>虚拟页式存储管理技术</strong>，即在页式存储管理的基础上，增加<strong>请求调页和页面置换</strong>功能</li>
+<li><strong>基本思路</strong>：<ul>
+<li>当一个用户程序要调入内存运行时，只装入部分的页面，就可以启动程序运行</li>
+<li>在运行的过程中，如果发现要运行的程序或者要访问的数据不在内存<strong>「因为页面只映射了一部分」</strong>，cpu会向操作系统发出<strong>缺页中断</strong>请求。系统在处理这个中断时，将外存中相应的页面调入内存，使程序继续运行</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://i.loli.net/2021/03/22/5GywzFrBdVRWb7c.png" alt="image-20210322162031899.png"></p>
+<img src="https://i.loli.net/2021/03/22/gTyuKezlvwW6iRZ.png" alt="image-20210322162327848.png" style="zoom:50%;">
 
-<p>图书馆的走廊身影闪烁，世界异常开阔。</p>
-<blockquote>
-<p>在最后的无厘头的结束，是因为不想再思考下去，想起高中偷笑过一位同学说他最害怕的是未知。</p>
-<p>现在我最害怕最期待的也是未知。</p>
-<p>20岁的我在想，生活没有答案，每一刻都是时间碎片的略过，羡慕源自信息的不对称，偏见来自没有感受的…。</p>
-<p><code>...</code>是因为我不知道什么能描述</p>
-</blockquote>
-<p>这么结束了记录，感觉心情顺畅了，闭塞着的空白又充满了生机；</p>
-<p>想会会那位远方的朋友，跟他郑重地说一声谢谢。</p>
-<blockquote>
-<p>努力进p社吧，毒鸡汤hhhh</p>
-<p>傻白甜最好了～～～</p>
-</blockquote>
+<h3 id="5-4-6-后备存储-Backing-Store"><a href="#5-4-6-后备存储-Backing-Store" class="headerlink" title="5.4.6 后备存储 Backing Store"></a>5.4.6 后备存储 Backing Store</h3><p><strong>在哪里保存没有映射的页？</strong></p>
+<ul>
+<li>能够简单地识别二级存储器中的页</li>
+<li>交换空间（磁盘或者文件）：特殊格式，用于存储未被映射的页面</li>
+</ul>
+<p><strong>后备存储「backing store」</strong></p>
+<ul>
+<li>一个虚拟地址空间的页面可以被映射到一个文件（在二级存储中）的某个位置</li>
+<li><strong>代码段：</strong> 映射到可执行二进制文件</li>
+<li><strong>动态加载的共享库程序段：</strong> 映射到动态调用的库文件</li>
+<li><strong>其他段：</strong> 可能被映射到交换文件<strong>（swap file）</strong></li>
+</ul>
+<h3 id="5-4-7-虚拟内存性能"><a href="#5-4-7-虚拟内存性能" class="headerlink" title="5.4.7 虚拟内存性能"></a>5.4.7 虚拟内存性能</h3><img src="https://i.loli.net/2021/03/22/eySsPrOgQAjvp9L.png" alt="image-20210322163317854.png" style="zoom:50%;">
+
  
       <!-- reward -->
       
@@ -250,12 +287,12 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://warmchay.github.io/2021/03/21/%E6%B8%85%E6%B8%85%E7%9A%84%E6%98%9F%E6%98%9F%E7%90%83%E7%BA%AA%E5%BD%95-1/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://warmchay.github.io/2021/03/22/%E4%BA%94%20%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%9C%AD%E8%AE%B0/" rel="tag">札记</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
 
     </footer>
   </div>
@@ -263,19 +300,19 @@
    
   <nav class="article-nav">
     
-      <a href="/2021/03/22/%E4%BA%94%20%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98/" class="article-nav-link">
+      <a href="/2021/03/22/%E5%85%AD%20%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            Operating System 5 -- 虚拟内存
+            Operating System 6 -- 页面置换算法
           
         </div>
       </a>
     
     
-      <a href="/2021/03/20/%E5%9B%9B%20%E9%9D%9E%E8%BF%9E%E7%BB%AD%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/" class="article-nav-link">
+      <a href="/2021/03/21/%E6%B8%85%E6%B8%85%E7%9A%84%E6%98%9F%E6%98%9F%E7%90%83%E7%BA%AA%E5%BD%95-1/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Operating System 4 -- 非连续内存分配</div>
+        <div class="article-nav-title">清清的星星球纪录-1</div>
       </a>
     
   </nav>
