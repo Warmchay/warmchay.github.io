@@ -145,6 +145,871 @@
     
     
     <article
+  id="post-九 同步"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/03/24/%E4%B9%9D%20%E5%90%8C%E6%AD%A5/"
+    >Operating System 9 -- 同步</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/24/%E4%B9%9D%20%E5%90%8C%E6%AD%A5/" class="article-date">
+  <time datetime="2021-03-24T09:31:58.599Z" itemprop="datePublished">2021-03-24</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="九-同步"><a href="#九-同步" class="headerlink" title="九 同步"></a>九 同步</h1><h2 id="9-1-背景"><a href="#9-1-背景" class="headerlink" title="9.1 背景"></a>9.1 背景</h2><ol>
+<li><strong>独立的线程</strong><ul>
+<li>不和其他线程共享资源或状态</li>
+<li><strong>确定性</strong> ==》输入状态决定结果</li>
+<li><strong>可重现</strong> ==》能够重现起始条件，I/O</li>
+<li>调度顺序不重要</li>
+</ul>
+</li>
+<li><strong>合作线程</strong><ul>
+<li>在多个线程中共享状态</li>
+<li>不确定性、不可重现</li>
+</ul>
+</li>
+<li><strong>不确定性</strong>和<strong>不可重现</strong>意味着bug可能是间歇性发生的</li>
+</ol>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324171031949.png" alt="image-20210324171031949" style="zoom:50%;">
+
+<p><strong>可能出现的问题</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324171243129.png" alt="image-20210324171243129" style="zoom:50%;">
+
+<p><strong>但是os要求</strong></p>
+<ol>
+<li>无论<strong>多个线程的指令序列怎样交替执行，程序都必须正常工作</strong></li>
+</ol>
+<ul>
+<li>多线程程序具有不确定性和不可重现的特点</li>
+<li>不经过专门设计，<strong>调试难度很高</strong></li>
+</ul>
+<ol start="2">
+<li><strong>不确定性要求并行程序的正确性</strong></li>
+</ol>
+<h2 id="9-2-一些概念"><a href="#9-2-一些概念" class="headerlink" title="9.2 一些概念"></a>9.2 一些概念</h2><p><strong>Race Condition【竞态条件】</strong></p>
+<ul>
+<li>系统缺陷：结果依赖于并发执行或者事件的顺序/时间</li>
+<li><strong>如何避免竞态呢？</strong> — 让指令不被打断</li>
+</ul>
+<p><strong>Atomic Operation【原子操作】</strong></p>
+<ul>
+<li><strong>原子操作是一次不存在任何中断或者失败的执行</strong><ul>
+<li>该执行成功结束|根本没有执行</li>
+<li>并且不存在部分执行的状态</li>
+</ul>
+</li>
+<li><strong>实际上操作往往不是原子的</strong><ul>
+<li>如<code>A++</code>由3条指令构成</li>
+<li>有时单条机器指令也不是原子的：<code>pipeline</code>、<code>super-scalar</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>Critical section【临界区】</strong></p>
+<p>临界区指进程中一段需要访问共享资源，而当另一个进程处于相应代码区域时不会被执行的代码区域</p>
+<p><strong>Mutual exclusion【互斥】</strong></p>
+<p>当一个进程处于临界区并访问共享资源时，没有其他进程会处于临界区并且访问任何相同的共享资源</p>
+<p><strong>Dead lock【死锁】</strong></p>
+<p>两个或以上的进程，在相互等待完成特定任务，而最终设法将自身任务进行下去</p>
+<p><strong>Starvation【饥饿】</strong></p>
+<p>一个可执行的进程，被调度器持续忽略，以至于<strong>虽然处于可执行状态而不被执行</strong></p>
+<p><strong>忙等待：</strong> 进程等待的时候，是在消耗CPU的时间，这个叫<code>busy waiting</code></p>
+<p>于是设置了<strong>临界区</strong>，在任何时候保证只有一个进程在执行，防止变量的出错，且这个一定是原子操作</p>
+<h2 id="9-3-临界区「Critical-Section」"><a href="#9-3-临界区「Critical-Section」" class="headerlink" title="9.3 临界区「Critical Section」"></a>9.3 临界区「Critical Section」</h2><p>临界区的特点有：</p>
+<ul>
+<li><p><strong>互斥：</strong> 同一时间临界区最多存在一个线程</p>
+</li>
+<li><p><strong>Progress：</strong> 如果一个线程想要进入临界区，那么它最终会成功</p>
+</li>
+<li><p><strong>有限等待：</strong> 如果一个线程i在入口区，那么在i的请求被接受之前，其他线程进入临界区的时间是有限制的</p>
+</li>
+<li><p><strong>无忙等待（可选）：</strong> 如果一个进程在等待进入临界区，那么在它可以进入之前会被挂起【避免了消耗CPU资源，减少忙等待】</p>
+</li>
+</ul>
+<p><strong>设计一些方法来对CPU资源进行保护！</strong></p>
+<h2 id="9-4-方法1-禁用硬件中断"><a href="#9-4-方法1-禁用硬件中断" class="headerlink" title="9.4 方法1: 禁用硬件中断"></a>9.4 方法1: 禁用硬件中断</h2><ol>
+<li><strong>进入和离开临界区的代码</strong><ul>
+<li><code>ENTER_CRITICAL_SECTION</code></li>
+<li><code>EXIT_CRITICAL_SECTION</code></li>
+</ul>
+</li>
+<li><strong>基本的机制</strong><ul>
+<li><strong>禁用中断</strong></li>
+<li>软件方法（如Peterson算法）</li>
+<li>更高级的抽象</li>
+</ul>
+</li>
+<li>比较不同的机制<ul>
+<li>性能：并发级别</li>
+</ul>
+</li>
+</ol>
+<p><strong>禁用中断存在的问题</strong></p>
+<ol>
+<li><strong>一旦中断被禁用，线程就无法被停止</strong><ul>
+<li>整个系统都会停下来</li>
+<li>可能导致其他线程处于<strong>饥饿状态</strong></li>
+</ul>
+</li>
+<li><strong>要是临界区可以任意长怎么办</strong><ul>
+<li>无法限制响应中断所需的时间</li>
+</ul>
+</li>
+<li>所以临界区一般不长，需要注意的是多CPU情况下，是无法解决互斥问题的</li>
+</ol>
+<h2 id="9-5-方法2-基于软件的解决方法"><a href="#9-5-方法2-基于软件的解决方法" class="headerlink" title="9.5 方法2: 基于软件的解决方法"></a>9.5 方法2: 基于软件的解决方法</h2><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324194130651.png" alt="image-20210324194130651" style="zoom:50%;">
+
+<p>有四类算法，最主要的是Peterson算法，举个Bakery算法的例子</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324195541528.png" alt="image-20210324195541528" style="zoom:50%;">
+
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324195611394.png" alt="image-20210324195611394" style="zoom:50%;">
+
+<h3 id="9-6-方法3：-更高级的抽象"><a href="#9-6-方法3：-更高级的抽象" class="headerlink" title="9.6 方法3： 更高级的抽象"></a>9.6 方法3： 更高级的抽象</h3><ol>
+<li><p><strong>硬件提供了一些原语</strong></p>
+<ul>
+<li>如中断禁用，原子操作指令等</li>
+</ul>
+</li>
+<li><p><strong>os提供更高级的编程抽象来简化并行编程</strong></p>
+<ul>
+<li><strong>如锁，信号量</strong>；从硬件原语中构建</li>
+</ul>
+</li>
+<li><p><strong>锁是一个抽象的数据结构</strong></p>
+<ul>
+<li>一个二进制状态【锁定/解锁】，两种方法</li>
+<li><code>Lock::Acquire()</code> - 锁被释放前一直等待，然后等待锁</li>
+<li><code>Lock::Release()</code> - 释放锁，唤醒任何等待的进程</li>
+</ul>
+</li>
+<li><p><strong>使用锁来编写临界区</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">lock_next_pid-&gt;Acquire();</span><br><span class="line">new_pid = next_pid++;</span><br><span class="line">lock_next_pid-&gt;Release();</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>大多数现代体系结构都提供特殊的原子操作指令</strong></p>
+<ul>
+<li>通过特殊的内存访问电路</li>
+<li>针对单处理器和多处理器</li>
+</ul>
+</li>
+<li><p><strong><code>Test-and-Set</code> 测试和置位</strong></p>
+<ul>
+<li>从内存中读取值</li>
+<li>测试该值是否为1（然后返回true/false）</li>
+<li>内存值设置为1</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324200740252.png" alt="image-20210324200740252" style="zoom:50%;">
+
+<blockquote>
+<p>rv记录寄存器里的值，然后将寄存器的值设为1，返回的是原来寄存器的值（0或1）</p>
+</blockquote>
+</li>
+<li><p><strong>交换「CAS」</strong></p>
+<p>交换内存中的两个值</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324200838108.png" alt="image-20210324200838108" style="zoom:50%;">
+
+</li>
+</ol>
+<p><strong>缺点：</strong></p>
+<ul>
+<li>忙等待消耗CPU时间</li>
+<li>当进程离开临界区并且多个进程在等待的时候可能导致饥饿</li>
+<li><strong>死锁：</strong> <strong>低优先级的进程拥有临界区</strong>并且一个高优先级进程也需求，那么高优先级进程会<strong>获得处理器并等待临界区</strong>。产生了死锁的现象</li>
+</ul>
+<p>总结一下～</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324201738602.png" alt="image-20210324201738602" style="zoom:50%;">
+
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
+  id="post-八 调度"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/03/24/%E5%85%AB%20%E8%B0%83%E5%BA%A6/"
+    >Operating System 8 -- 调度</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/24/%E5%85%AB%20%E8%B0%83%E5%BA%A6/" class="article-date">
+  <time datetime="2021-03-24T02:11:28.778Z" itemprop="datePublished">2021-03-24</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="八-调度"><a href="#八-调度" class="headerlink" title="八 调度"></a>八 调度</h1><h2 id="8-1-背景"><a href="#8-1-背景" class="headerlink" title="8.1 背景"></a>8.1 背景</h2><ol>
+<li><strong>上下文切换</strong><ol>
+<li>切换CPU的当前任务，从一个进程/线程到另一个</li>
+<li>保存当前进程/线程在PCB/TCP中的执行上下文（CPU状态）</li>
+<li>读取下一个进程/线程的上下文</li>
+</ol>
+</li>
+<li><strong>CPU调度</strong><ol>
+<li>从就绪队列中挑选一个进程/线程作为CPU将要运行的下一个进程/线程</li>
+<li>调度程序：挑选进程/线程的内核函数（通过一些调度策略）</li>
+</ol>
+</li>
+</ol>
+<p><strong>那么在进程/线程的生命周期中什么时候进行调度呢？</strong></p>
+<hr>
+<p><strong>内核运行调度程序的条件（满足一条即可）</strong></p>
+<ul>
+<li>一个进程从运行状态切换到等待状态</li>
+<li>一个进程被终止了</li>
+</ul>
+<p><strong>不可抢占式</strong>『non-preemptive』</p>
+<ul>
+<li>调度程序必须等待事件结束</li>
+</ul>
+<p><strong>可以抢占</strong>『preemptive』</p>
+<ul>
+<li>调度程序在中断被响应后执行</li>
+<li>当前的进程<strong>从运行切换到就绪</strong>，或者一个进程<strong>从等待切换到就绪</strong></li>
+<li>当前运行的进程可以被换出</li>
+</ul>
+<h2 id="8-2-调度原则"><a href="#8-2-调度原则" class="headerlink" title="8.2 调度原则"></a>8.2 调度原则</h2><h3 id="8-2-1-调度策略"><a href="#8-2-1-调度策略" class="headerlink" title="8.2.1 调度策略"></a>8.2.1 调度策略</h3><p>执行模型：程序在CPU突发和I/O中交替</p>
+<p><strong>评价指标：</strong></p>
+<ol>
+<li><strong>CPU使用率：</strong> cpu处于忙状态所占时间的百分比</li>
+<li><strong>吞吐量：</strong> 单位时间内<strong>完成的进程数量</strong></li>
+<li><strong>周转时间：</strong> 一个进程从初始化到结束，包括所有等待事件所花费的时间</li>
+<li><strong>等待时间：</strong> 进程在就绪队列中等待到running的总时间</li>
+<li><strong>响应时间：</strong> 从一个请求被提交到产生第一次响应所花费的时间</li>
+</ol>
+<p><strong>什么是“更快”的服务呢？</strong></p>
+<ul>
+<li>传输文件是的<strong>高带宽</strong></li>
+<li>玩游戏时的<strong>低延迟</strong></li>
+<li>这两个因素是独立的</li>
+</ul>
+<p><strong>和“水管”类比：</strong></p>
+<ul>
+<li><strong>低延迟：</strong> 喝水的时候想要一打开水龙头水就流出来</li>
+<li><strong>高带宽：</strong> 给游泳池充水时希望从水龙头里同时<strong>流出大量的水</strong>，并且不介意是否存在延迟</li>
+</ul>
+<p><strong>调度算法的提升指标</strong></p>
+<ul>
+<li><strong>减少响应时间：</strong> 及时处理用户的输出并且尽快将输出提供给用户</li>
+<li><strong>减少平均响应时间的变动：</strong> 在交互系统中，可预测性比<strong>高差异低平均</strong>更重要</li>
+<li><strong>增加吞吐量：</strong> 1⃣️减少开销（os开销，上下文切换）；2⃣️系统资源的高效利用（CPU、I/O设备）</li>
+<li><strong>减少等待时间：</strong> 减少每个进程的等待时间</li>
+</ul>
+<p><strong>指标提高的表现</strong></p>
+<ul>
+<li><p>低延迟调度增加了交互式表现【鼠标点的快！】</p>
+</li>
+<li><p>os需要<strong>保证吞吐量不受影响</strong></p>
+</li>
+<li><p>吞吐量是os的计算<strong>带宽</strong></p>
+</li>
+<li><p>响应时间是os的计算<strong>延迟</strong></p>
+</li>
+<li><p>还需要相对的<strong>公平</strong>，通过调度算法使每个进程享有相同的服务</p>
+</li>
+</ul>
+<h2 id="8-3-调度算法"><a href="#8-3-调度算法" class="headerlink" title="8.3 调度算法"></a>8.3 调度算法</h2><ol>
+<li><strong>FCFS「First Come First Served」【先来先服务】</strong></li>
+</ol>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324132140786.png" alt="image-20210324132140786" style="zoom:50%;">
+
+<ol start="2">
+<li><strong>SPN（SJF） SRT 【Shortest Job First】</strong></li>
+</ol>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324132513213.png" alt="image-20210324132513213" style="zoom:50%;">
+
+<blockquote>
+<p>SRT可以抢占正在运行的进程，比较的运行中进程的<strong>结束剩余时间</strong>和新进程的<strong>执行时间</strong></p>
+</blockquote>
+<p><strong>缺点</strong></p>
+<ol>
+<li>可能导致<strong>饥饿</strong><ul>
+<li>连续的短任务流会使长任务饥饿</li>
+<li>短任务可用时的任何长任务的CPU时间都会增加平均等待时间</li>
+</ul>
+</li>
+<li><strong>需要预知未来</strong><ul>
+<li>如何预估下一个CPU突发的持续时间</li>
+<li>简单的解决办法：询问用户</li>
+</ul>
+</li>
+</ol>
+<p>通过过去预知未来的算法：</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324133135071.png" alt="image-20210324133135071" style="zoom:50%;">
+
+<p>来猜测下一个进程的执行时间，实验数据：</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324133222742.png" alt="image-20210324133222742" style="zoom:50%;">
+
+<ol start="3">
+<li>最高响应比优先「HRN」</li>
+</ol>
+<ul>
+<li>在SPN调度的基础上改进</li>
+<li>不可抢占</li>
+<li>关注进程等待了多长时间</li>
+<li>防止无限期推迟</li>
+</ul>
+<p>$$<br>R = \frac{w+s}{s}<br>$$</p>
+<blockquote>
+<p>w: waiting time 等待时间。 s: service time 执行时间</p>
+</blockquote>
+<p>选择R值高的</p>
+<ol start="4">
+<li>轮询调度算法【<strong>RR Round Robin</strong>】</li>
+</ol>
+<ul>
+<li>在叫做量子（或时间切片）的离散单元中分配处理器</li>
+<li>时间片结束时，切换到下一个准备好的进程</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324133548510.png" alt="image-20210324133548510" style="zoom:50%;">
+
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324133758476.png" alt="image-20210324133758476" style="zoom:50%;">
+
+<p><strong>探究时间片大小的影响</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324133903614.png" alt="image-20210324133903614" style="zoom:50%;">
+
+<p><strong>再次改进：</strong></p>
+<ul>
+<li>就绪队列划分成独立的队列</li>
+</ul>
+<blockquote>
+<p>前台（交互）， 后台（批处理）</p>
+</blockquote>
+<ul>
+<li>每个队列有自己的调度策略</li>
+</ul>
+<blockquote>
+<p>如前台：RR，后台：FCFS</p>
+</blockquote>
+<ul>
+<li>调度必须在队列间进行<ol>
+<li><strong>固定优先级</strong><ul>
+<li>先处理前台，再处理后台</li>
+<li>可能导致饥饿</li>
+</ul>
+</li>
+<li><strong>时间切片</strong><ul>
+<li>每个队列都能得到一个确定的能够调度其进程的CPU总时间</li>
+<li>E.g. 80%给使用RR的前台，20%给使用FCFS的后台</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+<blockquote>
+<p>于是出现了多级反馈队列</p>
+</blockquote>
+<ol start="5">
+<li><strong>多级反馈队列</strong></li>
+</ol>
+<ul>
+<li>一个进程可以在不同的队列中移动</li>
+<li>如：n级优先级-优先级调度在所有级别中，RR在每个级别中</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324162554607.png" alt="image-20210324162554607" style="zoom:50%;">
+
+<ol start="6">
+<li><strong>FFS「Fair File Share」</strong></li>
+</ol>
+<ul>
+<li>一些用户组比其他用户组更重要</li>
+<li>保证不重要的组无法垄断资源</li>
+<li><strong>未使用的资源</strong>按照每个组所分配的资源的比例来分配</li>
+<li>没有达到资源使用率目标的组获得更高的优先级</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324162905916.png" alt="image-20210324162905916" style="zoom:50%;">
+
+<p><strong>如何评价模型？</strong></p>
+<ol>
+<li><strong>确定性建模：</strong> 确定一个工作量，然后计算每个算法的表现</li>
+<li><strong>队列模型：</strong> 用来处理<strong>随机工作负载</strong>的数学方法</li>
+<li><strong>实现/模拟：</strong> 建立一个允许算法运行实际数据的系统，需要很灵活/有一致性</li>
+</ol>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324163255535.png" alt="image-20210324163255535" style="zoom:50%;">
+
+<h2 id="8-4-实时调度"><a href="#8-4-实时调度" class="headerlink" title="8.4 实时调度"></a>8.4 实时调度</h2><h3 id="8-4-1-实时系统"><a href="#8-4-1-实时系统" class="headerlink" title="8.4.1 实时系统"></a>8.4.1 实时系统</h3><p><strong>定义：</strong> 正确性依赖于<strong>时间</strong>【real time】和<strong>功能</strong></p>
+<p><strong>性能指标：</strong> 1⃣️ 时间约束的及时性「ddl」；2⃣️ 速度和平均性能相对不重要</p>
+<p><strong>主要特性：</strong> 时间约束的可预测性</p>
+<p><strong>实时分类：</strong> 1⃣️ 硬实时「强实时」：保证规定时间内必须完成任务； 2⃣️ 要求重要的进程的优先级更高，尽量完成，并非必需</p>
+<p><strong>如何衡量进程在限定时间内可完成呢？</strong></p>
+<p>发起任务–「就绪」–&gt;执行–&gt;不能超过relative ddl的时间间隔</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324164247351.png" alt="image-20210324164247351" style="zoom:50%;">
+
+<hr>
+<ul>
+<li><p><strong>硬时限</strong></p>
+<ol>
+<li>如果错过了ddl，会有严重的后果</li>
+<li>必须验证在最坏的情况下也能满足时限【保证确定性】</li>
+</ol>
+</li>
+<li><p><strong>软时限</strong></p>
+<ol>
+<li>理想情况下，时限应该被最大满足，否则就相应地降低要求</li>
+<li>需要尽最大努力去保证</li>
+</ol>
+<p>设置优先级调度方法来满足ddl要求</p>
+</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324164724307.png" alt="image-20210324164724307" style="zoom:50%;">
+
+<blockquote>
+<p>静态：优先级提前设置好           动态：优先级可调整</p>
+</blockquote>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324164849527.png" alt="image-20210324164849527" style="zoom:50%;">
+
+<h2 id="8-5-多处理器调度与优先级反转"><a href="#8-5-多处理器调度与优先级反转" class="headerlink" title="8.5 多处理器调度与优先级反转"></a>8.5 多处理器调度与优先级反转</h2><h3 id="8-5-1-多处理器调度"><a href="#8-5-1-多处理器调度" class="headerlink" title="8.5.1 多处理器调度"></a>8.5.1 多处理器调度</h3><ol>
+<li>多处理器的CPU调度更加复杂<ul>
+<li>多个相同的单处理器组成一个多处理器</li>
+<li>优点：负载共享</li>
+</ul>
+</li>
+<li>对称多处理器<ul>
+<li>每个处理器运行自己的调度程序</li>
+<li>需要在<strong>调度程序中同步</strong></li>
+</ul>
+</li>
+</ol>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324165104306.png" alt="image-20210324165104306" style="zoom:50%;">
+
+<h3 id="8-5-2-优先级反转"><a href="#8-5-2-优先级反转" class="headerlink" title="8.5.2 优先级反转"></a>8.5.2 优先级反转</h3><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324165159392.png" alt="image-20210324165159392" style="zoom:50%;">
+
+<ul>
+<li><strong>优先级天花板：</strong> “资源”的优先级和“所有可以<strong>锁定该资源的任务中优先级最高的那个任务”的优先级相同</strong></li>
+<li>除非优先级高于系统中所有被锁定的资源的优先级上限，否则任务尝试执行临界区时会被阻塞</li>
+<li>持有<strong>最高优先级上限信号量锁</strong>的任务，会继承被该锁阻塞的任务的优先级</li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
+  id="post-七 进程管理"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/03/23/%E4%B8%83%20%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86/"
+    >Operating System 7 -- 进程管理</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/23/%E4%B8%83%20%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86/" class="article-date">
+  <time datetime="2021-03-23T05:38:52.386Z" itemprop="datePublished">2021-03-23</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="七-进程管理"><a href="#七-进程管理" class="headerlink" title="七 进程管理"></a>七 进程管理</h1><h2 id="7-1-进程「Process」描述"><a href="#7-1-进程「Process」描述" class="headerlink" title="7.1 进程「Process」描述"></a>7.1 进程「Process」描述</h2><h3 id="1-进程的定义"><a href="#1-进程的定义" class="headerlink" title="1. 进程的定义"></a>1. 进程的定义</h3><p>一个具有一定独立功能的程序在一个数据集合上的一次动态执行过程</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323132339312.png" alt="image-20210323132339312" style="zoom:50%;">
+
+<p>程序是静态的，操作系统使其动态运行起来</p>
+<h3 id="2-进程的组成"><a href="#2-进程的组成" class="headerlink" title="2. 进程的组成"></a>2. 进程的组成</h3><ul>
+<li>程序的代码</li>
+<li>程序的处理数据</li>
+<li>PC「Program Counter」中的值，只是下一条将要运行的指令</li>
+<li>一组通用寄存器的当前值，堆、栈</li>
+<li>一组系统资源（如打开的文件）</li>
+</ul>
+<blockquote>
+<p> 总之，进程包含<strong>了正在运行的一个程序的所有状态信息</strong></p>
+</blockquote>
+<p><strong>进程与程序的联系？</strong></p>
+<ul>
+<li>程序是产生进程的基础</li>
+<li>程序的每次运行构成不同的进程</li>
+<li>进程是程序功能的体现</li>
+<li>通过<strong>多次执行</strong>，<strong>一个程序可对应多个进程</strong>；通过调用关系，<strong>一个进程可包括多个程序</strong></li>
+</ul>
+<blockquote>
+<p> 程序是菜谱，进程是做菜</p>
+</blockquote>
+<p><strong>进程与程序的区别？</strong></p>
+<ul>
+<li>进程是<strong>动态</strong>的，程序是<strong>静态</strong>的；程序是有序代码的集合，进程是程序的执行，进程有核心态/用户态</li>
+<li>进程是暂时的，程序是永久的；进程是一个状态变化的过程，程序可长久保存</li>
+<li>进程与程序的组成不同：进程组成包括程序、数据和进程控制块（即进程状态信息）</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323133306236.png" alt="image-20210323133306236" style="zoom:50%;">
+
+<blockquote>
+<p>体现了进程的动态切换特性</p>
+</blockquote>
+<h3 id="3-进程的特点"><a href="#3-进程的特点" class="headerlink" title="3. 进程的特点"></a>3. 进程的特点</h3><ul>
+<li>动态性：动态创建、结束进程</li>
+<li>并发性：可以被独立调度并占用处理机运行：<strong>并发运行</strong></li>
+<li>独立性：不同进程的工作不相互影响</li>
+<li>制约性：因访问共享数据/资源或进程同步而产生制约</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323133620864.png" alt="image-20210323133620864" style="zoom:50%;">
+
+<blockquote>
+<p>a)动态性 b)相对独立性 c)调度策略–流水线</p>
+</blockquote>
+<p>描述进程的数据结构：进程控制块<strong>「PCB, Process Control Block」</strong></p>
+<h3 id="4-进程控制结构"><a href="#4-进程控制结构" class="headerlink" title="4. 进程控制结构"></a>4. 进程控制结构</h3><p><strong>进程控制块：</strong> 操作系统管理控制进程运行所用的信息集合，操作系统用PCB来描述进程的基本情况以及运行变化的过程</p>
+<p>PCB是进程存在的唯一标志，为对进程的唯一描述</p>
+<p><strong>使用PCB</strong></p>
+<ul>
+<li><strong>进程的创建：</strong> 为该进程生成一个PCB</li>
+<li><strong>进程的终止：</strong> 回收它的PCB</li>
+<li><strong>进程的组织管理：</strong> 通过对PCB的组织管理来实现</li>
+</ul>
+<p><strong>PCB的三大信息</strong></p>
+<ol>
+<li><p><strong>进程标识信息：</strong> 如本进程的标识，本进程的产生者标识（父进程标识）；用户标识</p>
+</li>
+<li><p><strong>处理机状态信息保存区。</strong> 保存进程的运行现场信息：</p>
+<ul>
+<li><strong>用户可见寄存器：</strong> 用户程序可以使用的<strong>数据，地址等寄存器</strong></li>
+<li><strong>控制和状态寄存器：</strong> 如程序计数器（PC），程序状态字（PSW）</li>
+<li><strong>栈指针：</strong> 过程调用/系统调用/中断处理和返回时需要用到它</li>
+</ul>
+</li>
+<li><p><strong>进程控制信息</strong></p>
+<ul>
+<li><strong>调度和状态信息：</strong> 用于调度进程并占用处理机使用</li>
+<li><strong>进程间通信信息：</strong> 来支持进程间的与通信相关的各种标识、信号、信件等，这些信息存在接收方的PCB中</li>
+<li><strong>存储管理信息：</strong> 包含有指向本进程印象存储空间的数据结构</li>
+<li><strong>进程所用资源：</strong> 说明由进程打开，使用的系统资源，如打开的文件等</li>
+<li><strong>有关数据结构连接信息：</strong> 进程可以连接到一个进程队列中，或<strong>连接到相关的其他进程的PCB</strong></li>
+</ul>
+</li>
+</ol>
+<p><strong>PCB的组织方式</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323193928336.png" alt="image-20210323193928336" style="zoom:50%;">
+
+<h2 id="7-2-进程状态「State」"><a href="#7-2-进程状态「State」" class="headerlink" title="7.2 进程状态「State」"></a>7.2 进程状态「State」</h2><h3 id="7-2-1-进程的生命期管理"><a href="#7-2-1-进程的生命期管理" class="headerlink" title="7.2.1 进程的生命期管理"></a>7.2.1 进程的生命期管理</h3><p>$$<br>创建\rightarrow 运行\rightarrow 等待\rightarrow 唤醒\rightarrow 结束<br>$$</p>
+<h4 id="lt-1-gt-创建"><a href="#lt-1-gt-创建" class="headerlink" title="&lt;1&gt; 创建"></a>&lt;1&gt; 创建</h4><p>引起进程创建的3个主要事件：</p>
+<ul>
+<li>系统初始化时；</li>
+<li>用户请求创建一个新进程；</li>
+<li>正在运行的进程执行了创建进程的系统调用</li>
+</ul>
+<h4 id="lt-2-gt-运行"><a href="#lt-2-gt-运行" class="headerlink" title="&lt;2&gt; 运行"></a>&lt;2&gt; 运行</h4><p>内核选择一个就绪的进程，让它占用处理机并执行</p>
+<h4 id="lt-3-gt-等待"><a href="#lt-3-gt-等待" class="headerlink" title="&lt;3&gt; 等待"></a>&lt;3&gt; 等待</h4><p>以下情况，进程等待（阻塞）：</p>
+<ol>
+<li>请求并等待系统服务</li>
+<li>启动某种操作，无法马上完成</li>
+<li>需要的数据没有到达</li>
+</ol>
+<p>进程只能自己阻塞自己，因为只有进程自身才知道何时需要等待某种事件的发生</p>
+<h4 id="lt-4-gt-唤醒"><a href="#lt-4-gt-唤醒" class="headerlink" title="&lt;4&gt; 唤醒"></a>&lt;4&gt; 唤醒</h4><blockquote>
+<p>被动状况：$waiting\rightarrow running$</p>
+</blockquote>
+<ol>
+<li>被阻塞进程需要的资源可被满足</li>
+<li>被阻塞进程等待的事件到达</li>
+<li>将该进程的PCB插入到就绪队列</li>
+</ol>
+<blockquote>
+<p>进程只能被别的进程或操作系统唤醒</p>
+</blockquote>
+<h4 id="lt-5-gt-结束"><a href="#lt-5-gt-结束" class="headerlink" title="&lt;5&gt; 结束"></a>&lt;5&gt; 结束</h4><ul>
+<li>正常退出【自愿】</li>
+<li>错误退出【自愿】</li>
+<li>致命错误【强制】</li>
+<li>被其他进程杀死【强制】</li>
+</ul>
+<h3 id="7-2-2-进程状态变化模型"><a href="#7-2-2-进程状态变化模型" class="headerlink" title="7.2.2 进程状态变化模型"></a>7.2.2 进程状态变化模型</h3><p><strong>进程的三种基本状态：</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323195056829.png" alt="image-20210323195056829" style="zoom:50%;">
+
+<p><strong>状态变化图：</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323195135244.png" alt="image-20210323195135244" style="zoom:50%;">
+
+<blockquote>
+<p>Ready为就绪状态的进程</p>
+</blockquote>
+<h3 id="7-2-3-进程挂起"><a href="#7-2-3-进程挂起" class="headerlink" title="7.2.3 进程挂起"></a>7.2.3 进程挂起</h3><blockquote>
+<p>来合理充分地利用系统资源</p>
+</blockquote>
+<p>进程在挂起状态时，意味着进程没有占用内存空间，处在挂起状态的进程映像在磁盘上</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323195630177.png" alt="image-20210323195630177" style="zoom:50%;">
+
+<p><strong>挂起状态：</strong></p>
+<ul>
+<li><p><strong>阻塞挂起状态（Blocked suspend）：</strong> 进程在外存并等待某事件的出现</p>
+</li>
+<li><p><strong>就绪挂起状态（Ready suspend）：</strong> 进程在外存，但只要进入内存，即可运行</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323195852296.png" alt="image-20210323195852296" style="zoom:50%;">
+
+</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323200052014.png" alt="image-20210323200052014" style="zoom:50%;">
+
+<p><font color="red"><strong>OS怎么通过PCB和定义的进程状态来管理PCB，帮助完成进程的调度过程？</strong></font></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323201256038.png" alt="image-20210323201256038" style="zoom:50%;">
+
+<p><strong>状态队列：</strong></p>
+<ul>
+<li>由os来维护<strong>一组队列</strong>，用来表示系统当中所有进程的当前状态</li>
+<li>不同的状态分别用不同的队列来表示（就绪队列、各种类型的阻塞队列）</li>
+<li>每个<strong>进程的PCB都根据他的状态</strong>加入到相应的队列当中，当一个进程的状态发生变化时，它的PCB从一个状态队列中脱离出来，加入到另外一个队列</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323202002300.png" alt="image-20210323202002300" style="zoom:50%;">
+
+<blockquote>
+<p>多个就绪队列体现了优先级</p>
+</blockquote>
+<h2 id="7-3-线程「Thread」"><a href="#7-3-线程「Thread」" class="headerlink" title="7.3 线程「Thread」"></a>7.3 线程「Thread」</h2><h3 id="7-3-1-线程-amp-进程"><a href="#7-3-1-线程-amp-进程" class="headerlink" title="7.3.1 线程 &amp; 进程"></a>7.3.1 线程 &amp; 进程</h3><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323202504735.png" alt="image-20210323202504735" style="zoom:50%;">
+$$
+Thread = Process- Shared \ Sources
+$$
+**线程优点：**
+
+<ul>
+<li>一个进程中可以同时存在多个线程</li>
+<li>各个线程之间可以并发执行</li>
+<li>各个线程之间可以共享地址空间和文件等资源</li>
+</ul>
+<p><strong>线程缺点：</strong></p>
+<ul>
+<li>一个线程崩溃，会导致其所属进程的所有线程崩溃</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323203250042.png" alt="image-20210323203250042" style="zoom:50%;">
+
+<p><strong>线程与进程的比较</strong></p>
+<ul>
+<li>进程是资源分配单位，线程是CPU调度单位</li>
+<li>进程拥有一个完整的资源平台，<strong>但是线程只独享必不可少的资源</strong>，如寄存器和栈</li>
+<li>线程同样具有就绪、阻塞和执行三种基本状态，同样具有状态之间的转换关系</li>
+<li>线程能减少并发执行的时间和空间开销<strong>【进程切换进行的页表开销十分大】</strong><ul>
+<li>线程的创建时间比进程短</li>
+<li>线程的终止时间比进程短</li>
+<li>同一进程内的线程切换时间比进程短</li>
+<li>由于同一进程的各线程间共享内存和文件资源，可直接进行不通过内核的通信</li>
+</ul>
+</li>
+</ul>
+<h3 id="7-3-2-线程的实现"><a href="#7-3-2-线程的实现" class="headerlink" title="7.3.2 线程的实现"></a>7.3.2 线程的实现</h3><p><strong>用户线程：</strong> 在用户空间实现【os看不见】</p>
+<p><strong>内核线程：</strong> 在内核中实现【由os管理】</p>
+<p><strong>轻量级进程：</strong> 在内核中实现，支持用户线程</p>
+<h4 id="lt-1-gt-用户线程与内核线程的对应关系"><a href="#lt-1-gt-用户线程与内核线程的对应关系" class="headerlink" title="&lt;1&gt; 用户线程与内核线程的对应关系"></a>&lt;1&gt; 用户线程与内核线程的对应关系</h4><blockquote>
+<p>有多对一，一对一，多对多。此刻举例为多对多：</p>
+</blockquote>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323204300913.png" alt="image-20210323204300913" style="zoom:50%;">
+
+<h4 id="lt-1-gt-用户线程"><a href="#lt-1-gt-用户线程" class="headerlink" title="&lt;1&gt; 用户线程"></a>&lt;1&gt; <strong>用户线程</strong></h4><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323205454265.png" alt="image-20210323205454265" style="zoom:50%;">
+
+<p>在用户空间实现的线程机制，它<strong>不依赖于os的内核</strong>，而是由一组<strong>用户级的线程库的函数</strong>来完成线程的管理，包括进程的创建、终止、同步和调度等</p>
+<ul>
+<li>因为用户线程的维护由相应进程来完成（通过线程库函数），不需要os内核了解用户线程的存在，可以用于不支持线程技术的多进程的os</li>
+<li>每个进程都需要它自己私有的<strong>线程控制块【TCB】</strong>列表，用来跟踪记录它各个线程的状态信息（PC、栈指针、寄存器），<strong>TCB由线程库函数来维护</strong></li>
+<li>用户线程的切换也是由线程库函数来完成，不需要用户态/核心态切换，所以速度特别快</li>
+<li>允许<strong>每个进程拥有自定义的线程调度算法</strong></li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li>如果一个线程发起系统调用而阻塞，则整个线程在等待</li>
+<li>因为当一个线程开始运行后，除非它<strong>主动交出CPU的使用权</strong>，否则他所在的进程当中的其他线程将无法运行</li>
+<li>由于时间片分配给进程，因此与其他进程比，在多线程执行时，每个线程得到的时间片较少，执行会较慢</li>
+</ul>
+<h4 id="lt-2-gt-内核线程"><a href="#lt-2-gt-内核线程" class="headerlink" title="&lt;2&gt; 内核线程"></a>&lt;2&gt; <strong>内核线程</strong></h4><p>指在<strong>os的内核</strong>当中实现的一种线程机制，由os的内核来完成线程的创建、终止和管理</p>
+<ul>
+<li>在支持内核线程的os中，由内核来维护进程和线程的上下文信息（PCB和TCB）</li>
+<li>线程的创建、终止和切换都是通过系统调用/内核函数的方式来运行，由内核来完成。<strong>因此系统开销较大</strong></li>
+<li>在一个进程当中，如果<strong>某个内核线程发起系统调用而被阻塞，并不会影响其他内核线程的运行</strong></li>
+<li>时间片分配给线程，<strong>多线程的进程获得更多CPU时间</strong></li>
+<li>Windows NT和Windows 2000/XP支持内核线程</li>
+</ul>
+<h4 id="lt-3-gt-轻量级进程「Lightweight-Process」"><a href="#lt-3-gt-轻量级进程「Lightweight-Process」" class="headerlink" title="&lt;3&gt; 轻量级进程「Lightweight Process」"></a>&lt;3&gt; 轻量级进程「Lightweight Process」</h4><blockquote>
+<p>又称<strong>【协程】</strong></p>
+</blockquote>
+<h2 id="7-4-进程间通信「Inter-Process-Communication」"><a href="#7-4-进程间通信「Inter-Process-Communication」" class="headerlink" title="7.4 进程间通信「Inter-Process Communication」"></a>7.4 进程间通信「Inter-Process Communication」</h2><h3 id="7-4-1-上下文切换"><a href="#7-4-1-上下文切换" class="headerlink" title="7.4.1 上下文切换"></a>7.4.1 上下文切换</h3><p>停止当前运行进程并且调度其他进程</p>
+<ul>
+<li>必须在切换之前存储许多部分的进程上下文</li>
+<li>必须能够在之后回复他们，所以进程不能显示它曾经被暂停过</li>
+<li>必须快速（上下文转换时非常频繁）</li>
+</ul>
+<p><strong>需要存储什么上下文？</strong></p>
+<ul>
+<li>寄存器（PC、SP，…）,CPU状态，…</li>
+<li>一些时候会比较费时，应当尽可能避免</li>
+</ul>
+<p>希望上下文开销越小越好</p>
+<ul>
+<li>操作系统为活跃进程准备了PCB</li>
+<li>操作系统将PCB放置在一个合适的队列里</li>
+</ul>
+<h3 id="7-4-2-创建和执行进程"><a href="#7-4-2-创建和执行进程" class="headerlink" title="7.4.2 创建和执行进程"></a>7.4.2 创建和执行进程</h3><ul>
+<li>用<code>fork</code>和<code>exec</code>创建进程的示例</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">int pid = fork();	//创建子进程</span><br><span class="line"><span class="keyword">if</span>(pid == 0)&#123;			//子进程在这里继续</span><br><span class="line">	<span class="built_in">exec</span>(<span class="string">&quot;program&quot;</span>, argc, argv0, argv1, ...)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><code>fork()</code>创建一个继承的子进程</p>
+<ul>
+<li>复制父进程的所有变量和内存</li>
+<li>复制父进程的所有CPU寄存器【有一个寄存器例外】</li>
+</ul>
+</li>
+<li><p><code>fork()</code>的返回值</p>
+<ul>
+<li><p>子进程的<code>fork()</code>返回0</p>
+</li>
+<li><p>父进程的<code>fork()</code>返回子进程标识符</p>
+</li>
+<li><p><code>fork()</code>返回值方便后续使用，子进程可以使用<code>getpid()</code>获取<strong>PID</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324085405144.png" alt="image-20210324085405144" style="zoom:50%;">
+
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>系统调用exec（）加载程序取代当前运行的进程</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324092555412.png" alt="image-20210324092555412" style="zoom:50%;">
+
+<p><strong><code>exec()</code>的作用</strong></p>
+<ul>
+<li>exec()调用允许一个进程“加载”一个不同的程序并且在main开始执行（事实上_start）</li>
+<li>它允许一个进程指定参数的数量（argc）和它字符串参数数组（argv）</li>
+<li>子进程fork()后exec()时会将<code>stack()&amp;heap()</code>重写</li>
+</ul>
+<p><strong>fork()的简单实现</strong></p>
+<ul>
+<li>分配内存给子进程</li>
+<li>复制父进程的内存和CPU寄存器到子进程中</li>
+<li><strong>开销非常大！</strong></li>
+</ul>
+<p><strong>99%情况中，在调用fork()之后调用exec()</strong></p>
+<ul>
+<li>但是fork()操作中<strong>内存复制</strong>是没有作用的</li>
+<li>子进程可能关闭打开的文件和链接</li>
+<li>开销因此是高的</li>
+</ul>
+<p><strong>改进：vfork</strong></p>
+<ul>
+<li>一个创建进程的系统调用，不需要创建一个同样的内存映像</li>
+<li>一些时候被称为轻量级fork()</li>
+<li>子进程几乎立即调用fork（）</li>
+<li>现在不再使用vfork()，而是改进使用COW【Copy on Write】<strong>「读时共享 写时复制」</strong>只复制了元数据【页表】</li>
+</ul>
+<h3 id="7-4-4-等待和终止进程"><a href="#7-4-4-等待和终止进程" class="headerlink" title="7.4.4 等待和终止进程"></a>7.4.4 等待和终止进程</h3><p>Wait()系统调用是被父进程用来等待子进程的结束</p>
+<ul>
+<li>子进程向父进程返回一个值，父进程必须接受这个值并处理</li>
+<li>wait()系统调用担任这个要求</li>
+</ul>
+<p>父进程配合子进程的exit()后回收所有子进程的资源，最初的进程<strong>【根进程】</strong>结束后直接关机</p>
+<ol>
+<li>进程结束执行后，调用exit()</li>
+<li>这个系统调用：<ul>
+<li>将程序的“结果”作为一个参数，关闭所有打开的文件、链接等</li>
+<li>释放内存，释放大部分支持进程的os结构</li>
+<li>检查父进程是否存活<ul>
+<li>如果存活，<strong>保留结果的值直到父进程需要它</strong>；在这种情况里，进程没有真正死亡，但是进入了僵尸状态（zombie/defunct）</li>
+<li>如果没有，释放所有的数据结构，这个进程死亡</li>
+</ul>
+</li>
+<li>进程终止是最终的垃圾收集【资源回收】</li>
+</ul>
+</li>
+</ol>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324094738784.png" alt="image-20210324094738784" style="zoom:50%;">
+
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-六 页面置换算法"
   class="article article-type-post"
   itemscope
@@ -1374,822 +2239,6 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-计算机系统基础--NJU/一 C语言程序举例"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/03/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80--NJU/%E4%B8%80%20C%E8%AF%AD%E8%A8%80%E7%A8%8B%E5%BA%8F%E4%B8%BE%E4%BE%8B/"
-    >计算机系统基础 1</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/03/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80--NJU/%E4%B8%80%20C%E8%AF%AD%E8%A8%80%E7%A8%8B%E5%BA%8F%E4%B8%BE%E4%BE%8B/" class="article-date">
-  <time datetime="2021-03-16T01:24:27.627Z" itemprop="datePublished">2021-03-16</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E5%8E%9F%E7%90%86/">计算机基础原理</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h1 id="一-C语言程序举例"><a href="#一-C语言程序举例" class="headerlink" title="一 C语言程序举例"></a>一 C语言程序举例</h1><h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><blockquote>
-<p><strong>① ISO C90标准，32位系统的程序运行：</strong></p>
-<ul>
-<li>-2147483648 &lt; 2147483648  <strong>False</strong></li>
-<li>i = -2147483648; 2147483648 &gt; i; <strong>True</strong></li>
-<li>-2147483648-1 &lt; 2147483648 <strong>True</strong></li>
-</ul>
-<p><strong>Why?如何理解呢？</strong></p>
-<ul>
-<li><strong>编译器如何处理字面量</strong></li>
-<li>高级语言中的运算规则</li>
-<li>高级语言与指令之间的对应</li>
-<li>机器指令的执行过程</li>
-<li>机器级数据的表示和运算</li>
-<li>…</li>
-</ul>
-<p><strong>② x, y都为int型，当x = 65535, y = x*x; y的值是多少？</strong></p>
-<ul>
-<li>y = -131071  <strong>WHY?</strong></li>
-</ul>
-<p><strong>③ x, y依旧为int型，对于(x&gt;y) == (-x &lt; -y)是否成立？</strong></p>
-<ul>
-<li><strong>False；</strong>当<code>x = -2147483648</code>时，y任意（除<code>-2147483648</code>）时都不成立  <strong>WHY？</strong></li>
-</ul>
-</blockquote>
-<p><strong>以上说明计算机的世界和现实世界是有一定差距滴~</strong></p>
-<h2 id="1-1-C举例"><a href="#1-1-C举例" class="headerlink" title="1.1 C举例"></a>1.1 C举例</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//----①----</span></span><br><span class="line"><span class="keyword">int</span> a = <span class="number">0x8000000</span>;</span><br><span class="line"><span class="keyword">int</span> b = a/<span class="number">-1</span>;</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;b = %d\n&quot;</span>, b);    </span><br><span class="line"><span class="comment">//运行结果：b = -2147483868</span></span><br><span class="line"><span class="comment">//----------------------</span></span><br><span class="line"><span class="comment">//----②----</span></span><br><span class="line"><span class="keyword">int</span> b = <span class="number">-1</span>;</span><br><span class="line"><span class="keyword">int</span> c = a/b;</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;c = %d\n&quot;</span>, c);</span><br><span class="line"><span class="comment">//报错 ---&gt; Floating Point Exception，CPU检测到了溢出异常</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>Rea：</strong></p>
-<ul>
-<li><strong>关于①</strong>：由于$\frac{a}{-1}$中，<code>-1</code>为常数，在这个过程中程序得知除以<code>-1</code>，其被优化成<strong>取负指令<code>neg</code><strong>，因此没有发生</strong>除法溢出</strong>【检测不到】【可以使用objdump反汇编编码来检测】</li>
-<li><strong>关于②</strong>：因为<code>a、b</code>都为变量，在进行运算时采用的是<strong>除法指令<code>IDIV</code><strong>实现，但它不生成</strong><code>OF</code>指令</strong>，那么是如何判断<strong>溢出异常</strong>的呢？</li>
-</ul>
-<blockquote>
-<p>这个实际上是<strong>“除法错”异常#DE（类型0）</strong>，在Linux中，对#DE类型发<strong>SIGFPE****信号</strong></p>
-</blockquote>
-<h2 id="1-2-什么是计算机系统"><a href="#1-2-什么是计算机系统" class="headerlink" title="1.2 什么是计算机系统"></a>1.2 什么是计算机系统</h2><blockquote>
-<p>将计算机系统分为两个部分，四类对象进行了解</p>
-</blockquote>
-<ul>
-<li><p><strong>软件</strong></p>
-<table>
-<thead>
-<tr>
-<th align="center">使用方式</th>
-<th align="center">操作对象</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center">应用（问题）</td>
-<td align="center">最终用户</td>
-</tr>
-<tr>
-<td align="center">算法</td>
-<td align="center">程序员</td>
-</tr>
-<tr>
-<td align="center">编程语言【数据的机器级表示、运算，过程的机器级语句和调用】</td>
-<td align="center">程序员</td>
-</tr>
-<tr>
-<td align="center">操作系统/虚拟机【<strong>编译和链接</strong>的部分内容】</td>
-<td align="center">程序员</td>
-</tr>
-</tbody></table>
-</li>
-<li><p><strong>软硬结合</strong></p>
-<table>
-<thead>
-<tr>
-<th align="center">使用方式</th>
-<th align="center">操作对象</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center">指令集体系结构（ISA）和汇编层【<strong>指令系统、机器代码、汇编语言</strong>】</td>
-<td align="center">架构师</td>
-</tr>
-</tbody></table>
-</li>
-<li><p><strong>硬件</strong></p>
-<table>
-<thead>
-<tr>
-<th align="center">使用方式</th>
-<th align="center">操作对象</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center">指令集体系结构（ISA）</td>
-<td align="center">架构师</td>
-</tr>
-<tr>
-<td align="center">微体系结构【CPU的通用结构及层次结构存储系统】</td>
-<td align="center">架构师</td>
-</tr>
-<tr>
-<td align="center">功能部件</td>
-<td align="center">架构师</td>
-</tr>
-<tr>
-<td align="center">电路</td>
-<td align="center">电子工程师</td>
-</tr>
-<tr>
-<td align="center">器件</td>
-<td align="center">电子工程师</td>
-</tr>
-</tbody></table>
-</li>
-<li><p>程序的执行结果依赖于这些所有的使用方式，要解决问题需要把所有层次连接起来</p>
-</li>
-</ul>
-<h2 id="1-3-冯·诺依曼思想"><a href="#1-3-冯·诺依曼思想" class="headerlink" title="1.3 冯·诺依曼思想"></a>1.3 冯·诺依曼思想</h2><blockquote>
-<p>第一台计算机咋来的咧~第一台存储计算机【EDSAC】</p>
-</blockquote>
-<p><img src="https://i.loli.net/2020/11/29/KmrEvB8qpn4Mteb.jpg" alt="冯·诺伊曼计算机结构.jpg"></p>
-<p><strong>重要思想：存储程序（Stroed-program）</strong></p>
-<p><strong>工作方式：</strong>将计算机要完成的工作编写成<strong>程序</strong>，然后将程序和原始数据送入<strong>主存</strong>并启动执行。一旦程序被启动，计算机能在不需操作人员的干预下，自动完成逐条取出指令和实现指令的任务</p>
-<blockquote>
-<p>现在基本上所有的通用计算机大都采用冯·诺伊曼结构</p>
-</blockquote>
-<h3 id="1-3-1-结构思想"><a href="#1-3-1-结构思想" class="headerlink" title="1.3.1 结构思想"></a>1.3.1 结构思想</h3><p>总结，冯·诺伊曼结构为：</p>
-<ul>
-<li>有<strong>主存</strong>，用来存放程序和数据</li>
-<li>有<strong>自动逐条取出指令</strong>的部件</li>
-<li>有<strong>具体执行指令（即运算）</strong>的部件</li>
-<li><strong>程序</strong>由指令构成</li>
-<li>指令描述如何对<strong>数据</strong>进行<strong>处理</strong></li>
-<li><strong>输入</strong>计算机的部件应该有<strong>程序和原始数据</strong></li>
-<li>需要有将<strong>运算结果输出</strong>计算机的部件</li>
-</ul>
-<p><img src="https://i.loli.net/2020/11/29/Dnb1vEWYGPZcCUX.jpg" alt="冯·诺伊曼结构应该是怎样的.jpg"></p>
-<h3 id="1-3-2-结构主要思想"><a href="#1-3-2-结构主要思想" class="headerlink" title="1.3.2 结构主要思想"></a>1.3.2 结构主要思想</h3><ol>
-<li><p><strong>计算机组成部分</strong></p>
-<table>
-<thead>
-<tr>
-<th align="center">1</th>
-<th align="center">2</th>
-<th align="center">3</th>
-<th align="center">4</th>
-<th align="center">5</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center">运算器</td>
-<td align="center">控制器</td>
-<td align="center">存储器</td>
-<td align="center">输入设备</td>
-<td align="center">输出设备</td>
-</tr>
-</tbody></table>
-</li>
-<li><p><strong>基础部件功能</strong></p>
-<table>
-<thead>
-<tr>
-<th align="center">部件</th>
-<th align="center">功能</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center"><strong>存储器</strong></td>
-<td align="center">能存放<strong>数据</strong>和<strong>指令</strong>【形式上都为<code>0-1</code>序列】，且计算机能分辨出来</td>
-</tr>
-<tr>
-<td align="center"><strong>控制器</strong></td>
-<td align="center">能自动取出<strong>指令</strong>来执行</td>
-</tr>
-<tr>
-<td align="center"><strong>运算器</strong></td>
-<td align="center">应能进行四则运算，和一些逻辑运算及附加运算</td>
-</tr>
-<tr>
-<td align="center"><strong>输入、输出设备</strong></td>
-<td align="center">操作人员能通过<strong>输入、输出设备</strong>与<strong>主机</strong>通信</td>
-</tr>
-</tbody></table>
-</li>
-<li><p>内部以<strong>二进制</strong>表示指令和数据</p>
-<p>每条指令码由<strong>操作码和地址码</strong>构成【<code>0-1</code>序列】。<strong>操作码</strong>指出操作类型，<strong>地址码</strong>指出操作数的地址。可以看出，程序由一串指令组成</p>
-</li>
-<li><p>采用“<strong>存储程序</strong>”的工作方式</p>
-</li>
-</ol>
-<h2 id="1-4-现代计算机结构模型"><a href="#1-4-现代计算机结构模型" class="headerlink" title="1.4 现代计算机结构模型"></a>1.4 现代计算机结构模型</h2><blockquote>
-<p>基本概念：</p>
-<p><strong>CPU：</strong>Computer Processing Unit【算术处理单元】</p>
-<p><strong>MAR：</strong>Memory Address Register【存储器地址寄存器】</p>
-<p><strong>MDR：</strong>Memory Data Register【存储器数据寄存器】</p>
-<p><strong>ALU：</strong>Arithmetic Logic Unit    【算术逻辑单元】</p>
-<p><strong>IR：</strong>Instructor Register            【指令寄存器】</p>
-<p><strong>PC：</strong>Program Counter             【程序计数器】【CPU中的寄存器】</p>
-</blockquote>
-<p><img src="https://i.loli.net/2020/11/29/vcoClrzT4maZ2Vx.jpg" alt="现代计算机结构.jpg"></p>
-<h3 id="1-4-1-现实举例"><a href="#1-4-1-现实举例" class="headerlink" title="1.4.1 现实举例"></a>1.4.1 现实举例</h3><p><strong>可以把这个比为现实的饭店/工厂</strong>。举个栗子：妈妈做菜</p>
-<p>关于这个过程，我们可以把各部分作为：</p>
-<table>
-<thead>
-<tr>
-<th align="center">做菜工具</th>
-<th align="center">计算机结构</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center">厨房</td>
-<td align="center">CPU</td>
-</tr>
-<tr>
-<td align="center">妈妈</td>
-<td align="center">控制器【拿到菜单开始做菜】</td>
-</tr>
-<tr>
-<td align="center">盘子</td>
-<td align="center">GPRs【通用寄存器集群】</td>
-</tr>
-<tr>
-<td align="center">锅灶</td>
-<td align="center">ALU</td>
-</tr>
-<tr>
-<td align="center">架子</td>
-<td align="center">存储器</td>
-</tr>
-</tbody></table>
-<p><strong>那么计算机是如何工作的呢？</strong></p>
-<ul>
-<li><p><strong>做菜前</strong></p>
-<p>原材料【<strong>数据</strong>】和菜谱【<strong>指令</strong>】<strong>按序</strong>放在厨房外的架子上【<strong>存储器</strong>】，且每个架子上有编号【<strong>存储单元地址</strong>】；</p>
-<p>菜谱上的信息有：原料位置、做法、做好的菜放在那里等</p>
-<p>例如：将10、11号架子上的原料放在一起炒，并装入3号盘，然后，你告诉妈妈从第5个架子（<strong>起始PC=5</strong>）指定菜谱开始做</p>
-</li>
-<li><p><strong>开始做菜</strong></p>
-<ul>
-<li><strong>Step 1：</strong>从5号架上取菜谱【<strong>根据PC取指令</strong>】</li>
-<li><strong>Step 2：</strong>看菜谱【<strong>指令译码</strong>】</li>
-<li><strong>Step 3：</strong>从架子上或盘子上取原材料【<strong>取操作数</strong>】</li>
-<li><strong>Step 4：</strong>洗、切、炒等具体操作【<strong>指令执行</strong>】</li>
-<li><strong>Step 5：</strong>装盘或直接送到桌子上【<strong>回写结果</strong>】</li>
-<li><strong>Step 6：</strong>算出下一菜谱所在的架子<code>5+1=6</code>【<strong>修改PC的值</strong>】</li>
-</ul>
-</li>
-<li><p>按步继续执行指令【类似<strong>存储程序</strong>的方式】</p>
-</li>
-</ul>
-<h3 id="1-4-2-计算机工作方式"><a href="#1-4-2-计算机工作方式" class="headerlink" title="1.4.2 计算机工作方式"></a>1.4.2 计算机工作方式</h3><p><strong>由妈妈做菜，我们得到计算机的工作方式：</strong></p>
-<blockquote>
-<p>首先，明确程序是由指令构成的【菜单由菜谱构成】</p>
-</blockquote>
-<ul>
-<li><p><strong>程序在执行前</strong></p>
-<p><strong>数据</strong>和<strong>指令</strong>事先被放在<strong>存储器</strong>中，每条指令和每个数据都有地址，指令<strong>按序</strong>排放，指令由<strong>OP</strong>和<strong>ADDR字段</strong>组成，程序起始的位置置<strong>PC</strong></p>
-<blockquote>
-<p>原料和菜谱都放在了架子上，每个架子有编号。妈妈从5号架子上拿到制定菜谱开始做菜。</p>
-</blockquote>
-</li>
-<li><p><strong>开始执行程序</strong></p>
-<ul>
-<li><strong>Step 1：</strong>根据PC取指令【从5号架上拿菜谱】</li>
-<li><strong>Step 2：</strong>指令译码【看菜谱】</li>
-<li><strong>Step 3：</strong>取操作数【从架上或盘上取原材料】</li>
-<li><strong>Step 4：</strong>指令执行【洗、切、炒等具体操作】</li>
-<li><strong>Step 5：</strong>回写结果【装盘或直接送桌】</li>
-<li><strong>Step 6：</strong>修改PC的值【算出下一菜谱所在架子号<code>5+1=6</code>】</li>
-<li><strong>While(执行下一条指令)</strong></li>
-</ul>
-</li>
-</ul>
-<h3 id="1-4-3-指令和数据"><a href="#1-4-3-指令和数据" class="headerlink" title="1.4.3 指令和数据"></a>1.4.3 指令和数据</h3><ul>
-<li><strong>程序启动前：</strong>指令和数据都放在<strong>存储器</strong>中，形式上没有差别，都是<code>0-1</code>序列</li>
-<li>采用<strong>存储结构</strong>工作方式<ul>
-<li>程序由指令组成，程序被启动后，计算机能自动取出一条又一条的指令执行，而在执行的过程中无需他人干预。</li>
-</ul>
-</li>
-</ul>
-<p><strong>指令中需给出的信息：</strong></p>
-<ul>
-<li><strong>操作性质</strong>【操作码】</li>
-<li><strong>源操作数1</strong><code>或/和</code><strong>源操作数2</strong>（立即数、寄存器编号，<strong>存储地址</strong>）<ul>
-<li>单目1个操作数，双目2个操作数</li>
-</ul>
-</li>
-<li><strong>目的操作数地址</strong>【寄存器编号、存储地址】</li>
-<li>存储地址的描述与<strong>操作数的数据结构</strong>有关</li>
-</ul>
-<h2 id="1-5-机器语言到高级编程语言"><a href="#1-5-机器语言到高级编程语言" class="headerlink" title="1.5 机器语言到高级编程语言"></a>1.5 机器语言到高级编程语言</h2><h3 id="1-5-1-机器语言"><a href="#1-5-1-机器语言" class="headerlink" title="1.5.1 机器语言"></a>1.5.1 机器语言</h3><blockquote>
-<p><strong>用机器语言编写程序【0/1序列】</strong>，并记录在纸带或者卡片上</p>
-</blockquote>
-<p>一般为：【举例0010-jc】</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">0:0101 0110			//前面为操作数 后面为地址数</span><br><span class="line">1:0010 0100</span><br><span class="line">2:......</span><br><span class="line">3:......</span><br><span class="line">4:0110 0111</span><br><span class="line">5:......</span><br><span class="line">6:......</span><br></pre></td></tr></table></figure>
-
-<p><strong>问题：</strong></p>
-<p>​    如果在第4条指令前加入指令，则需要<strong>重新计算地址码</strong>【如jxx的目标地址】，然后重新打孔。十分不灵活，且阅读、书写困难。</p>
-<p>​    这样太麻烦了，怎么改进咧？</p>
-<h3 id="1-5-2-汇编语言"><a href="#1-5-2-汇编语言" class="headerlink" title="1.5.2 汇编语言"></a>1.5.2 汇编语言</h3><blockquote>
-<p>用<strong>符号</strong>表示跳转位置和变量位置</p>
-</blockquote>
-<p>举个栗子：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">add B</span><br><span class="line">jc L0</span><br><span class="line">......</span><br><span class="line">......</span><br><span class="line">L0:sub C</span><br><span class="line">B:......</span><br><span class="line">C:......</span><br></pre></td></tr></table></figure>
-
-<p>可以看到，<strong>在第4条指令前加指令时不用改变<code>add</code>、<code>jxx</code>和<code>sub</code>指令中的地址码</strong></p>
-<p><strong>简单总结下汇编语言的特点：</strong></p>
-<ul>
-<li>用<strong>助记符</strong>来表示操作符：<code>add</code></li>
-<li>用<strong>标号</strong>表示位置：<code>B</code></li>
-<li>用助记符表示寄存器</li>
-<li>….</li>
-</ul>
-<p><strong>汇编语言体现的优点是：</strong></p>
-<ul>
-<li>不用因为增减指令而去修改其他指令</li>
-<li>不需要用记忆指令编码，编写方便</li>
-<li>可读性比机器语言强</li>
-</ul>
-<p>带来的新的问题：</p>
-<ul>
-<li>人容易理解，机器就不一定容易理解了~</li>
-</ul>
-<p>因此之后还需要用到汇编程序，<strong>将汇编语言转换为机器语言</strong></p>
-<h3 id="1-5-3-指令所描述的功能"><a href="#1-5-3-指令所描述的功能" class="headerlink" title="1.5.3 指令所描述的功能"></a>1.5.3 指令所描述的功能</h3><blockquote>
-<p>以“妈妈做菜”为例.</p>
-</blockquote>
-<ul>
-<li><pre><code class="bash">Ld M#,R# (将存储单元内容装入寄存器)【Ld == Lord  装入】
-St R#,M# (将寄存器内容装入存储单元)【St == Store 存储】
-Add R#,M#(类似的还有Sub、Mul等)
-Jxx M#   (若满足条件，转移到另一处执行)
-</code></pre>
-<p><img src="https://i.loli.net/2020/11/29/OloWyK5mt17CNQR.jpg" alt="指令描述的功能.jpg"></p>
-</li>
-<li><p>汇编语言（源）程序由<strong>汇编指令</strong>构成</p>
-</li>
-<li><p>一句话描述<strong>什么是汇编指令</strong></p>
-<ul>
-<li>用<strong>助记符</strong>和<strong>标号</strong>来表示的指令（与机器指令一一对应）</li>
-</ul>
-</li>
-<li><p><strong>指令</strong>又是什么呢</p>
-<ul>
-<li><p>包含<strong>操作数</strong>和操作数或其<strong>地址码</strong></p>
-<blockquote>
-<p><strong>机器指令</strong>用二进制表示，<strong>汇编指令</strong>用符号表示</p>
-</blockquote>
-</li>
-<li><p>只能描述：取（或存一个数）；两个数加（或减、乘、除、与、或等）；根据运算结果判断是否转移执行</p>
-</li>
-</ul>
-</li>
-<li><p>如果用<strong>汇编语言</strong>编写复杂程序是什么样的呢？【如实现<code>sort</code>或者矩阵相乘】</p>
-<ul>
-<li>需要描述的细节会十分多，程序会十分长，并且在<strong>不同结构</strong>的机器上不同的汇编编写的程序是不能运行的</li>
-</ul>
-</li>
-</ul>
-<blockquote>
-<p>因为<strong>机器语言</strong>和<strong>汇编语言</strong>都是面向机器结构的语言，故统称它们为<strong>机器级语言</strong></p>
-</blockquote>
-<p>​    </p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-汉诺塔，快排与数组内逆序"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/03/16/%E6%B1%89%E8%AF%BA%E5%A1%94%EF%BC%8C%E5%BF%AB%E6%8E%92%E4%B8%8E%E6%95%B0%E7%BB%84%E5%86%85%E9%80%86%E5%BA%8F/"
-    >学习记录--汉诺塔，快排与数组内逆序</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/03/16/%E6%B1%89%E8%AF%BA%E5%A1%94%EF%BC%8C%E5%BF%AB%E6%8E%92%E4%B8%8E%E6%95%B0%E7%BB%84%E5%86%85%E9%80%86%E5%BA%8F/" class="article-date">
-  <time datetime="2021-03-16T01:24:27.626Z" itemprop="datePublished">2021-03-16</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%E4%BB%AA/">学习记录仪</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h1 id="一-汉诺塔问题"><a href="#一-汉诺塔问题" class="headerlink" title="一 汉诺塔问题"></a>一 汉诺塔问题</h1><blockquote>
-<p>这里没有用指针，之后再更新指针部分      —11.15</p>
-</blockquote>
-<p>汉诺塔问题一直困扰了我比较久，总结的规律是，递归方式重点在于分为<strong>初始柱【A】、中转柱【B】及目标柱【C】</strong></p>
-<p>那么问题其实就在于它的这个过程要怎么转了，一般过程都是最上面的一个整体（以64个圆盘为例，则把最上方的63块看为整体）<code>A-&gt;C-&gt;B</code><strong>【此时中转柱为C】</strong>而后把最后一个大圆盘<code>A-&gt;C</code><strong>【这里不需要中转柱】</strong>，再接着，以A为中转柱，将B上的圆盘全部转移到C上，即<code>B-&gt;A-&gt;C</code></p>
-<blockquote>
-<p>注意：以上A、B、C柱子是时刻发生变化的，因为这中间圆盘是一个一个取得，则每次这三类柱子得顺序都会发生变化。但如果从宏观上来看，就是三根柱子得大变化。所以，考场上懵的话想想宏观就能很快敲出来了。</p>
-</blockquote>
-<p>核心算法为：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">move</span><span class="params">(<span class="keyword">int</span> n, <span class="keyword">char</span> a, <span class="keyword">char</span> b, <span class="keyword">char</span> c)</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(n == <span class="number">1</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%c --&gt; %c\n&quot;</span>, a, c);					<span class="comment">//若只剩下一个了，直接转移就行啦</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    move(n<span class="number">-1</span>, a, c, b);									<span class="comment">//此时初始柱为a（不一定是A）						</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%c --&gt; %c\n&quot;</span>, a, c);</span><br><span class="line">    move(n<span class="number">-1</span>, b, a, c);									<span class="comment">//此时初试柱为b（不一定是B）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><strong>注意：</strong>在输出的时候，输出的是a，c柱，是当时得初始柱和目标柱，不是A和C柱嗷嗷</p>
-</blockquote>
-<h1 id="二-快速排序"><a href="#二-快速排序" class="headerlink" title="二 快速排序"></a>二 快速排序</h1><blockquote>
-<p>是一道关于分配牛奶得问题，其实用sort直接就出来了，但是因为一直不会快排，内心虚，就学习了下快排怎么写，发现这个分治法有点意思</p>
-</blockquote>
-<p>因为一开始看快排很容易懵，那么怎么理解会更快呢，把分治法称为<strong>“挖坑填数+分治”</strong>就快啦~</p>
-<h2 id="2-1-基本概念"><a href="#2-1-基本概念" class="headerlink" title="2.1 基本概念"></a>2.1 基本概念</h2><p>总的来说就是，先找到一个基准点<code>通常为最左边s[l],或者最右边s[r]</code>，如果选取最左边<code>s[l]</code>为基准点，那么最先比较的则是最右端<code>s[r]</code>，如果比<code>s[l]</code>大，则跳到下一个<code>s[--r]</code>，若比它小，则<code>s[r]</code>填补<code>s[l]</code>的坑位，然后<code>++i</code>，将右边的坑位与左边的坑位再进行比较；知道<code>i == j</code>为止</p>
-<h2 id="2-2-挖坑填数"><a href="#2-2-挖坑填数" class="headerlink" title="2.2 挖坑填数"></a>2.2 挖坑填数</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">change_loc</span><span class="params">(<span class="keyword">int</span> s[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(l &lt; r)&#123;</span><br><span class="line">        <span class="keyword">int</span> x = s[l], i = l, j = r;</span><br><span class="line">        <span class="comment">/*先右端*/</span></span><br><span class="line">        <span class="keyword">while</span>(i &lt; j &amp;&amp; s[j] &gt;= x)&#123;          <span class="comment">//注意这个i&lt;j，容易漏，如果减过头了就麻烦了</span></span><br><span class="line">            --j;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(i &lt; j)&#123;                          <span class="comment">//有可能i=j，所以还要加判断</span></span><br><span class="line">            s[i] = s[j];                    <span class="comment">//填数</span></span><br><span class="line">            ++i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">/*再左端*/</span></span><br><span class="line">        <span class="keyword">while</span>(i &lt; j &amp;&amp; s[i] &lt;= x)&#123;</span><br><span class="line">            ++i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(i &lt; j)&#123;</span><br><span class="line">            s[j] = s[i];</span><br><span class="line">            --j;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    s[i] = x;                               <span class="comment">//当i=j时，填补完毕，可以退出来了</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> i;                               <span class="comment">//返回此时中间点得位置，便于i的左端和右端继续排序</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-3-分治"><a href="#2-3-分治" class="headerlink" title="2.3 分治"></a>2.3 分治</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(<span class="keyword">int</span> s[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(l &lt; r)&#123;</span><br><span class="line">    	<span class="keyword">int</span> i = quick_sort(s, l, r);		<span class="comment">//找到中间点</span></span><br><span class="line">	    quick_sort(s, l, i<span class="number">-1</span>);				<span class="comment">//先左端</span></span><br><span class="line">    	quick_sort(s, i+<span class="number">1</span>, r);				<span class="comment">//再右端</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-4-总结"><a href="#2-4-总结" class="headerlink" title="2.4 总结"></a>2.4 总结</h2><blockquote>
-<p>如果分两个函数来写不够简洁，将<strong>挖坑填数与分治</strong>总结写成：</p>
-</blockquote>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(<span class="keyword">int</span> s[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(l &lt; r)&#123;</span><br><span class="line">        <span class="keyword">int</span> x = s[l], i = l, j = r;</span><br><span class="line">        <span class="keyword">while</span>(i&lt;j)&#123;</span><br><span class="line">            <span class="comment">/*先让左边与右边比较*/</span></span><br><span class="line">            <span class="keyword">while</span>(i&lt;j &amp;&amp; s[j] &gt;= x)&#123;</span><br><span class="line">                --j;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(i &lt; j)&#123;</span><br><span class="line">                s[i++] = s[j];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">while</span>(i&lt;j &amp;&amp; s[i] &lt;= x)&#123;</span><br><span class="line">                ++i;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(i &lt; j)&#123;</span><br><span class="line">                s[j--] = s[i];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        s[i] = x;</span><br><span class="line">        quick_sort(s, l, i<span class="number">-1</span>);</span><br><span class="line">        quick_sort(s, i+<span class="number">1</span>, r);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-5-补充说明–结构体"><a href="#2-5-补充说明–结构体" class="headerlink" title="2.5 补充说明–结构体"></a>2.5 补充说明–结构体</h2><blockquote>
-<p>这里我是用来比较结构体的，但是遇到的问题就是怎么传结构体进去，后面发现了我的定性思维的问题</p>
-</blockquote>
-<p>我在定义结构体时是这么定义的：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">	<span class="keyword">int</span> price;</span><br><span class="line">    <span class="keyword">int</span> num;</span><br><span class="line">&#125;Cow[MAX];</span><br></pre></td></tr></table></figure>
-
-<p>这里问题出在我怎么把一个结构体数组传进去进行比较呢，但这样定义结构体没有普遍性，总的来说就是限制的太死了，换成这样定义就好多了</p>
-<p><strong>改进：</strong></p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">    <span class="keyword">int</span> price;</span><br><span class="line">    <span class="keyword">int</span> num;</span><br><span class="line">&#125;Cow;</span><br><span class="line">Cow cow[MAX];</span><br></pre></td></tr></table></figure>
-
-<p>而后在比较时我传值就可以这样</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(Cow c[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p>在进行比较时，设置中间变量进行交换时，我就可以把x定义为<code>Cow x = c[l]</code>;这样就不会限制的那么死了。</p>
-<p>灵感来源于看别人进行sort排序时传进去的是</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sort(cow, cow+m, cmp);			<span class="comment">//其中cow为数组首地址，m为长度，cmp为比较函数</span></span><br></pre></td></tr></table></figure>
-
-<p>然后发现原版的sort可以传结构体数组的话，说明就是我的问题了，后面我就按照结构体来定义了，而不是结构体数组。</p>
-<h1 id="三-数组内逆序"><a href="#三-数组内逆序" class="headerlink" title="三 数组内逆序"></a>三 数组内逆序</h1><p>今天卡到的竟然是数组内逆序，我卡了20多分钟，然后用了一种我从没有用过的方法orz…</p>
-<p>具体是这样的，我还是定义为<code>l、r</code>，但是改为了</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*设数组定义为ElemType a[MAX]*/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">change_loc</span><span class="params">(ElemType a[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line"> 	<span class="keyword">if</span>(l&lt;r)&#123;									<span class="comment">/*这个判断容易忘记！*/</span></span><br><span class="line">    	<span class="keyword">while</span>(l&lt;r)&#123;</span><br><span class="line">			ElemType tmp = a[l];</span><br><span class="line">    		a[l] = a[r];</span><br><span class="line">    		a[r] = tmp;</span><br><span class="line">    		l++; r--;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>我觉得这样挺好orz..</p>
-</blockquote>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8E%92%E5%BA%8F/" rel="tag">排序</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-比特币是什么"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/03/16/%E6%AF%94%E7%89%B9%E5%B8%81%E6%98%AF%E4%BB%80%E4%B9%88/"
-    >比特币与区块链</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/03/16/%E6%AF%94%E7%89%B9%E5%B8%81%E6%98%AF%E4%BB%80%E4%B9%88/" class="article-date">
-  <time datetime="2021-03-16T01:24:27.626Z" itemprop="datePublished">2021-03-16</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/">区块链</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h1 id="比特币是什么"><a href="#比特币是什么" class="headerlink" title="比特币是什么"></a>比特币是什么</h1><h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><blockquote>
-<p> 比特币与区块链的关系十分密切，那么解释区块链前，先来介绍下比特币是什么</p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th align="center">大纲</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center"><strong>1.比特币简介</strong></td>
-</tr>
-<tr>
-<td align="center">2.比特币与支付宝</td>
-</tr>
-<tr>
-<td align="center"><strong>3.比特币的运作与发行</strong></td>
-</tr>
-<tr>
-<td align="center"><strong>4.比特币的数字签名与安全问题</strong></td>
-</tr>
-<tr>
-<td align="center">5.比特币的分叉与演变</td>
-</tr>
-</tbody></table>
-<h2 id="一-比特币简介"><a href="#一-比特币简介" class="headerlink" title="一 比特币简介"></a>一 比特币简介</h2><h3 id="1-1-比特币是什么？"><a href="#1-1-比特币是什么？" class="headerlink" title="1.1 比特币是什么？"></a>1.1 比特币是什么？</h3><ul>
-<li><strong>起源【2008.11.1】</strong>：中本聪【至今未知身份】发表论文—-《比特币：一种点对点的电子现金系统》（也称为比特币白皮书），此时中本聪开发出了比特币系统的程序代码并进行了开源共享</li>
-<li><strong>第一个区块【2009.1.3】：</strong>由中本聪挖出，并延续至今</li>
-<li><strong>涉及原理：</strong>加密技术、分布式账本、智能合约、共识机制、防伪防篡改、<strong>去中心化</strong>等技术和思想，统称为<strong>区块链技术</strong>，在金融、物联网、保险及公益等领域有十分大的应用前景</li>
-<li><strong>白皮书介绍：</strong> <strong>比特币</strong>并不是纸币或者金币银币那样独立的个体，它是一套<strong>电子现金系统</strong>，与支付宝由一定的类似之处，比特币存在于网络上，能够不经过任何中心机构就能够完成全球转账。<strong>比特币也不是一个一个使用的，它的最小单位为“聪”，一个比特币等于一亿聪</strong>，同时比特币的发行、支付、验证，其自成一系，与法币并无联系。</li>
-</ul>
-<h3 id="1-2-比特币的特点"><a href="#1-2-比特币的特点" class="headerlink" title="1.2 比特币的特点"></a>1.2 比特币的特点</h3><ul>
-<li>总量有限，无国界，无发行中心，无管理中心，遍布全球，自由流通的全新货币</li>
-<li>更确切地说，比特币是一套在<strong>全球范围内运行的程序</strong>，是许多份<strong>遍布全球并且又完全一致的账本</strong>，是<strong>一个价值传输网络</strong>，对于货币、金融、互联网及人类组织形式都产生了颠覆性的影响。</li>
-</ul>
-<h3 id="1-3-比特币的影响"><a href="#1-3-比特币的影响" class="headerlink" title="1.3 比特币的影响"></a>1.3 比特币的影响</h3><ol>
-<li>货币不再由少数人掌控的权力机构操纵发行</li>
-<li>任何人都能够用一串符号或者单词来保存财富，抵御通胀，并且能够在全世界范围内使用</li>
-<li>价值能够在全世界自由联通，加强了全球人民间的经济联系</li>
-<li>第一种<strong>公正客观的超主权</strong>自由货币</li>
-<li>做到了在<strong>无中心</strong>管理状态下行动的统一</li>
-<li>因为没有权力中心，也没有管理中心，在比特币的系统中，法治真正代替了人治，在这个系统中，即使是最高统治者，也必须严格遵守规则，服从人民的共识。</li>
-</ol>
-<img src="https://pic.downk.cc/item/5fa53cf51cd1bbb86bb18b2a.png" style="zoom: 50%;" />
-
-<center>比特币生态圈</center>
-
-
-
-<h2 id="二-比特币与支付宝"><a href="#二-比特币与支付宝" class="headerlink" title="二 比特币与支付宝"></a>二 比特币与支付宝</h2><p>​    想象一下使用支付宝时，我们在转账时会先扫对方的二维码，或者输入对方账号，填好付款金额后，再通过密码或者刷脸等方式来验证身份，支付宝在确认身份无误后，这笔支付就完成了。</p>
-<p>​    但是，在这个过程中，并没有实物货币的转移，只不过是我们发出了付款信息，而后支付宝确认身份后修改了账本就完事了。并且支付宝保证了账本公正可靠，不会消失，不会被篡改，用户只能使用密码进行对应操作，确保只有用户自己确认授权，支付才能产生。</p>
-<p>​    所以，这整个过程，仅需要满足这两点即可：</p>
-<ol>
-<li><p><strong>有一个公正可靠、无法篡改、记录着各个账户资金往来的账本</strong></p>
-</li>
-<li><p><strong>仅有用户自己授权才能支付，付款收款及往账户里存钱等（在这里看来实际上根本不需要实物货币orz）</strong></p>
-<p>而比特币的付款与支付宝很像，用户只需要扫一下对方比特币的地址，或者输入地址，再输入比特币的数额进行转账就行。</p>
-</li>
-</ol>
-<img src="https://i.loli.net/2020/11/06/OMakE1ProlKBsjm.png" alt="中心式.png" style="zoom: 67%;" />
-
-<center>集中式与分布式记账网络</center>
-
-<p>​    <strong>区别在于：</strong></p>
-<table>
-<thead>
-<tr>
-<th>比特币</th>
-<th align="center">每隔一段时间后，账单就会被某一记账者汇集到一起打包，接到之前的账本上，账本即区块</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>支付宝</td>
-<td align="center">公司运营，用户之间收付款都是由支付宝公司来记账的</td>
-</tr>
-</tbody></table>
-<h2 id="三-比特币的运作与发行"><a href="#三-比特币的运作与发行" class="headerlink" title="三 比特币的运作与发行"></a>三 比特币的运作与发行</h2><h3 id="※-3-1-运作原理"><a href="#※-3-1-运作原理" class="headerlink" title="※ 3.1 运作原理"></a>※ 3.1 运作原理</h3><blockquote>
-<p><strong>比特币是一个价值传输网络，参与比特币系统运作的人（包括用户），就是网络中的一个个节点，节点彼此等权，没有中心，相互之间连接完全自由，各自保存着完全一致的比特币账本，运行着遵循相同规则的比特币秩序。任何人都可以加入比特币网络，新加入比特币网络的节点，向原有的节点要一份比特币账本。</strong></p>
-</blockquote>
-<p>如果用比特币付款，使用者需要向比特币网络广播付款信息（“广播”指比特币网络中多个节点发送付款信息），而收到信息的节点验证网络会继续广播，一传十，十传百，付款信息由此会传遍全网，最后会被某一位记账着记入区块链的账本当中。</p>
-<img src="https://i.loli.net/2020/11/06/L5kdVmXIyutSw9W.jpg" alt="Bitcoin广播.jpg" style="zoom: 67%;" />
-
-<p>问题来了，<strong>为什么会有人来记比特币的账呢？如果谁都可以记账，那么以谁记得账为主呢？并且在这个过程中如何确保账本的真实性呢及比特币又是怎么发行出来的呢？</strong></p>
-<h3 id="3-2-谁来记账"><a href="#3-2-谁来记账" class="headerlink" title="3.2 谁来记账"></a>3.2 谁来记账</h3><p>比特币规定，记账者是有奖励的，一部分奖励是<strong>账单中用户出的手续费</strong>，手续费也是以比特币支付的，因为手续费由客户自己定，可高可低，如果给的高，记账者就倾向于先记这笔手续高的帐。而另一部分的奖励则是<strong>区块的奖励</strong>，每打包一定的区块，就会获得一定的区块奖励。</p>
-<h4 id="3-2-1-区块奖励"><a href="#3-2-1-区块奖励" class="headerlink" title="3.2.1 区块奖励"></a>3.2.1 区块奖励</h4><p>按照比特币的规则，假设区块奖励最初为50个比特币，每出210000个区块后，奖励减半，差不多会每四年减半一次。<strong>区块奖励一方面调动了大家去记账，另一方面也完成了比特币的发行。</strong>因此，按照上述的规则，如果通过这个式子来计算比特币的总量，就是<code>210000*50*(1+1/2+1/4+...)</code>，即总共有21000000个。<strong>而区块奖励和手续费是记账者按照比特币的规则自己记给自己的。</strong></p>
-<p>这么丰厚的奖励，大家肯定都会抢着去记账，那么在这种情况下，以谁的账本为准呢？</p>
-<h3 id="3-3-基准账本"><a href="#3-3-基准账本" class="headerlink" title="3.3 基准账本"></a>3.3 基准账本</h3><p><strong>比特币中有个最长连原则，即谁的区块链账本最长，就会以谁的账本为准。因为制造区块需要进行大量的运算，所以最长链实际上就是凝聚着最大工作量的链。</strong></p>
-<blockquote>
-<p>可以说明，<strong>最长链也就是最新的账本，记录着最多的账单</strong></p>
-</blockquote>
-<p>记账者会把账单收集起来（记账者会先验证账单真伪，来去验证付款者有没有足够的币进行支付），而后打包成一个区块，这个区块由<strong>区块头</strong>和<strong>区块体</strong>组成，记账者换上不同的随机数，对区块头进行哈希运算，得到区块头的哈希值后。<strong>因为算出的哈希值是由随机数生成的，在比特币的规则里，谁先能试出小于难度目标的哈希值，谁就能够把其算出的哈希值所对应的区块，加在区块链上，再广播给别人。</strong>这个时候，这个记账者的链就更长了，在大家验证了他的账单没有错误后，就会以他的区块账本作为基准，并继续广播该区块至全网。</p>
-<blockquote>
-<p>表明以该区块为准的方式，就是将该区块头的哈希值纳入到自己要计算的下一个区块头中。</p>
-</blockquote>
-<img src="https://pic.downk.cc/item/5fa53da21cd1bbb86bb1adda.png" style="zoom: 50%;" />
-
-<center>区块链数据结构</center>
-
-<h4 id="3-3-1-区块头与区块体的关系"><a href="#3-3-1-区块头与区块体的关系" class="headerlink" title="3.3.1 区块头与区块体的关系"></a>3.3.1 区块头与区块体的关系</h4><ul>
-<li><p><strong>区块体：</strong>记录了具体的账单，包括记账者自己所得区块奖励和手续费的账单。</p>
-</li>
-<li><p><strong>区块头：</strong>相当于对应区块的身份信息，里面有版本号、上一个区块头的哈希值、时间戳、难度目标，以及随机数，同时还有一个<strong>Merkle树根哈希值</strong>，<strong>Merkle树根哈希值</strong>是由区块体里的账单经过一系列的哈希运算求出来的，其能相当于区块体里那些账单的摘要信息，<strong>只要账单稍有变化，Merkle树根的哈希值就会大不相同；同样，只要区块头稍有变化，区块头的哈希值也会大不相同</strong></p>
-</li>
-<li><p><strong>总结：</strong>可以看到，区块通过Merkle树根哈希值，将区块体和区块头紧密联系在了一起，账单无法篡改；而区块头的哈希值前后衔接，又能保证了区块链环环相扣，无法篡改。</p>
-</li>
-</ul>
-<img src="https://pic.downk.cc/item/5fa53a6c1cd1bbb86bb0edbb.png" style="zoom: 50%;" />
-
-
-
-<h4 id="3-3-2-哈希运算与哈希值"><a href="#3-3-2-哈希运算与哈希值" class="headerlink" title="3.3.2 哈希运算与哈希值"></a>3.3.2 哈希运算与哈希值</h4><p>你可能会问到，为什么要使用哈希运算来代表这些账单呢，并且为什么账单变化后，其哈希值就会变化呢？</p>
-<p>首先，我们先来介绍下什么是哈希算法：</p>
-<h5 id="①-哈希算法"><a href="#①-哈希算法" class="headerlink" title="① 哈希算法"></a>① 哈希算法</h5><p>​    哈希算法又被称为摘要算法，输入任何的数据，经过哈希运算后，都会得到一个固定长度的输出值，我们将其作为该输入数据的哈希值，<strong>而特定的输入数据它的哈希值是唯一并且确定的。</strong></p>
-<blockquote>
-<p>为什么呢？百度搜索哈希运算了解下哈希与散列之间的关系吧~</p>
-</blockquote>
-<h5 id="②-哈希运算的特点"><a href="#②-哈希运算的特点" class="headerlink" title="② 哈希运算的特点"></a>② 哈希运算的特点</h5><ol>
-<li>哈希运算的结果，效果与生成随机数差不多，但是只要你的输入数据有一点点变动，其对应的哈希值都会发生变化。</li>
-<li>哈希运算不可逆，输入数据后能很快算出它的哈希值，但是给出哈希值，没有办法反推它的输入数据<strong>【哈希冲突】</strong>，而这在逻辑上也是行不通的，因为你输入的数据是无限的，但是哈希值是有限的，<strong>而一个哈希值却有可能对应着多个输入数据</strong>【依旧是散列函数的锅orz】</li>
-</ol>
-<h5 id="③-比特币中的哈希运算"><a href="#③-比特币中的哈希运算" class="headerlink" title="③ 比特币中的哈希运算"></a>③ 比特币中的哈希运算</h5><p>哈希运算和哈希值有多种类型，在争夺比特币记账权时算的哈希值是<code>256位</code>的二进制数。那么按照比特币的规则，区块头的哈希值必须小于难度目标，所以记账者在求解哈希值是要算的最大可能数为<code>2^256</code><strong>【地址值的每一位为0或1】</strong>，而平均试验的次数则为<code>2^256/(难度目标)</code>。</p>
-<p><img src="https://pic.downk.cc/item/5fa53a6c1cd1bbb86bb0edbe.png"></p>
-<center>哈希加密示意图</center>
-
-<p>由二进制的运算我们知道，算出的哈希值如果前面的0越多，则说明数越小，那么我们在计算的时候让勤勉若干数位为0不就好了吗？道理很清晰，但是如果能这么的轻易算出来，也就不会有当下的“矿工难😐”了。</p>
-<p>前面我们说过，算出哈希值就像是算出随机数一样，以前面100位都是0为例，一次试出前面100位都为0的概率为<code>(1/2)^100</code>，如果想增大试出来的概率就只能进行更多的哈希运算。注意，因为全世界的矿工如果想获得比特币的奖励就都会加入到挖矿的网络中，共同收集账单，打包成区块，进行哈希运算，那么全世界则总共需要计算<code>2^100</code>次才能有一次机会</p>
-<blockquote>
-<p>不同人打包的区块也会存在差异，而因为打包的区块中的账单不一样，会导致生成的Merkle哈希值也不同，即使不同的人输入的随机数是一样的，可是经过散列函数运算得到的哈希值也会存在差异。这样就避免了大家出现重复计算的情况，<strong>也保证全世界平均计算2^100次后，才能算出一位前100位都为0的哈希值</strong></p>
-</blockquote>
-<p>而谁先算出来这一个哈希值，他就会立马将该哈希值对应的区块广播出去，在全网一起接收到这个区块，确认无误后，就会继续广播这个区块，并以此为准，继续收集账单运算，去争夺下一个区块的记账权。</p>
-<p><strong>区块链就这样在大家的齐心协力下不断延长，全网的节点都有一份相同并且实时更新的区块链账本。这其中的验证、广播、记账等过程，都是由各个节点的比特币规则自动执行的。</strong></p>
-<h3 id="3-4-挖矿⛏"><a href="#3-4-挖矿⛏" class="headerlink" title="3.4 挖矿⛏"></a>3.4 挖矿⛏</h3><blockquote>
-<p>前面说的关于试出哈希值并获得记账权和比特币奖励的行为，江湖上称其为<strong>挖矿</strong>，而专门进行这种计算的机器，则被称为<strong>“矿机”</strong>，如果你参与到挖矿中，你就是<strong>矿工</strong>，而在记账过程中所需的手续费，就是<strong>矿工费</strong></p>
-</blockquote>
-<p>那么，至于在求解相关哈希值的难度目标是多少，则是由比特币的程序在每隔2016个区块，就会自动调节一次的，其调节是根据这2016个区块的出块速度和之前的难度目标来去反推全网的算力，再根据全网算力来设置一个合适的难度目标，让全网每<strong>平均10分钟</strong>能出一个块。</p>
-<p>这种出块方式的制定，说明了<strong>谁的算力强，谁能在单位时间内计算次数多，谁就能更大的概率试出符合要求的哈希值，获得记账权和比特币的奖励。这种共识机制被称为工作量整明（PoW）</strong>。而在工作量证明的机制下，挖矿需要耗费巨大的电力。</p>
-<p><img src="https://pic.downk.cc/item/5fa538de1cd1bbb86bb09a16.jpg"></p>
-<p>基于此，全世界的矿工都会去寻找便宜又大的电力，修建矿场，制造矿机，导致了全网目前的算力是十分高的。而由于全网的算力很高，挖矿的难度很大，单人行动压根不可能挖的到矿，于是大家把算力集中到一个个矿池中，矿池更容易挖到矿，最后再按照各自贡献的算力大小相应分配收益。</p>
-<img src="https://pic.downk.cc/item/5fa53bec1cd1bbb86bb14db8.jpg" style="zoom:67%;" />
-
-<center>工作量证明机制示意图</center>
-
-<p>可以看出，<strong>比特币的区块链账本是传遍全网、保存于全网的，并且都经过全网验证过的，而区块链通过Merkle树根的哈希值和区块头的哈希值环环相扣，累积了巨大的工作量，账本真实可靠，无法篡改且无法销毁。因此比特币在流通时用于转账或支付的条件下，只需要发出一条信息就可以了，不需要经过任何的中间机构，便可以在全世界流通。</strong></p>
-<blockquote>
-<p><strong>提示</strong>：听起来让人兴奋，但是目前能去试出正确的哈希值是十分困难的，还是以哈希值前100位为0作为例子，算出正确的哈希值需要试上2^100次才能有一次机会【所以单人矿工很难成功】。</p>
-<p>而正是因为即使全世界的超级计算机算力往上翻许多倍，一起算上若干年，也不可能把这256位哈希值算全，由此保证了比特币的安全性。</p>
-</blockquote>
-<h2 id="四-比特币的数字签名与安全问题"><a href="#四-比特币的数字签名与安全问题" class="headerlink" title="四 比特币的数字签名与安全问题"></a>四 比特币的数字签名与安全问题</h2><blockquote>
-<p>我们在使用支付宝的时候，输入密码或其他方式便能轻松转账；那么对于比特币来说，怎么才能证明支付信息是由你发出的，没有被篡改过的呢？换句话说，就是怎么能确保你的币由你一人控制，这就涉及到了数字签名的原理。</p>
-</blockquote>
-<h3 id="4-1-比特币账户"><a href="#4-1-比特币账户" class="headerlink" title="4.1 比特币账户"></a>4.1 比特币账户</h3><p><strong>与银行开户不同，比特币的账户不需要申请注册，是随机生成的。</strong>首先，我们可以随机生成一个私钥【也为256位二进制数】。可以假想成抛<code>256</code>次硬币，正面<code>1</code>，反面<code>0</code>，这样也能确定你的账户私钥【bushi🙃】。然后再用椭圆曲线数字签名算法<strong>【ECDSA】</strong>对私钥进行运算，生成公钥，之后再对公钥进行哈希运算，就得到了地址。私钥生成公钥的过程也是不可逆的，从公钥无法反推私钥，也可以试试，最多<code>2^256</code>次（小声）。<strong>用椭圆曲线数字签名算法生成的公钥可以配合私钥，进行非对称加密。</strong></p>
-<img src="https://pic.downk.cc/item/5fa53a1a1cd1bbb86bb0dc38.png" style="zoom: 33%;" />
-
-<center>数字签名示意图</center>
-
-<h3 id="4-2-非对称加密"><a href="#4-2-非对称加密" class="headerlink" title="4.2 非对称加密"></a>4.2 非对称加密</h3><h4 id="4-2-1-对称加密"><a href="#4-2-1-对称加密" class="headerlink" title="4.2.1 对称加密"></a>4.2.1 对称加密</h4><p>对称加密中，加密解密的密钥都是一样的，比如说有一条信息为1234567，我们用密钥9对其进行加密，<code>1234567*9 = 11111103</code>,而<code>11111103/9 = 1234567</code>就得到了密文【实际上是比这个复杂的😶】但是在非对称加密中，加密解密的密钥是互不相同的。</p>
-<h4 id="4-2-2-非对称加密"><a href="#4-2-2-非对称加密" class="headerlink" title="4.2.2 非对称加密"></a>4.2.2 非对称加密</h4><p>比特币里，私钥用来加密信息，而公钥用来解密信息。<strong>比特币里没有人的概念，只有地址的概念，所提到的你拥有多少币实际上说的是你的地址上有多少币。</strong>而只有你的私钥才能够控制你的币，因此在比特币中，公钥和地址都可以公开，但是私钥是绝对不可以的。</p>
-<p><img src="https://pic.downk.cc/item/5fa53b1c1cd1bbb86bb11427.png"></p>
-<center>非对称加密RSA算法简化示意图</center>
-
-<h4 id="4-2-3-举个栗子"><a href="#4-2-3-举个栗子" class="headerlink" title="4.2.3 举个栗子"></a>4.2.3 举个栗子</h4><p>小明给小强一个比特币，小明的比特币地址为A，小强的比特币地址为B，小明要将<strong>“A地址给B地址一个比特币”</strong>这条账单进行哈希运算，得到的哈希值再用A地址的私钥加密，加密后得到的<strong>“A地址给B地址一个比特币”</strong>和小明的公钥一起广播出去。而收到该信息的人会进行检查，计算公钥得到地址，判断该信息中公钥和地址是否对应，再用公钥把密文解密为哈希值，同时也对账单进行哈希运算，得到另一个哈希值。这个时候比较一下两个哈希值，如果哈希值相同，则能说明这条信息确实是地址的主人发出来的，没有经过篡改的。</p>
-<p><strong>这咯有一个转账哈希值的图片</strong></p>
-<p>如果有人伪造了“A地址给B地址一个比特币”的消息，首先，伪造信息里A的公钥不能变，因为公钥可以推算出地址，如果公钥变了推算出来的地址就会和A不同，别人立刻就能发现这是假的消息。其次，因为伪造者没有A地址的私钥，因此他伪造的账单的哈希值的密文肯定和真是密文是不同的，如果这个时候别人用公钥解密，解密出的哈希值也一定不同于用A账单算出来哈希值，那么这条消息就十分不真实。</p>
-<p>还有一种情况是信息内容遭到了篡改，比如把信息篡改成了“A地址给B地址<strong>十个</strong>比特币”，这种情况下，账单发生了变化，而公钥和原账单的哈希值密文都没有变，分析一遍，也容易发现篡改的信息会导致两个哈希值存在差异。</p>
-<p>可以看出，<strong>私钥就像地址对应的一支独一无二的签字笔，能签出独一无二的签名，来代表你是对应地址的主人，我们也把这个过程称为数字签名。</strong>只有你用私钥签名了，这个地址的付款信息才会被别人接受。而如果你丢失了私钥，尽管你的区块链账本依旧记录你的地址有多少比特币，你也不能使用它。<strong>如果别人知道了你的私钥，他就能够转走你地址上的币。</strong>比特币交易中公平点也体现在这，它只认你的地址不认你的人，所以私钥的安全性需要十分看重【历史上有位男子中了比特币大奖，开心地把他的获奖的私钥展示给直播前的大家，一刹那，这个账户有的比特币全部被转走了🤣】</p>
-<h3 id="4-3-比特币“钱包“"><a href="#4-3-比特币“钱包“" class="headerlink" title="4.3 比特币“钱包“"></a>4.3 比特币“钱包“</h3><p>私钥不像登陆时需要输入的密码，它本身是可以完全不触网的，完全可以在离线状态下在付款信息上签名【这个数字签名就是我们说的<strong>私钥加密付款信息的哈希值</strong>】，然后再把付款信息和签名信息发送到网上广播即可，别人也没有办法从你的签名反推私钥【原理详情了解<strong>椭圆曲线数字签名算法</strong>】。</p>
-<p><strong>比特币的“钱包”</strong>，存的不是币而是私钥，所谓的<strong>”冷钱包“</strong>就是不联网的钱包，能够有效防御黑客盗取私钥。这个过程中起到实际作用是授权调用私钥进行签名，但并非是私钥本身。</p>
-<h3 id="4-4-地址信息的构成"><a href="#4-4-地址信息的构成" class="headerlink" title="4.4 地址信息的构成"></a>4.4 地址信息的构成</h3><p>因为地址之类的信息用二进制表示的话会非常长，因此在比特币中采用了Base58的编码方式，即将二进制数字换成58进制数表示，所以我们通常看到的地址是一串大小写字母和数字的组合。</p>
-<img src="https://pic.downk.cc/item/5fa542ee1cd1bbb86bb2c32f.png" style="zoom:50%;" />
-
-<center>区块链运行机制</center>
-
-<p>为了便于记忆及管理私钥，开发者们又设计出了助记词，助记词一般是12个单词，出自有2048个常见单词的词库，每个助记词对应这一个随机生成的种子，其能够作为种子的一种易于记忆的形式。种子能够生成一个主私钥，主私钥可以通过确定的、不可逆性的算法，再生成多个币种的子私钥，子私钥又可以继续生成孙私钥…通过这种方式，用一组助记词就能够统一管理多个币种的多个私钥，省去了很多麻烦，这样的加密货币的钱包，我们将其称之为<strong>HD钱包（分层确定性钱包）。</strong></p>
-<blockquote>
-<p>助记词虽然只有12个词，但是2048^12 ≈ 5.4*(10^39)，希望能随机输入助记词试出一个有币的地址，概率小到几乎不可能。</p>
-</blockquote>
-<h2 id="五-比特币的分叉与演变"><a href="#五-比特币的分叉与演变" class="headerlink" title="五 比特币的分叉与演变"></a>五 比特币的分叉与演变</h2><h3 id="5-1-最长链原则"><a href="#5-1-最长链原则" class="headerlink" title="5.1 最长链原则"></a>5.1 最长链原则</h3><blockquote>
-<p><strong>在最长链原则下，比特币网络中的节点来去自由，不需要了解其他节点的状态，也不需要任何仲裁机构或者管理中心，网络出现延迟或者暂时中断也没有关系。只需要遵循最长链原则，就能够让全世界对你的账本达成共识。</strong></p>
-<p><strong>因为最长链可以说是凝聚着全世间所有算力的巨大工作量，并且还在不断地延长，想要重新制造出一条最长链代替原链来修改信息，困难且不可能【算力≥51%当我没说】。这也就维护了区块链的不可篡改性</strong></p>
-<p><strong>根据博弈关系，节点也会接受最长链，竞相地去延长最长链，尽力广播最长链上地区块。所以比特币系统从第一个区块挖出开始，就再以难以停止，会一直自发运行下去，每时每刻记录着全球用户的账单。</strong></p>
-</blockquote>
-<p>以下依旧以A、B为例</p>
-<h3 id="5-2-AB同时挖出"><a href="#5-2-AB同时挖出" class="headerlink" title="5.2 AB同时挖出"></a>5.2 AB同时挖出</h3><p>这时A、B的区块链账本都是一样长，有人先收到A的区块就会先以A链为准，同理，先收到B的区块会先以B链为准，可以看到A、B的区块链都有人坚持，这个时候区块链就会短暂的分叉成两条一样长的链，直到有一方的队伍又挖出了新块，这个时候另一方看到对方的链更长了，就会马上转而去支持对方，以对方的账本为准继续挖矿。这样就能够保证有一条最长的链作为大家公认的账本。</p>
-<blockquote>
-<p>只要全网50％以上的算力是诚实的，诚实的算力就能生成一条最长链，可以放心地以这条链为准。</p>
-</blockquote>
-<h3 id="5-3-”双花“"><a href="#5-3-”双花“" class="headerlink" title="5.3 ”双花“"></a>5.3 ”双花“</h3><p>欸，那如果有人掌握了大于50%的算力该怎么办呢？那他不就可以独自生成最长的链，然后胡作非为了嘛？</p>
-<p>实际上，因为区块链账本是要去接收各节点验证的，作恶者如果违反规则、作假账，他的账本就会遭到一致的拒绝，更不会被继续传播，最长链原则是建立在真实基础上的。因为作恶者没有别人的私钥、花不了别人的钱，也破坏不了比特币的规则，<strong>那么他能干的坏事，只有”双花“啦~</strong></p>
-<p>双花是怎么进行的呢？假如说作恶者有10个比特币，他把这10个比特币给商家，买到了商品，那么这个付款信息就会被记录到区块链里。<strong>正常情况下，在同一条链上，是不可能进行双花的，因为花出去的比特币会被记录在区块链上，用过就没有了。</strong>但是，作恶者他拥有全网过半的算力，那么他在记录他付款信息的区块前面，重新开始挖矿，就能够制造出一条更长的链，而这条链他没有违反比特币规则或者做”假账“，所以大家转而会以这条链作为基准（<strong>比特币的程序会根据最长链原则自动切换账本</strong>）。但是在这条链里，作恶者略去了之前的付款记录，把刚才花掉的10个比特币又花了一次，或者转移到自己的另一个地址上，通过这种方式，他原来的付款记录就失效了，那么商家就损失了商品并且也没拿到钱。</p>
-<p><img src="https://pic.downk.cc/item/5fa5435e1cd1bbb86bb2dce7.jpg"></p>
-<p><strong>作恶者也能够先制造出双花攻击的长链但不广播出去，同时在原链上付款买东西，等到拿到商品之后再放出攻击链逆转原链，这样就能撤销自己的付款。</strong></p>
-<p>双花也有可能在作恶者算力不到50％的情况下发生，作恶者运气好的话，有可能多出几个区块，在短时间内领先原链，但是这样做，一旦跑不过原链，自己挖出的区块就没有人承认，白费算力和电力。【从这里可以看出，双花大概率赔了夫人又折兵，作恶者被发现后一定会遭到一致的谴责和惩罚的⛔】</p>
-<h4 id="5-3-1-其他人的链呢"><a href="#5-3-1-其他人的链呢" class="headerlink" title="5.3.1 其他人的链呢"></a>5.3.1 其他人的链呢</h4><p>双花只能撤销掉作恶者自己的付款，不会破坏整个比特币系统，因为如果作恶者在他制造出的最长链里，删掉了原链上其他人的账单，也只需要把这些账单重新打包进区块即可。当网络出现严重延迟或者中断时，区块可能同步不及时，通信不畅的节点各自挖矿为政，这样区块链就有可能会发生分叉。如果作恶者发出两笔相冲突的双花账单后，也有可能被不同的节点打包造成双花，当这些账单被打包进区块后，后续确认的区块越多，双花想要逆转该链就更加困难。所以当用户在进行大额交易时，收款方一般需要多等几个区块才能确认。但是，如果是小额支付（如向朋友转账），不需要等到账单被打包进区块，等上几秒让账单传遍全网就可以了。<strong>正常情况下，如果节点收到两笔相冲突的双花账单，那么节点会打包先收到的账单。</strong></p>
-<h4 id="5-3-2-现实原则"><a href="#5-3-2-现实原则" class="headerlink" title="5.3.2 现实原则"></a>5.3.2 现实原则</h4><p>比特币允许接受与原链上账单有冲突的双花攻击链，这是因为现实环境是非常复杂的，如果网络可能出现延迟或中断，不同节点获取信息的先后顺序可能不同，比如A收到的攻击链，可能对于B来说就是原链，<strong>如果拒绝攻击链，可能造成区块链分裂而无法统一，甚至作恶者还能够利用网络延迟中断，故意发出两笔有冲突的双花账单，而一旦账单分别被不同的节点打包时，节点互不接受对方的账单，作恶者就可以恶意制造分裂。</strong></p>
-<p>而只要以最长链为准的情况下，节点不用知道其他节点的账本情况，不需要管其他节点的工作状态，也不需要任何仲裁机构，只需要做好自己的帐，遵从最长链原则，全网账本就能够自动达成统一，网络延迟中断也只可能导致新挖出的少数区块同步不及时，而之前的账本还是会保持一致。</p>
-<blockquote>
-<p><strong>这也是比特币设计上的亮点，通过最长链原则，使全世界互不相识的人，在复杂的环境里齐心协力，达成了一致。</strong></p>
-</blockquote>
-<h3 id="5-4-BCH（比特币现金）与BTC（比特币）"><a href="#5-4-BCH（比特币现金）与BTC（比特币）" class="headerlink" title="5.4 BCH（比特币现金）与BTC（比特币）"></a>5.4 BCH（比特币现金）与BTC（比特币）</h3><p>如前面所说，<strong>如果不同的人对记账有不同做法，就会引起区块链的分叉，分叉前的账本是完全一样的，但分叉后的账本就会随着记账方式的变化而变化。</strong>如果只是因为同时出块造成分叉，在遵循最长链原则的情况下，丢弃一条链，保留一条链，这样就会产生一些难以调和的矛盾，双方无法达成共识，于是各记各的帐，这时候就会产生两条并行发展的两条链，而比特币也就会分裂成了两个版本。<strong>BHC就是这么被分出来的</strong></p>
-<ul>
-<li><strong>BCH</strong></li>
-</ul>
-<blockquote>
-<p>致力于实现白皮书中”电子现金“的够项，推进零确认支付的发展，试图在BCH上引入更多的拓展功能</p>
-</blockquote>
-<ul>
-<li><strong>BTC</strong></li>
-</ul>
-<blockquote>
-<p>BTC转型为”数字黄金“，因此很多人认为BCH才是真正的比特币</p>
-</blockquote>
-<p><strong>但这些都不会影响比特币的核心规则，这就是共识的力量</strong></p>
-<h3 id="5-5-Core与大区块派"><a href="#5-5-Core与大区块派" class="headerlink" title="5.5 Core与大区块派"></a>5.5 Core与大区块派</h3><blockquote>
-<p>比特币起初区块上限为1M，随着用户增多，1M明显不够用了，那么如何扩容呢？</p>
-</blockquote>
-<h4 id="Core【接替中本聪继续开发】"><a href="#Core【接替中本聪继续开发】" class="headerlink" title="Core【接替中本聪继续开发】"></a><strong>Core【接替中本聪继续开发】</strong></h4><ul>
-<li><strong>隔离见证</strong></li>
-</ul>
-<blockquote>
-<p>把签名信息直接移出区块，间接扩容</p>
-</blockquote>
-<ul>
-<li><strong>闪电网络</strong></li>
-</ul>
-<blockquote>
-<p>相当于在主干道上架桥分流交通压力</p>
-</blockquote>
-<ul>
-<li><strong>Core派坚持1M上限不能改，指责大区块派扩大区块会阻碍个人运行比特币的全节点，这样会影响比特币的去中心化，造成比特币社区分裂</strong></li>
-</ul>
-<blockquote>
-<p><strong>全节点保存着比特币的完整账本，进行验证及广播，是比特币网络运行的基础，有些全节点同时也在挖矿，称为挖矿节点；与全节点相对应的是数量更多的轻节点，轻节点只保存与自己相关的信息，依靠全节点运行，普通用户用的轻量级比特币钱包就是轻节点</strong></p>
-</blockquote>
-<h4 id="大区块派"><a href="#大区块派" class="headerlink" title="大区块派"></a><strong>大区块派</strong></h4><ul>
-<li><strong>扩大区块</strong></li>
-</ul>
-<blockquote>
-<p>相当于直接扩宽道路</p>
-</blockquote>
-<ul>
-<li><strong>大区块派指责Core派违背了中本聪隐退前提出过的直接扩大区块的扩容方案，同时也指责了隔离见证和闪电网络扩容效果差，安全性不好</strong></li>
-</ul>
-<p>因此，扩大了区块的BCH和BTC分道扬镳，以分叉的方式解决了分歧，而比特币现金原先称为BCC，后更名为BCH。</p>
-<h3 id="5-6-比特币的发展"><a href="#5-6-比特币的发展" class="headerlink" title="5.6 比特币的发展"></a>5.6 比特币的发展</h3><p>之后，CSW【澳本聪】提出了一系列的激进主张，称要继续扩大BCH的区块，乃至扩展成无限区块，并且索斯BCH的底层协议，做出符合中本聪愿景的比特币，最终<strong>BSV</strong>又从<strong>BCH</strong>中发展了出来。</p>
-<p><strong>分叉是比特币自我演变的途径。</strong>如果比特币社区成员一致改变某规则，比特币就相当于进行了一次升级；而如果大家都不更改规则，比特币就不会发生变化；相对应的如果一部分改变规则，比特币就会发生<strong>交叉</strong>。理论上，只要有算力，分叉就能够随便进行，但如果没人买没人卖，那分叉币就相当于自娱自乐，没有经济价值。<strong>市值就是衡量分叉币认可的指标。</strong></p>
-<p><strong>现在比特币的三大分支BTC、BCH、BSV，分别代表了谨慎保守、温和渐进、激进发展三个方面，探索不同的道路，也为比特币保留了更多生命的火种。</strong></p>
-<p>谁是对的，谁就能得到更多人的支持，就会有更大的市值，这可能就是区块链的魅力所在。</p>
-<blockquote>
-<p><strong>行动守规则，遇事要商量，谈不拢咱就分叉，用市值来投票。谁做得好，就能得到更多的支持，市值自然也会上涨。</strong></p>
-</blockquote>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="tag">区块链</a></li></ul>
 
     </footer>
   </div>

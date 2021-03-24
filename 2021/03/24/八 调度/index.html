@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    Operating System 6 -- 页面置换算法 |  
+    Operating System 8 -- 调度 |  
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -45,7 +45,7 @@
     <main class="content on">
       <section class="outer">
   <article
-  id="post-六 页面置换算法"
+  id="post-八 调度"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -56,15 +56,15 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  Operating System 6 -- 页面置换算法
+  Operating System 8 -- 调度
 </h1>
  
 
     </header>
      
     <div class="article-meta">
-      <a href="/2021/03/22/%E5%85%AD%20%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95/" class="article-date">
-  <time datetime="2021-03-22T09:17:36.334Z" itemprop="datePublished">2021-03-22</time>
+      <a href="/2021/03/24/%E5%85%AB%20%E8%B0%83%E5%BA%A6/" class="article-date">
+  <time datetime="2021-03-24T02:11:28.778Z" itemprop="datePublished">2021-03-24</time>
 </a> 
   <div class="article-category">
     <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
@@ -75,7 +75,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">2.5k</span>
+            <span class="post-count">1.8k</span>
         </span>
     </span>
 
@@ -84,7 +84,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">8 分钟</span>
+            <span class="post-count">6 分钟</span>
         </span>
     </span>
 </div>
@@ -99,140 +99,247 @@
   
     <div class="article-entry" itemprop="articleBody">
        
-  <script src="/assets/js/APlayer.min.js"> </script><h1 id="六-页面置换算法"><a href="#六-页面置换算法" class="headerlink" title="六 页面置换算法"></a>六 页面置换算法</h1><h2 id="6-1-功能与目标"><a href="#6-1-功能与目标" class="headerlink" title="6.1 功能与目标"></a>6.1 功能与目标</h2><p><strong>功能：</strong> 缺页中断发生，需要调入新的页面而内存已满时，选择内存当中需要被置换的页面</p>
-<p><strong>目标：</strong> <font color="red"><b>尽可能地减少页面的换进换出次数</b></font>「即缺页中断的次数」。具体讲，把<strong>未来不再使用的或短期内较少使用的页面换出</strong>，通常只能在局部性原理指导下依据过去的统计数据来进行预测「减少交换带来的时间开销」</p>
-<p><strong>页面锁定（frame locking）：</strong> 用于描述必须常驻内存的os的关键部分或<strong>时间关键（time-critical）</strong>的应用进程。实现的方法是：在页表中添加<strong>锁定标志位（lock bit）</strong></p>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322171811496.png" alt="image-20210322171811496" style="zoom:50%;">
-
-<h2 id="6-2-局部页面置换算法"><a href="#6-2-局部页面置换算法" class="headerlink" title="6.2 局部页面置换算法"></a>6.2 局部页面置换算法</h2><h3 id="6-2-1-最优页面置换算法「OPT，optional」"><a href="#6-2-1-最优页面置换算法「OPT，optional」" class="headerlink" title="6.2.1 最优页面置换算法「OPT，optional」"></a>6.2.1 最优页面置换算法「OPT，optional」</h3><p><strong>基本思路：</strong> 当一个缺页中断发生时，对于保存在内存当中的每一个逻辑页面，计算他的下一次访问之前，还需要等待多长时间，<strong>选择等待时间最长的那个，作为被置换的页面</strong></p>
-<blockquote>
-<p>这只是一种理想情况，实际系统中无法实现，因为os无法知道每一个页面要等待多长时间以后才会被再次访问</p>
-</blockquote>
-<p>可以用来作为其他算法的性能评价指标（在一个模拟器上运行某个程序，并记录每一次的页面访问情况，在第二遍运行时即可使用最优算法）</p>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322172535251.png" alt="image-20210322172535251" style="zoom:50%;">
-
-<h3 id="6-2-2-先进先出算法「FIFO」"><a href="#6-2-2-先进先出算法「FIFO」" class="headerlink" title="6.2.2 先进先出算法「FIFO」"></a>6.2.2 先进先出算法「FIFO」</h3><p><strong>基本思路：</strong> 选择在内存中<strong>驻留时间最长的页面并淘汰</strong>。即系统维护着一个链表，记录了所有位于内存当中的逻辑页面，从链表的排列顺序来看，链首页面的驻留时间最长，链尾页面驻留的时间最短。</p>
-<p>当发生一个缺页中断时，把链首页面淘汰出局，并把新的页面添加到链表的末尾</p>
-<p><strong>缺点：</strong> 性能较差，调出的页面有可能是经常要访问的页面。并且有$Belady$现象，FIFO算法很少单独使用</p>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322190815350.png" alt="image-20210322190815350" style="zoom:50%;">
-
-
-
-<h3 id="6-2-3-最近最久未使用算法「LRU，Least-Recently-Used」"><a href="#6-2-3-最近最久未使用算法「LRU，Least-Recently-Used」" class="headerlink" title="6.2.3 最近最久未使用算法「LRU，Least Recently Used」"></a>6.2.3 最近最久未使用算法「LRU，Least Recently Used」</h3><p><strong>基本思路：</strong> 当一个缺页中断发生时，淘汰最久未使用的页面</p>
-<p><strong>描述：</strong> 是对最优页面置换算法的一个近似，依据的是程序的局部性原理，即在最近一小段时间（最近几条指令）内，如果某些页面被频繁的访问，那么在将来的一小段时间内，他们还可能会再一次被频繁的访问。</p>
-<p>反过来说，如果在过去某些页面长时间未被访问，那么在将来它们还可能会长时间的得不到访问。</p>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322191410812.png" alt="image-20210322191410812" style="zoom:50%;">
-
-<p>LRU算法需要记录哥哥页面使用时间的先后顺序，开销比较大，两种可能的实现方法是：</p>
-<ol>
-<li><strong>系统维护一个页面链表</strong>，最近刚刚使用过的页面作为首结点，最久未使用的作为尾节点。每一次访问内存时，找到相应的页面，把他从链表中摘下来，再移动到链表之首。<strong>每次缺页中断发生时，淘汰链表末尾的页面</strong></li>
-<li><strong>设置一个活动页面栈。</strong> 需要淘汰时，选择栈底的页面，就是最久未使用的</li>
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="八-调度"><a href="#八-调度" class="headerlink" title="八 调度"></a>八 调度</h1><h2 id="8-1-背景"><a href="#8-1-背景" class="headerlink" title="8.1 背景"></a>8.1 背景</h2><ol>
+<li><strong>上下文切换</strong><ol>
+<li>切换CPU的当前任务，从一个进程/线程到另一个</li>
+<li>保存当前进程/线程在PCB/TCP中的执行上下文（CPU状态）</li>
+<li>读取下一个进程/线程的上下文</li>
 </ol>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322191954433.png" alt="image-20210322191954433" style="zoom:50%;">
-
-<h3 id="6-2-4-时钟页面置换算法「Clock」"><a href="#6-2-4-时钟页面置换算法「Clock」" class="headerlink" title="6.2.4 时钟页面置换算法「Clock」"></a>6.2.4 时钟页面置换算法「Clock」</h3><blockquote>
-<p>是LRU的近似，对FIFO的一种改进</p>
-</blockquote>
-<p><strong>基本思路：</strong></p>
+</li>
+<li><strong>CPU调度</strong><ol>
+<li>从就绪队列中挑选一个进程/线程作为CPU将要运行的下一个进程/线程</li>
+<li>调度程序：挑选进程/线程的内核函数（通过一些调度策略）</li>
+</ol>
+</li>
+</ol>
+<p><strong>那么在进程/线程的生命周期中什么时候进行调度呢？</strong></p>
+<hr>
+<p><strong>内核运行调度程序的条件（满足一条即可）</strong></p>
 <ul>
-<li>需要用到页表项当中的访问位。当一个页面被装入内存时，初始化该位为0。如果该页面被访问，则把该位置调为1</li>
-<li>把各个页面组织成环形链表（类似钟表面），把指针指向最老的页面（最新进来）</li>
-<li>当发生一个缺页中断时，考察指针所指向的最老页面，如果它的访问位为0，立即淘汰；若访问位为1，把该位置设为0，指针往下移动一格。如此下去，直到找到被淘汰的页面，然后把指针移动到它的下一格。</li>
+<li>一个进程从运行状态切换到等待状态</li>
+<li>一个进程被终止了</li>
 </ul>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322193041915.png" alt="image-20210322193041915" style="zoom:50%;">
-
-<p>**注意<code>used bit</code>是0/1 **</p>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322193640150.png" alt="image-20210322193640150" style="zoom:50%;">
-
-<h3 id="6-2-5-二次机会法「Enhanced-Clock-Algorithm」"><a href="#6-2-5-二次机会法「Enhanced-Clock-Algorithm」" class="headerlink" title="6.2.5 二次机会法「Enhanced Clock Algorithm」"></a>6.2.5 二次机会法「Enhanced Clock Algorithm」</h3><ul>
-<li>Clock算法中有巨大的代价来替换“脏”页</li>
-<li>修改Clock算法，使它允许<strong>脏页总是在第一次时钟头扫描中保留下来</strong></li>
-</ul>
-<blockquote>
-<p>同时使用“脏位”和使用位来指导置换</p>
-</blockquote>
-<p>对$a, b$执行写操作，由$(1, 0) \rightarrow (1, 1)$，即执行写操作<code>dirty bit = 1</code></p>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322202042975.png" alt="image-20210322202042975" style="zoom:50%;">
-
-<p>优先把只读页先换出去，给了写操作二次存活的机会【复活甲！】</p>
-<h3 id="6-2-5-最不常用算法「LFU，Least-Frequently-Used」"><a href="#6-2-5-最不常用算法「LFU，Least-Frequently-Used」" class="headerlink" title="6.2.5 最不常用算法「LFU，Least Frequently Used」"></a>6.2.5 最不常用算法「LFU，Least Frequently Used」</h3><p><strong>基本思路：</strong> 当一个缺页中断发生时，选择访问次数最少的那个页面，并淘汰之</p>
-<p><strong>实现方法：</strong> 对每个页面设置一个访问计数器，每当一个页面被访问时，该页面的访问计数器加1。当发生缺页中断时，淘汰计数值最小的那个页面</p>
-<p><strong>缺点：</strong> 这里硬件开发很大，如果前期开发使用次数多，后期很难判断。可以把访问计数器一定时间内左移一位减少2倍。</p>
-<p><strong>LRU和LFU的区别：</strong> LRU考察的是<strong>多久未访问</strong>，时间越短越好；而LFU考察的是<strong>访问的次数或额度</strong>，访问次数越多越好。</p>
-<h3 id="6-2-6-Belady现象"><a href="#6-2-6-Belady现象" class="headerlink" title="6.2.6 Belady现象"></a>6.2.6 Belady现象</h3><p><strong>解释：</strong> 在采用FIFO算法时，有时会出现<strong>分配的物理页面数增加</strong>，<strong>缺页率反而提高</strong>的异常现象的异常现象</p>
-<p><strong>产生原因：</strong> FIFO算法的替换特征与<strong>进程访问内存的动态特征</strong>是矛盾的，与置换算法的目标是不一致的（即替换较少的页面），因此被他<strong>置换出去的页面不一定是进程不会访问</strong>的</p>
-<h3 id="6-2-7-LRU、FIFO和Clock的比较"><a href="#6-2-7-LRU、FIFO和Clock的比较" class="headerlink" title="6.2.7 LRU、FIFO和Clock的比较"></a>6.2.7 LRU、FIFO和Clock的比较</h3><blockquote>
-<p>LRU和FIFO本质上都是先进先出</p>
-</blockquote>
-<p>LRU是针对页面的最近访问时间来排序；FIFO是针对页面进入内存的时间来排序，这个时间是固定不变的</p>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322203633347.png" alt="image-20210322203633347" style="zoom:50%;">
-
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322203751942.png" alt="image-20210322203751942" style="zoom:50%;">
-
-<h2 id="6-3-全局页面置换算法"><a href="#6-3-全局页面置换算法" class="headerlink" title="6.3 全局页面置换算法"></a>6.3 全局页面置换算法</h2><h3 id="6-3-1局面页面替换算法的问题"><a href="#6-3-1局面页面替换算法的问题" class="headerlink" title="6.3.1局面页面替换算法的问题"></a><strong>6.3.1局面页面替换算法的问题</strong></h3><p>前面介绍的各种页面置换算法，都是机遇程序的局部性原理，但是这个原理是否成立？</p>
+<p><strong>不可抢占式</strong>『non-preemptive』</p>
 <ul>
-<li><strong>如果局部性原理不成立，</strong> 那么各种页面置换算法就没有什么分别，也没有什么意义。例如：假设进程对逻辑页面的访问顺序为$1, 2, 3, 4, 5, 6, 7, 8, 9…$,即单调递增。那么在物理页面数有限的前提下，无论采用什么置换算法，每次的页面访问都必然导致缺页中断</li>
-<li><strong>如果局部性原理成立，</strong> 证明存在和用其进行定量分析的为工作集模型</li>
+<li>调度程序必须等待事件结束</li>
 </ul>
-<h3 id="6-3-2-工作集模型「Working-Set」"><a href="#6-3-2-工作集模型「Working-Set」" class="headerlink" title="6.3.2 工作集模型「Working Set」"></a>6.3.2 工作集模型「Working Set」</h3><p><strong>工作集：</strong> 一个进程当前<strong>正在使用的</strong>逻辑页面集合</p>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323091316028.png" alt="image-20210323091316028" style="zoom:50%;">
-
-<p><strong>举个栗子：</strong></p>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323091653180.png" alt="image-20210323091653180" style="zoom:50%;">
-
-<blockquote>
-<p>$t_2$的局部性较好</p>
-</blockquote>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323091816367.png" alt="image-20210323091816367" style="zoom:50%;">
-
-<p><strong>常驻集：</strong> 指在当前时刻，进程<strong>实际驻留在内存当中的页面</strong>集合</p>
+<p><strong>可以抢占</strong>『preemptive』</p>
 <ul>
-<li>工作集是进程在运行过程中固有的性质，而常驻集取决于系统分配给进程的物理页面数目，以及所采用的页面置换算法</li>
-<li>如果一个进程的整个工作集都在内存当中，即常驻集包含于工作集，那么进程将很顺利的运行，不会造成太多的缺页中断（指导工作集发生剧烈变动，从而过渡到另一个状态）</li>
-<li>当进程常驻集的大小达到某个数目之后，再给它分配更多的物理页面，<strong>缺页率</strong>也不会明显的下降</li>
+<li>调度程序在中断被响应后执行</li>
+<li>当前的进程<strong>从运行切换到就绪</strong>，或者一个进程<strong>从等待切换到就绪</strong></li>
+<li>当前运行的进程可以被换出</li>
 </ul>
-<h3 id="6-3-3-工作集页置换算法"><a href="#6-3-3-工作集页置换算法" class="headerlink" title="6.3.3 工作集页置换算法"></a>6.3.3 工作集页置换算法</h3><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323093222033.png" alt="image-20210323093222033" style="zoom:50%;">
+<h2 id="8-2-调度原则"><a href="#8-2-调度原则" class="headerlink" title="8.2 调度原则"></a>8.2 调度原则</h2><h3 id="8-2-1-调度策略"><a href="#8-2-1-调度策略" class="headerlink" title="8.2.1 调度策略"></a>8.2.1 调度策略</h3><p>执行模型：程序在CPU突发和I/O中交替</p>
+<p><strong>评价指标：</strong></p>
+<ol>
+<li><strong>CPU使用率：</strong> cpu处于忙状态所占时间的百分比</li>
+<li><strong>吞吐量：</strong> 单位时间内<strong>完成的进程数量</strong></li>
+<li><strong>周转时间：</strong> 一个进程从初始化到结束，包括所有等待事件所花费的时间</li>
+<li><strong>等待时间：</strong> 进程在就绪队列中等待到running的总时间</li>
+<li><strong>响应时间：</strong> 从一个请求被提交到产生第一次响应所花费的时间</li>
+</ol>
+<p><strong>什么是“更快”的服务呢？</strong></p>
+<ul>
+<li>传输文件是的<strong>高带宽</strong></li>
+<li>玩游戏时的<strong>低延迟</strong></li>
+<li>这两个因素是独立的</li>
+</ul>
+<p><strong>和“水管”类比：</strong></p>
+<ul>
+<li><strong>低延迟：</strong> 喝水的时候想要一打开水龙头水就流出来</li>
+<li><strong>高带宽：</strong> 给游泳池充水时希望从水龙头里同时<strong>流出大量的水</strong>，并且不介意是否存在延迟</li>
+</ul>
+<p><strong>调度算法的提升指标</strong></p>
+<ul>
+<li><strong>减少响应时间：</strong> 及时处理用户的输出并且尽快将输出提供给用户</li>
+<li><strong>减少平均响应时间的变动：</strong> 在交互系统中，可预测性比<strong>高差异低平均</strong>更重要</li>
+<li><strong>增加吞吐量：</strong> 1⃣️减少开销（os开销，上下文切换）；2⃣️系统资源的高效利用（CPU、I/O设备）</li>
+<li><strong>减少等待时间：</strong> 减少每个进程的等待时间</li>
+</ul>
+<p><strong>指标提高的表现</strong></p>
+<ul>
+<li><p>低延迟调度增加了交互式表现【鼠标点的快！】</p>
+</li>
+<li><p>os需要<strong>保证吞吐量不受影响</strong></p>
+</li>
+<li><p>吞吐量是os的计算<strong>带宽</strong></p>
+</li>
+<li><p>响应时间是os的计算<strong>延迟</strong></p>
+</li>
+<li><p>还需要相对的<strong>公平</strong>，通过调度算法使每个进程享有相同的服务</p>
+</li>
+</ul>
+<h2 id="8-3-调度算法"><a href="#8-3-调度算法" class="headerlink" title="8.3 调度算法"></a>8.3 调度算法</h2><ol>
+<li><strong>FCFS「First Come First Served」【先来先服务】</strong></li>
+</ol>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324132140786.png" alt="image-20210324132140786" style="zoom:50%;">
 
-<p>$Page\ d=-1, Page\ e=-2$,时间长度为$3$</p>
-<p>超出时间窗口的都将被直接清除</p>
-<h3 id="6-3-4-缺页率置换算法"><a href="#6-3-4-缺页率置换算法" class="headerlink" title="6.3.4 缺页率置换算法"></a>6.3.4 缺页率置换算法</h3><p><strong>可变分配策略：</strong> 常驻集大小可变，如每个进程在刚开始运行的时候，先根据程序大小给它分配一定数目的物理页面，然后在进程运行过程中，再动态的调整常驻集的大小</p>
-<ul>
-<li>可采用<strong>全局页面置换</strong>的方式，当发生一个缺页中断时，被置换的页面可以是在其他进程当中，各个并发进程竞争的使用物理页面</li>
-<li><strong>优缺点：</strong>性能较好，但增加了系统开销</li>
-<li><strong>具体实现：</strong>可以使用缺页率算法（PFF，page fault frequency）来动态调整常驻集的大小</li>
-</ul>
-<p><strong>缺页率：</strong> 表示为$\frac{缺页次数}{内存访问次数}$或$\frac{1}{缺页的平均时间间隔}$，影响因素为：</p>
-<ul>
-<li>页面置换算法</li>
-<li>分配给进程的物理页面数目</li>
-<li>页面本身的大小</li>
-<li>程序的编写方法</li>
-</ul>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323093912412.png" alt="image-20210323093912412" style="zoom:50%;">
-
-<p>一个交替的工作集计算明确的试图最小化页缺失</p>
-<ul>
-<li>缺页率高，增加工作集</li>
-<li>缺页率低，减少工作集</li>
-</ul>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323094113240.png" alt="image-20210323094113240" style="zoom:50%;">
+<ol start="2">
+<li><strong>SPN（SJF） SRT 【Shortest Job First】</strong></li>
+</ol>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324132513213.png" alt="image-20210324132513213" style="zoom:50%;">
 
 <blockquote>
-<p>4-1 = 3 &gt; 2 删除page a &amp; page b</p>
+<p>SRT可以抢占正在运行的进程，比较的运行中进程的<strong>结束剩余时间</strong>和新进程的<strong>执行时间</strong></p>
 </blockquote>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323094448846.png" alt="image-20210323094448846" style="zoom:50%;">
-
-<p>不断进行page的动态调整</p>
-<h3 id="6-3-5-抖动问题「thrashing」"><a href="#6-3-5-抖动问题「thrashing」" class="headerlink" title="6.3.5 抖动问题「thrashing」"></a>6.3.5 抖动问题「thrashing」</h3><ul>
-<li>如果分配给一个进程的物理页面太少，不能包含整个工作集，进程可能会造成很多缺页中断，需要频繁的在内存与外存之间替换页面，从而使进程的运行速度变得很慢，把这种状态称为<strong>“抖动”</strong></li>
-<li><strong>产生原因：</strong> 随着驻留内存的进程数目增加，分配给每个进程的物理页面数不断减小，缺页率不断上升，所以os要选择<strong>一个适当的进程数目和进程需要的帧数，以便在并发水平和缺页率之间达到一个平衡</strong></li>
+<p><strong>缺点</strong></p>
+<ol>
+<li>可能导致<strong>饥饿</strong><ul>
+<li>连续的短任务流会使长任务饥饿</li>
+<li>短任务可用时的任何长任务的CPU时间都会增加平均等待时间</li>
 </ul>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323094930617.png" alt="image-20210323094930617" style="zoom:50%;">
+</li>
+<li><strong>需要预知未来</strong><ul>
+<li>如何预估下一个CPU突发的持续时间</li>
+<li>简单的解决办法：询问用户</li>
+</ul>
+</li>
+</ol>
+<p>通过过去预知未来的算法：</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324133135071.png" alt="image-20210324133135071" style="zoom:50%;">
 
-<p><strong>找到最高值「平衡点」</strong></p>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323095219014.png" alt="image-20210323095219014" style="zoom:50%;">
+<p>来猜测下一个进程的执行时间，实验数据：</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324133222742.png" alt="image-20210324133222742" style="zoom:50%;">
 
-<p>达到高的并发水平同时减少缺页率</p>
+<ol start="3">
+<li>最高响应比优先「HRN」</li>
+</ol>
+<ul>
+<li>在SPN调度的基础上改进</li>
+<li>不可抢占</li>
+<li>关注进程等待了多长时间</li>
+<li>防止无限期推迟</li>
+</ul>
+<p>$$<br>R = \frac{w+s}{s}<br>$$</p>
+<blockquote>
+<p>w: waiting time 等待时间。 s: service time 执行时间</p>
+</blockquote>
+<p>选择R值高的</p>
+<ol start="4">
+<li>轮询调度算法【<strong>RR Round Robin</strong>】</li>
+</ol>
+<ul>
+<li>在叫做量子（或时间切片）的离散单元中分配处理器</li>
+<li>时间片结束时，切换到下一个准备好的进程</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324133548510.png" alt="image-20210324133548510" style="zoom:50%;">
+
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324133758476.png" alt="image-20210324133758476" style="zoom:50%;">
+
+<p><strong>探究时间片大小的影响</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324133903614.png" alt="image-20210324133903614" style="zoom:50%;">
+
+<p><strong>再次改进：</strong></p>
+<ul>
+<li>就绪队列划分成独立的队列</li>
+</ul>
+<blockquote>
+<p>前台（交互）， 后台（批处理）</p>
+</blockquote>
+<ul>
+<li>每个队列有自己的调度策略</li>
+</ul>
+<blockquote>
+<p>如前台：RR，后台：FCFS</p>
+</blockquote>
+<ul>
+<li>调度必须在队列间进行<ol>
+<li><strong>固定优先级</strong><ul>
+<li>先处理前台，再处理后台</li>
+<li>可能导致饥饿</li>
+</ul>
+</li>
+<li><strong>时间切片</strong><ul>
+<li>每个队列都能得到一个确定的能够调度其进程的CPU总时间</li>
+<li>E.g. 80%给使用RR的前台，20%给使用FCFS的后台</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+<blockquote>
+<p>于是出现了多级反馈队列</p>
+</blockquote>
+<ol start="5">
+<li><strong>多级反馈队列</strong></li>
+</ol>
+<ul>
+<li>一个进程可以在不同的队列中移动</li>
+<li>如：n级优先级-优先级调度在所有级别中，RR在每个级别中</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324162554607.png" alt="image-20210324162554607" style="zoom:50%;">
+
+<ol start="6">
+<li><strong>FFS「Fair File Share」</strong></li>
+</ol>
+<ul>
+<li>一些用户组比其他用户组更重要</li>
+<li>保证不重要的组无法垄断资源</li>
+<li><strong>未使用的资源</strong>按照每个组所分配的资源的比例来分配</li>
+<li>没有达到资源使用率目标的组获得更高的优先级</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324162905916.png" alt="image-20210324162905916" style="zoom:50%;">
+
+<p><strong>如何评价模型？</strong></p>
+<ol>
+<li><strong>确定性建模：</strong> 确定一个工作量，然后计算每个算法的表现</li>
+<li><strong>队列模型：</strong> 用来处理<strong>随机工作负载</strong>的数学方法</li>
+<li><strong>实现/模拟：</strong> 建立一个允许算法运行实际数据的系统，需要很灵活/有一致性</li>
+</ol>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324163255535.png" alt="image-20210324163255535" style="zoom:50%;">
+
+<h2 id="8-4-实时调度"><a href="#8-4-实时调度" class="headerlink" title="8.4 实时调度"></a>8.4 实时调度</h2><h3 id="8-4-1-实时系统"><a href="#8-4-1-实时系统" class="headerlink" title="8.4.1 实时系统"></a>8.4.1 实时系统</h3><p><strong>定义：</strong> 正确性依赖于<strong>时间</strong>【real time】和<strong>功能</strong></p>
+<p><strong>性能指标：</strong> 1⃣️ 时间约束的及时性「ddl」；2⃣️ 速度和平均性能相对不重要</p>
+<p><strong>主要特性：</strong> 时间约束的可预测性</p>
+<p><strong>实时分类：</strong> 1⃣️ 硬实时「强实时」：保证规定时间内必须完成任务； 2⃣️ 要求重要的进程的优先级更高，尽量完成，并非必需</p>
+<p><strong>如何衡量进程在限定时间内可完成呢？</strong></p>
+<p>发起任务–「就绪」–&gt;执行–&gt;不能超过relative ddl的时间间隔</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324164247351.png" alt="image-20210324164247351" style="zoom:50%;">
+
+<hr>
+<ul>
+<li><p><strong>硬时限</strong></p>
+<ol>
+<li>如果错过了ddl，会有严重的后果</li>
+<li>必须验证在最坏的情况下也能满足时限【保证确定性】</li>
+</ol>
+</li>
+<li><p><strong>软时限</strong></p>
+<ol>
+<li>理想情况下，时限应该被最大满足，否则就相应地降低要求</li>
+<li>需要尽最大努力去保证</li>
+</ol>
+<p>设置优先级调度方法来满足ddl要求</p>
+</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324164724307.png" alt="image-20210324164724307" style="zoom:50%;">
+
+<blockquote>
+<p>静态：优先级提前设置好           动态：优先级可调整</p>
+</blockquote>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324164849527.png" alt="image-20210324164849527" style="zoom:50%;">
+
+<h2 id="8-5-多处理器调度与优先级反转"><a href="#8-5-多处理器调度与优先级反转" class="headerlink" title="8.5 多处理器调度与优先级反转"></a>8.5 多处理器调度与优先级反转</h2><h3 id="8-5-1-多处理器调度"><a href="#8-5-1-多处理器调度" class="headerlink" title="8.5.1 多处理器调度"></a>8.5.1 多处理器调度</h3><ol>
+<li>多处理器的CPU调度更加复杂<ul>
+<li>多个相同的单处理器组成一个多处理器</li>
+<li>优点：负载共享</li>
+</ul>
+</li>
+<li>对称多处理器<ul>
+<li>每个处理器运行自己的调度程序</li>
+<li>需要在<strong>调度程序中同步</strong></li>
+</ul>
+</li>
+</ol>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324165104306.png" alt="image-20210324165104306" style="zoom:50%;">
+
+<h3 id="8-5-2-优先级反转"><a href="#8-5-2-优先级反转" class="headerlink" title="8.5.2 优先级反转"></a>8.5.2 优先级反转</h3><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324165159392.png" alt="image-20210324165159392" style="zoom:50%;">
+
+<ul>
+<li><strong>优先级天花板：</strong> “资源”的优先级和“所有可以<strong>锁定该资源的任务中优先级最高的那个任务”的优先级相同</strong></li>
+<li>除非优先级高于系统中所有被锁定的资源的优先级上限，否则任务尝试执行临界区时会被阻塞</li>
+<li>持有<strong>最高优先级上限信号量锁</strong>的任务，会继承被该锁阻塞的任务的优先级</li>
+</ul>
  
       <!-- reward -->
       
@@ -303,7 +410,7 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://warmchay.github.io/2021/03/22/%E5%85%AD%20%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://warmchay.github.io/2021/03/24/%E5%85%AB%20%E8%B0%83%E5%BA%A6/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -316,19 +423,19 @@
    
   <nav class="article-nav">
     
-      <a href="/2021/03/23/%E4%B8%83%20%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86/" class="article-nav-link">
+      <a href="/2021/03/24/%E4%B9%9D%20%E5%90%8C%E6%AD%A5/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            Operating System 7 -- 进程管理
+            Operating System 9 -- 同步
           
         </div>
       </a>
     
     
-      <a href="/2021/03/22/%E4%BA%94%20%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98/" class="article-nav-link">
+      <a href="/2021/03/23/%E4%B8%83%20%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Operating System 5 -- 虚拟内存</div>
+        <div class="article-nav-title">Operating System 7 -- 进程管理</div>
       </a>
     
   </nav>
