@@ -99,7 +99,7 @@
   
     <div class="article-entry" itemprop="articleBody">
        
-  <h2 id="一-字符串"><a href="#一-字符串" class="headerlink" title="一 字符串"></a>一 字符串</h2><p>今天的上机有几道题提醒了我可能我关于高精度和字符串掌握程度不熟，所以再来回顾一遍</p>
+  <script src="/assets/js/APlayer.min.js"> </script><h2 id="一-字符串"><a href="#一-字符串" class="headerlink" title="一 字符串"></a>一 字符串</h2><p>今天的上机有几道题提醒了我可能我关于高精度和字符串掌握程度不熟，所以再来回顾一遍</p>
 <h3 id="1-1-高精度存值"><a href="#1-1-高精度存值" class="headerlink" title="1.1 高精度存值"></a>1.1 高精度存值</h3><p>这个使输入一个阶乘的值然后用数组来保存，一开始我的方法是：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> str;</span><br><span class="line"><span class="keyword">int</span> sum = <span class="number">0</span>, count = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=str.length()<span class="number">-1</span>; i&gt;=<span class="number">0</span>; --i)&#123;</span><br><span class="line">    sum += (str[i]-<span class="string">&#x27;0&#x27;</span>)*count;</span><br><span class="line">    count *= <span class="number">10</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; sum;</span><br></pre></td></tr></table></figure>
 

@@ -99,17 +99,17 @@
   
     <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="LeetCode【树Ⅰ】"><a href="#LeetCode【树Ⅰ】" class="headerlink" title="LeetCode【树Ⅰ】"></a>LeetCode【树Ⅰ】</h1><blockquote>
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="LeetCode【树Ⅰ】"><a href="#LeetCode【树Ⅰ】" class="headerlink" title="LeetCode【树Ⅰ】"></a>LeetCode【树Ⅰ】</h1><blockquote>
 <p>贯穿在树中间的是递归的思想，在树这一块，我们主要讨论递归在解决树型问题时起的作用，解题的重点也在于<strong>分析树的每个节点在做什么，并且相信他会一直这么做下去</strong>。</p>
 </blockquote>
 <h2 id="P226-翻转二叉树"><a href="#P226-翻转二叉树" class="headerlink" title="P226 翻转二叉树"></a>P226 翻转二叉树</h2><p>来看一下题目：</p>
-<img src="https://i.loli.net/2020/11/18/pmsQNlkg5erajCb.png" alt="p226.png" style="zoom:50%;" />
+<img src="https://i.loli.net/2020/11/18/pmsQNlkg5erajCb.png" alt="p226.png" style="zoom:50%;">
 
 <p>根据递归的思路，我们分析一下每个节点在做什么事，可以注意到的是，这个翻转是把每个结点的左孩子和右孩子进行了调换，因此树中每个结点所做的就是把左孩子和右孩子进行调换。</p>
 <p><strong>注意：</strong>当结点为空时，这个时候就需要返回空的结点<code>NULL</code>，这个是特殊的条件。由这个条件，我们得到下面代码：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">TreeNode* <span class="title">invertTree</span><span class="params">(TreeNode* root)</span></span>&#123;</span><br><span class="line">	<span class="comment">/*前序遍历代码*/</span></span><br><span class="line">    <span class="keyword">if</span>(root == <span class="literal">nullptr</span>) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">   	TreeNode* tmp = root-&gt;left;            <span class="comment">//通过中间变量tmp来替换</span></span><br><span class="line">    root-&gt;left = root-&gt;right;</span><br><span class="line">    root-&gt;right = tmp;</span><br><span class="line"> 	</span><br><span class="line">    <span class="comment">/*对每个结点进行递归，相信它都会这么做*/</span></span><br><span class="line">    invertTree(root-&gt;left);               <span class="comment">//从左节点开始</span></span><br><span class="line">    invertTree(root-&gt;right);              <span class="comment">//从右节点开始</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> root;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="P116-填充每个节点的下一个右侧节点指针"><a href="#P116-填充每个节点的下一个右侧节点指针" class="headerlink" title="P116 填充每个节点的下一个右侧节点指针"></a>P116 填充每个节点的下一个右侧节点指针</h2><img src="https://i.loli.net/2020/11/18/chZkdUGrJ2bayIp.png" alt="P116.png" style="zoom: 50%;" />
+<h2 id="P116-填充每个节点的下一个右侧节点指针"><a href="#P116-填充每个节点的下一个右侧节点指针" class="headerlink" title="P116 填充每个节点的下一个右侧节点指针"></a>P116 填充每个节点的下一个右侧节点指针</h2><img src="https://i.loli.net/2020/11/18/chZkdUGrJ2bayIp.png" alt="P116.png" style="zoom: 50%;">
 
 
 
@@ -122,7 +122,7 @@
 <p>因此，这里我们重新构建一个参数，用来传每个结点的左孩子和右孩子，把三种指向的情况全部实现，最后我们构建的<code>build</code>函数是这样的</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Node* <span class="title">connect</span><span class="params">(Node* root)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(root == <span class="literal">nullptr</span>) <span class="keyword">return</span> <span class="literal">nullptr</span>;   <span class="comment">//这个注意一下如果没有判断root为空，&#x27;[]&#x27;情况会出错</span></span><br><span class="line">    connect(root-&gt;left, root-&gt;right);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> root;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">connect</span><span class="params">(Node* l, Node* r)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(l == <span class="literal">nullptr</span> || r == <span class="literal">nullptr</span>) <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">    l-&gt;next = r;</span><br><span class="line">    </span><br><span class="line">    connect(l-&gt;left, l-&gt;right);</span><br><span class="line">    connect(r-&gt;left, r-&gt;right);</span><br><span class="line">    connect(l-&gt;right, l-&gt;left);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="P114-二叉树展开成链表"><a href="#P114-二叉树展开成链表" class="headerlink" title="P114 二叉树展开成链表"></a>P114 二叉树展开成链表</h2><img src="https://i.loli.net/2020/11/19/EaeBjoYNH8RZKu9.png" alt="p114.png" style="zoom:50%;" />
+<h2 id="P114-二叉树展开成链表"><a href="#P114-二叉树展开成链表" class="headerlink" title="P114 二叉树展开成链表"></a>P114 二叉树展开成链表</h2><img src="https://i.loli.net/2020/11/19/EaeBjoYNH8RZKu9.png" alt="p114.png" style="zoom:50%;">
 
 <p>同样的，我们还是来分析节点在做什么事。</p>
 <p>分析一下，我们可以看到对某一节点，它是将左子树的节点全部转到右子树，再将原来的右子树节点补到现有的最后一个右节点后，这么说可能不详细【现在还没学会在线画图的废清】，我们举个例子</p>
@@ -135,7 +135,7 @@
 <p>这里我们主要讲递归对BST的作用</p>
 </blockquote>
 <p>同样的，我们在是使用递归前还是需要去分析好每个节点所做的事情是什么，然后相信他，写出递归的代码出来，话不多说，我们开始吧~</p>
-<h2 id="P98-验证二叉搜索树"><a href="#P98-验证二叉搜索树" class="headerlink" title="P98 验证二叉搜索树"></a>P98 验证二叉搜索树</h2><img src="https://i.loli.net/2020/11/20/h8XxHJiRUkzBIvb.png" alt="p98.png" style="zoom:50%;" />
+<h2 id="P98-验证二叉搜索树"><a href="#P98-验证二叉搜索树" class="headerlink" title="P98 验证二叉搜索树"></a>P98 验证二叉搜索树</h2><img src="https://i.loli.net/2020/11/20/h8XxHJiRUkzBIvb.png" alt="p98.png" style="zoom:50%;">
 
 <p>因为题目要求关于对应节点左子树和右子树的情况为，左孩子小于父节点，右孩子大于父结点，所以我们可以从这个条件入手往下找，那么问题来了，怎么用递归来分开比较左子树和右子树呢？</p>
 <p>我们可以使用<code>min</code>和<code>max</code>来保存这些状态，<code>min</code>和<code>max</code>存的都是父结点的值，由此可以一直比较下去，那么怎么比的呢，我们先把整个代码写出来，为：</p>
@@ -147,7 +147,7 @@
 <li>左子树的值一定小于右子树</li>
 <li>查找时的处理方式接近于二分查找，时间复杂度为$O(logn)$.</li>
 </ul>
-<h2 id="P654-最大二叉树"><a href="#P654-最大二叉树" class="headerlink" title="P654 最大二叉树"></a>P654 最大二叉树</h2><img src="https://i.loli.net/2020/11/20/xDMjXr6qINZbWG1.png" alt="p654.png" style="zoom:50%;" />
+<h2 id="P654-最大二叉树"><a href="#P654-最大二叉树" class="headerlink" title="P654 最大二叉树"></a>P654 最大二叉树</h2><img src="https://i.loli.net/2020/11/20/xDMjXr6qINZbWG1.png" alt="p654.png" style="zoom:50%;">
 
 <p>锁定节点需要做的事：找到最大元素后，记录其位置<code>index</code>，后在其左边建树，再在其右边建数，然后将左子树和右子树连在一起，所以这里节点要做的事即为：</p>
 <ol>
@@ -159,7 +159,7 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">TreeNode* <span class="title">constructMaximumBinaryTree</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> build(nums, <span class="number">0</span>, nums.size()<span class="number">-1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">TreeNode* <span class="title">build</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(l&gt;r) <span class="keyword">return</span> <span class="literal">nullptr</span>;	                      <span class="comment">//这个判断很关键</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">int</span> index = <span class="number">-1</span>, val = <span class="number">-10000</span>;                 <span class="comment">//index设为-1，保证其不影响递归的加减</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = l; i &lt;= r; ++i)&#123;</span><br><span class="line">        <span class="keyword">if</span>(val &lt; nums[i])&#123;</span><br><span class="line">            val = nums[i];</span><br><span class="line">            index = i;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    TreeNode* root = <span class="keyword">new</span> TreeNode(val);</span><br><span class="line">    root-&gt;left = build(nums, l, index<span class="number">-1</span>);</span><br><span class="line">    root-&gt;right = build(nums, index+<span class="number">1</span>, r);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> root;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>我这里出错的原因是<code>l&gt;r</code>的判定条件写成了<code>l &lt; 0|| r &gt; nums.size()-1</code>，原因是，在递归时会出现<code>l&gt;r</code>的情况，而如果不判断这个在循环的时候就会出错，过不了了~</p>
-<h2 id="P105-前序与中序遍序构造二叉树"><a href="#P105-前序与中序遍序构造二叉树" class="headerlink" title="P105 前序与中序遍序构造二叉树"></a>P105 前序与中序遍序构造二叉树</h2><img src="https://i.loli.net/2020/11/20/4qSxJUemIYBuavl.png" alt="p105.png" style="zoom:50%;" />
+<h2 id="P105-前序与中序遍序构造二叉树"><a href="#P105-前序与中序遍序构造二叉树" class="headerlink" title="P105 前序与中序遍序构造二叉树"></a>P105 前序与中序遍序构造二叉树</h2><img src="https://i.loli.net/2020/11/20/4qSxJUemIYBuavl.png" alt="p105.png" style="zoom:50%;">
 
 <p>在构造树最关键的应该是，找到三种遍历间的关系，在我做二叉树关于三种遍历时我都是这么来想的，以<code>左-中-右</code>来表示左孩子、父结点、右孩子，它们遍历的顺序为：</p>
 <ul>
@@ -182,7 +182,7 @@
 <blockquote>
 <p>关键在于：找到前序和中序左子树和右子树建树的位置，即根节点，然后按照往左往右递归地深入下去建树。</p>
 </blockquote>
-<h2 id="P106-中序与后序遍历构造二叉树"><a href="#P106-中序与后序遍历构造二叉树" class="headerlink" title="P106 中序与后序遍历构造二叉树"></a>P106 中序与后序遍历构造二叉树</h2><img src="https://i.loli.net/2020/11/20/WuI8DT5AiNy6Q2z.png" alt="p106.png" style="zoom:50%;" />
+<h2 id="P106-中序与后序遍历构造二叉树"><a href="#P106-中序与后序遍历构造二叉树" class="headerlink" title="P106 中序与后序遍历构造二叉树"></a>P106 中序与后序遍历构造二叉树</h2><img src="https://i.loli.net/2020/11/20/WuI8DT5AiNy6Q2z.png" alt="p106.png" style="zoom:50%;">
 
 <p>与上题类似，这道题我们需要找到中序和后序的关系，分析知道：</p>
 <ul>

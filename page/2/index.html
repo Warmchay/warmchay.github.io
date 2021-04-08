@@ -926,7 +926,7 @@
       
     <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="一-C语言程序举例"><a href="#一-C语言程序举例" class="headerlink" title="一 C语言程序举例"></a>一 C语言程序举例</h1><h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><blockquote>
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="一-C语言程序举例"><a href="#一-C语言程序举例" class="headerlink" title="一 C语言程序举例"></a>一 C语言程序举例</h1><h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><blockquote>
 <p><strong>① ISO C90标准，32位系统的程序运行：</strong></p>
 <ul>
 <li>-2147483648 &lt; 2147483648  <strong>False</strong></li>
@@ -942,7 +942,7 @@
 <li>机器级数据的表示和运算</li>
 <li>…</li>
 </ul>
-<p><strong>② x, y都为int型，当x = 65535, y = x*x; y的值是多少？</strong></p>
+<p>*<em>② x, y都为int型，当x = 65535, y = x</em>x; y的值是多少？**</p>
 <ul>
 <li>y = -131071  <strong>WHY?</strong></li>
 </ul>
@@ -956,11 +956,11 @@
 
 <p><strong>Rea：</strong></p>
 <ul>
-<li><strong>关于①</strong>：由于$\frac{a}{-1}$中，<code>-1</code>为常数，在这个过程中程序得知除以<code>-1</code>，其被优化成<strong>取负指令<code>neg</code><strong>，因此没有发生</strong>除法溢出</strong>【检测不到】【可以使用objdump反汇编编码来检测】</li>
-<li><strong>关于②</strong>：因为<code>a、b</code>都为变量，在进行运算时采用的是<strong>除法指令<code>IDIV</code><strong>实现，但它不生成</strong><code>OF</code>指令</strong>，那么是如何判断<strong>溢出异常</strong>的呢？</li>
+<li><strong>关于①</strong>：由于$\frac{a}{-1}$中，<code>-1</code>为常数，在这个过程中程序得知除以<code>-1</code>，其被优化成<strong>取负指令<code>neg</code>**，因此没有发生</strong>除法溢出**【检测不到】【可以使用objdump反汇编编码来检测】</li>
+<li><strong>关于②</strong>：因为<code>a、b</code>都为变量，在进行运算时采用的是<strong>除法指令<code>IDIV</code>**实现，但它不生成</strong><code>OF</code>指令<strong>，那么是如何判断</strong>溢出异常**的呢？</li>
 </ul>
 <blockquote>
-<p>这个实际上是<strong>“除法错”异常#DE（类型0）</strong>，在Linux中，对#DE类型发<strong>SIGFPE****信号</strong></p>
+<p>这个实际上是<strong>“除法错”异常#DE（类型0）</strong>，在Linux中，对#DE类型发<strong>SIGFPE**</strong>信号**</p>
 </blockquote>
 <h2 id="1-2-什么是计算机系统"><a href="#1-2-什么是计算机系统" class="headerlink" title="1.2 什么是计算机系统"></a>1.2 什么是计算机系统</h2><blockquote>
 <p>将计算机系统分为两个部分，四类对象进行了解</p>
@@ -1253,8 +1253,7 @@
 <li><pre><code class="bash">Ld M#,R# (将存储单元内容装入寄存器)【Ld == Lord  装入】
 St R#,M# (将寄存器内容装入存储单元)【St == Store 存储】
 Add R#,M#(类似的还有Sub、Mul等)
-Jxx M#   (若满足条件，转移到另一处执行)
-</code></pre>
+Jxx M#   (若满足条件，转移到另一处执行)</code></pre>
 <p><img src="https://i.loli.net/2020/11/29/OloWyK5mt17CNQR.jpg" alt="指令描述的功能.jpg"></p>
 </li>
 <li><p>汇编语言（源）程序由<strong>汇编指令</strong>构成</p>
@@ -1335,7 +1334,7 @@ Jxx M#   (若满足条件，转移到另一处执行)
       
     <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="一-汉诺塔问题"><a href="#一-汉诺塔问题" class="headerlink" title="一 汉诺塔问题"></a>一 汉诺塔问题</h1><blockquote>
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="一-汉诺塔问题"><a href="#一-汉诺塔问题" class="headerlink" title="一 汉诺塔问题"></a>一 汉诺塔问题</h1><blockquote>
 <p>这里没有用指针，之后再更新指针部分      —11.15</p>
 </blockquote>
 <p>汉诺塔问题一直困扰了我比较久，总结的规律是，递归方式重点在于分为<strong>初始柱【A】、中转柱【B】及目标柱【C】</strong></p>
@@ -1440,7 +1439,7 @@ Jxx M#   (若满足条件，转移到另一处执行)
       
     <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="比特币是什么"><a href="#比特币是什么" class="headerlink" title="比特币是什么"></a>比特币是什么</h1><h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><blockquote>
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="比特币是什么"><a href="#比特币是什么" class="headerlink" title="比特币是什么"></a>比特币是什么</h1><h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><blockquote>
 <p> 比特币与区块链的关系十分密切，那么解释区块链前，先来介绍下比特币是什么</p>
 </blockquote>
 <table>
@@ -1483,7 +1482,7 @@ Jxx M#   (若满足条件，转移到另一处执行)
 <li>做到了在<strong>无中心</strong>管理状态下行动的统一</li>
 <li>因为没有权力中心，也没有管理中心，在比特币的系统中，法治真正代替了人治，在这个系统中，即使是最高统治者，也必须严格遵守规则，服从人民的共识。</li>
 </ol>
-<img src="https://pic.downk.cc/item/5fa53cf51cd1bbb86bb18b2a.png" style="zoom: 50%;" />
+<img src="https://pic.downk.cc/item/5fa53cf51cd1bbb86bb18b2a.png" style="zoom: 50%;">
 
 <center>比特币生态圈</center>
 
@@ -1499,7 +1498,7 @@ Jxx M#   (若满足条件，转移到另一处执行)
 <p>而比特币的付款与支付宝很像，用户只需要扫一下对方比特币的地址，或者输入地址，再输入比特币的数额进行转账就行。</p>
 </li>
 </ol>
-<img src="https://i.loli.net/2020/11/06/OMakE1ProlKBsjm.png" alt="中心式.png" style="zoom: 67%;" />
+<img src="https://i.loli.net/2020/11/06/OMakE1ProlKBsjm.png" alt="中心式.png" style="zoom: 67%;">
 
 <center>集中式与分布式记账网络</center>
 
@@ -1520,7 +1519,7 @@ Jxx M#   (若满足条件，转移到另一处执行)
 <p><strong>比特币是一个价值传输网络，参与比特币系统运作的人（包括用户），就是网络中的一个个节点，节点彼此等权，没有中心，相互之间连接完全自由，各自保存着完全一致的比特币账本，运行着遵循相同规则的比特币秩序。任何人都可以加入比特币网络，新加入比特币网络的节点，向原有的节点要一份比特币账本。</strong></p>
 </blockquote>
 <p>如果用比特币付款，使用者需要向比特币网络广播付款信息（“广播”指比特币网络中多个节点发送付款信息），而收到信息的节点验证网络会继续广播，一传十，十传百，付款信息由此会传遍全网，最后会被某一位记账着记入区块链的账本当中。</p>
-<img src="https://i.loli.net/2020/11/06/L5kdVmXIyutSw9W.jpg" alt="Bitcoin广播.jpg" style="zoom: 67%;" />
+<img src="https://i.loli.net/2020/11/06/L5kdVmXIyutSw9W.jpg" alt="Bitcoin广播.jpg" style="zoom: 67%;">
 
 <p>问题来了，<strong>为什么会有人来记比特币的账呢？如果谁都可以记账，那么以谁记得账为主呢？并且在这个过程中如何确保账本的真实性呢及比特币又是怎么发行出来的呢？</strong></p>
 <h3 id="3-2-谁来记账"><a href="#3-2-谁来记账" class="headerlink" title="3.2 谁来记账"></a>3.2 谁来记账</h3><p>比特币规定，记账者是有奖励的，一部分奖励是<strong>账单中用户出的手续费</strong>，手续费也是以比特币支付的，因为手续费由客户自己定，可高可低，如果给的高，记账者就倾向于先记这笔手续高的帐。而另一部分的奖励则是<strong>区块的奖励</strong>，每打包一定的区块，就会获得一定的区块奖励。</p>
@@ -1534,7 +1533,7 @@ Jxx M#   (若满足条件，转移到另一处执行)
 <blockquote>
 <p>表明以该区块为准的方式，就是将该区块头的哈希值纳入到自己要计算的下一个区块头中。</p>
 </blockquote>
-<img src="https://pic.downk.cc/item/5fa53da21cd1bbb86bb1adda.png" style="zoom: 50%;" />
+<img src="https://pic.downk.cc/item/5fa53da21cd1bbb86bb1adda.png" style="zoom: 50%;">
 
 <center>区块链数据结构</center>
 
@@ -1546,7 +1545,7 @@ Jxx M#   (若满足条件，转移到另一处执行)
 <li><p><strong>总结：</strong>可以看到，区块通过Merkle树根哈希值，将区块体和区块头紧密联系在了一起，账单无法篡改；而区块头的哈希值前后衔接，又能保证了区块链环环相扣，无法篡改。</p>
 </li>
 </ul>
-<img src="https://pic.downk.cc/item/5fa53a6c1cd1bbb86bb0edbb.png" style="zoom: 50%;" />
+<img src="https://pic.downk.cc/item/5fa53a6c1cd1bbb86bb0edbb.png" style="zoom: 50%;">
 
 
 
@@ -1578,7 +1577,7 @@ Jxx M#   (若满足条件，转移到另一处执行)
 <p>这种出块方式的制定，说明了<strong>谁的算力强，谁能在单位时间内计算次数多，谁就能更大的概率试出符合要求的哈希值，获得记账权和比特币的奖励。这种共识机制被称为工作量整明（PoW）</strong>。而在工作量证明的机制下，挖矿需要耗费巨大的电力。</p>
 <p><img src="https://pic.downk.cc/item/5fa538de1cd1bbb86bb09a16.jpg"></p>
 <p>基于此，全世界的矿工都会去寻找便宜又大的电力，修建矿场，制造矿机，导致了全网目前的算力是十分高的。而由于全网的算力很高，挖矿的难度很大，单人行动压根不可能挖的到矿，于是大家把算力集中到一个个矿池中，矿池更容易挖到矿，最后再按照各自贡献的算力大小相应分配收益。</p>
-<img src="https://pic.downk.cc/item/5fa53bec1cd1bbb86bb14db8.jpg" style="zoom:67%;" />
+<img src="https://pic.downk.cc/item/5fa53bec1cd1bbb86bb14db8.jpg" style="zoom:67%;">
 
 <center>工作量证明机制示意图</center>
 
@@ -1591,7 +1590,7 @@ Jxx M#   (若满足条件，转移到另一处执行)
 <p>我们在使用支付宝的时候，输入密码或其他方式便能轻松转账；那么对于比特币来说，怎么才能证明支付信息是由你发出的，没有被篡改过的呢？换句话说，就是怎么能确保你的币由你一人控制，这就涉及到了数字签名的原理。</p>
 </blockquote>
 <h3 id="4-1-比特币账户"><a href="#4-1-比特币账户" class="headerlink" title="4.1 比特币账户"></a>4.1 比特币账户</h3><p><strong>与银行开户不同，比特币的账户不需要申请注册，是随机生成的。</strong>首先，我们可以随机生成一个私钥【也为256位二进制数】。可以假想成抛<code>256</code>次硬币，正面<code>1</code>，反面<code>0</code>，这样也能确定你的账户私钥【bushi🙃】。然后再用椭圆曲线数字签名算法<strong>【ECDSA】</strong>对私钥进行运算，生成公钥，之后再对公钥进行哈希运算，就得到了地址。私钥生成公钥的过程也是不可逆的，从公钥无法反推私钥，也可以试试，最多<code>2^256</code>次（小声）。<strong>用椭圆曲线数字签名算法生成的公钥可以配合私钥，进行非对称加密。</strong></p>
-<img src="https://pic.downk.cc/item/5fa53a1a1cd1bbb86bb0dc38.png" style="zoom: 33%;" />
+<img src="https://pic.downk.cc/item/5fa53a1a1cd1bbb86bb0dc38.png" style="zoom: 33%;">
 
 <center>数字签名示意图</center>
 
@@ -1608,7 +1607,7 @@ Jxx M#   (若满足条件，转移到另一处执行)
 <h3 id="4-3-比特币“钱包“"><a href="#4-3-比特币“钱包“" class="headerlink" title="4.3 比特币“钱包“"></a>4.3 比特币“钱包“</h3><p>私钥不像登陆时需要输入的密码，它本身是可以完全不触网的，完全可以在离线状态下在付款信息上签名【这个数字签名就是我们说的<strong>私钥加密付款信息的哈希值</strong>】，然后再把付款信息和签名信息发送到网上广播即可，别人也没有办法从你的签名反推私钥【原理详情了解<strong>椭圆曲线数字签名算法</strong>】。</p>
 <p><strong>比特币的“钱包”</strong>，存的不是币而是私钥，所谓的<strong>”冷钱包“</strong>就是不联网的钱包，能够有效防御黑客盗取私钥。这个过程中起到实际作用是授权调用私钥进行签名，但并非是私钥本身。</p>
 <h3 id="4-4-地址信息的构成"><a href="#4-4-地址信息的构成" class="headerlink" title="4.4 地址信息的构成"></a>4.4 地址信息的构成</h3><p>因为地址之类的信息用二进制表示的话会非常长，因此在比特币中采用了Base58的编码方式，即将二进制数字换成58进制数表示，所以我们通常看到的地址是一串大小写字母和数字的组合。</p>
-<img src="https://pic.downk.cc/item/5fa542ee1cd1bbb86bb2c32f.png" style="zoom:50%;" />
+<img src="https://pic.downk.cc/item/5fa542ee1cd1bbb86bb2c32f.png" style="zoom:50%;">
 
 <center>区块链运行机制</center>
 
@@ -1742,7 +1741,7 @@ Jxx M#   (若满足条件，转移到另一处执行)
       
     <div class="article-entry" itemprop="articleBody">
        
-  <h2 id="一-字符串"><a href="#一-字符串" class="headerlink" title="一 字符串"></a>一 字符串</h2><p>今天的上机有几道题提醒了我可能我关于高精度和字符串掌握程度不熟，所以再来回顾一遍</p>
+  <script src="/assets/js/APlayer.min.js"> </script><h2 id="一-字符串"><a href="#一-字符串" class="headerlink" title="一 字符串"></a>一 字符串</h2><p>今天的上机有几道题提醒了我可能我关于高精度和字符串掌握程度不熟，所以再来回顾一遍</p>
 <h3 id="1-1-高精度存值"><a href="#1-1-高精度存值" class="headerlink" title="1.1 高精度存值"></a>1.1 高精度存值</h3><p>这个使输入一个阶乘的值然后用数组来保存，一开始我的方法是：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> str;</span><br><span class="line"><span class="keyword">int</span> sum = <span class="number">0</span>, count = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=str.length()<span class="number">-1</span>; i&gt;=<span class="number">0</span>; --i)&#123;</span><br><span class="line">    sum += (str[i]-<span class="string">&#x27;0&#x27;</span>)*count;</span><br><span class="line">    count *= <span class="number">10</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; sum;</span><br></pre></td></tr></table></figure>
 
@@ -1839,7 +1838,7 @@ Jxx M#   (若满足条件，转移到另一处执行)
       
     <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="一致性算法（Paxos、Raft、ZAB）"><a href="#一致性算法（Paxos、Raft、ZAB）" class="headerlink" title="一致性算法（Paxos、Raft、ZAB）"></a>一致性算法（Paxos、Raft、ZAB）</h1><h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><table>
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="一致性算法（Paxos、Raft、ZAB）"><a href="#一致性算法（Paxos、Raft、ZAB）" class="headerlink" title="一致性算法（Paxos、Raft、ZAB）"></a>一致性算法（Paxos、Raft、ZAB）</h1><h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><table>
 <thead>
 <tr>
 <th align="left">一 什么是一致性</th>
@@ -2126,17 +2125,17 @@ Jxx M#   (若满足条件，转移到另一处执行)
       
     <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="LeetCode【树Ⅰ】"><a href="#LeetCode【树Ⅰ】" class="headerlink" title="LeetCode【树Ⅰ】"></a>LeetCode【树Ⅰ】</h1><blockquote>
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="LeetCode【树Ⅰ】"><a href="#LeetCode【树Ⅰ】" class="headerlink" title="LeetCode【树Ⅰ】"></a>LeetCode【树Ⅰ】</h1><blockquote>
 <p>贯穿在树中间的是递归的思想，在树这一块，我们主要讨论递归在解决树型问题时起的作用，解题的重点也在于<strong>分析树的每个节点在做什么，并且相信他会一直这么做下去</strong>。</p>
 </blockquote>
 <h2 id="P226-翻转二叉树"><a href="#P226-翻转二叉树" class="headerlink" title="P226 翻转二叉树"></a>P226 翻转二叉树</h2><p>来看一下题目：</p>
-<img src="https://i.loli.net/2020/11/18/pmsQNlkg5erajCb.png" alt="p226.png" style="zoom:50%;" />
+<img src="https://i.loli.net/2020/11/18/pmsQNlkg5erajCb.png" alt="p226.png" style="zoom:50%;">
 
 <p>根据递归的思路，我们分析一下每个节点在做什么事，可以注意到的是，这个翻转是把每个结点的左孩子和右孩子进行了调换，因此树中每个结点所做的就是把左孩子和右孩子进行调换。</p>
 <p><strong>注意：</strong>当结点为空时，这个时候就需要返回空的结点<code>NULL</code>，这个是特殊的条件。由这个条件，我们得到下面代码：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">TreeNode* <span class="title">invertTree</span><span class="params">(TreeNode* root)</span></span>&#123;</span><br><span class="line">	<span class="comment">/*前序遍历代码*/</span></span><br><span class="line">    <span class="keyword">if</span>(root == <span class="literal">nullptr</span>) <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">   	TreeNode* tmp = root-&gt;left;            <span class="comment">//通过中间变量tmp来替换</span></span><br><span class="line">    root-&gt;left = root-&gt;right;</span><br><span class="line">    root-&gt;right = tmp;</span><br><span class="line"> 	</span><br><span class="line">    <span class="comment">/*对每个结点进行递归，相信它都会这么做*/</span></span><br><span class="line">    invertTree(root-&gt;left);               <span class="comment">//从左节点开始</span></span><br><span class="line">    invertTree(root-&gt;right);              <span class="comment">//从右节点开始</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> root;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="P116-填充每个节点的下一个右侧节点指针"><a href="#P116-填充每个节点的下一个右侧节点指针" class="headerlink" title="P116 填充每个节点的下一个右侧节点指针"></a>P116 填充每个节点的下一个右侧节点指针</h2><img src="https://i.loli.net/2020/11/18/chZkdUGrJ2bayIp.png" alt="P116.png" style="zoom: 50%;" />
+<h2 id="P116-填充每个节点的下一个右侧节点指针"><a href="#P116-填充每个节点的下一个右侧节点指针" class="headerlink" title="P116 填充每个节点的下一个右侧节点指针"></a>P116 填充每个节点的下一个右侧节点指针</h2><img src="https://i.loli.net/2020/11/18/chZkdUGrJ2bayIp.png" alt="P116.png" style="zoom: 50%;">
 
 
 
@@ -2149,7 +2148,7 @@ Jxx M#   (若满足条件，转移到另一处执行)
 <p>因此，这里我们重新构建一个参数，用来传每个结点的左孩子和右孩子，把三种指向的情况全部实现，最后我们构建的<code>build</code>函数是这样的</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Node* <span class="title">connect</span><span class="params">(Node* root)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(root == <span class="literal">nullptr</span>) <span class="keyword">return</span> <span class="literal">nullptr</span>;   <span class="comment">//这个注意一下如果没有判断root为空，&#x27;[]&#x27;情况会出错</span></span><br><span class="line">    connect(root-&gt;left, root-&gt;right);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> root;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">connect</span><span class="params">(Node* l, Node* r)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(l == <span class="literal">nullptr</span> || r == <span class="literal">nullptr</span>) <span class="keyword">return</span> <span class="literal">nullptr</span>;</span><br><span class="line">    l-&gt;next = r;</span><br><span class="line">    </span><br><span class="line">    connect(l-&gt;left, l-&gt;right);</span><br><span class="line">    connect(r-&gt;left, r-&gt;right);</span><br><span class="line">    connect(l-&gt;right, l-&gt;left);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="P114-二叉树展开成链表"><a href="#P114-二叉树展开成链表" class="headerlink" title="P114 二叉树展开成链表"></a>P114 二叉树展开成链表</h2><img src="https://i.loli.net/2020/11/19/EaeBjoYNH8RZKu9.png" alt="p114.png" style="zoom:50%;" />
+<h2 id="P114-二叉树展开成链表"><a href="#P114-二叉树展开成链表" class="headerlink" title="P114 二叉树展开成链表"></a>P114 二叉树展开成链表</h2><img src="https://i.loli.net/2020/11/19/EaeBjoYNH8RZKu9.png" alt="p114.png" style="zoom:50%;">
 
 <p>同样的，我们还是来分析节点在做什么事。</p>
 <p>分析一下，我们可以看到对某一节点，它是将左子树的节点全部转到右子树，再将原来的右子树节点补到现有的最后一个右节点后，这么说可能不详细【现在还没学会在线画图的废清】，我们举个例子</p>
@@ -2162,7 +2161,7 @@ Jxx M#   (若满足条件，转移到另一处执行)
 <p>这里我们主要讲递归对BST的作用</p>
 </blockquote>
 <p>同样的，我们在是使用递归前还是需要去分析好每个节点所做的事情是什么，然后相信他，写出递归的代码出来，话不多说，我们开始吧~</p>
-<h2 id="P98-验证二叉搜索树"><a href="#P98-验证二叉搜索树" class="headerlink" title="P98 验证二叉搜索树"></a>P98 验证二叉搜索树</h2><img src="https://i.loli.net/2020/11/20/h8XxHJiRUkzBIvb.png" alt="p98.png" style="zoom:50%;" />
+<h2 id="P98-验证二叉搜索树"><a href="#P98-验证二叉搜索树" class="headerlink" title="P98 验证二叉搜索树"></a>P98 验证二叉搜索树</h2><img src="https://i.loli.net/2020/11/20/h8XxHJiRUkzBIvb.png" alt="p98.png" style="zoom:50%;">
 
 <p>因为题目要求关于对应节点左子树和右子树的情况为，左孩子小于父节点，右孩子大于父结点，所以我们可以从这个条件入手往下找，那么问题来了，怎么用递归来分开比较左子树和右子树呢？</p>
 <p>我们可以使用<code>min</code>和<code>max</code>来保存这些状态，<code>min</code>和<code>max</code>存的都是父结点的值，由此可以一直比较下去，那么怎么比的呢，我们先把整个代码写出来，为：</p>
@@ -2174,7 +2173,7 @@ Jxx M#   (若满足条件，转移到另一处执行)
 <li>左子树的值一定小于右子树</li>
 <li>查找时的处理方式接近于二分查找，时间复杂度为$O(logn)$.</li>
 </ul>
-<h2 id="P654-最大二叉树"><a href="#P654-最大二叉树" class="headerlink" title="P654 最大二叉树"></a>P654 最大二叉树</h2><img src="https://i.loli.net/2020/11/20/xDMjXr6qINZbWG1.png" alt="p654.png" style="zoom:50%;" />
+<h2 id="P654-最大二叉树"><a href="#P654-最大二叉树" class="headerlink" title="P654 最大二叉树"></a>P654 最大二叉树</h2><img src="https://i.loli.net/2020/11/20/xDMjXr6qINZbWG1.png" alt="p654.png" style="zoom:50%;">
 
 <p>锁定节点需要做的事：找到最大元素后，记录其位置<code>index</code>，后在其左边建树，再在其右边建数，然后将左子树和右子树连在一起，所以这里节点要做的事即为：</p>
 <ol>
@@ -2186,7 +2185,7 @@ Jxx M#   (若满足条件，转移到另一处执行)
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">TreeNode* <span class="title">constructMaximumBinaryTree</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums)</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> build(nums, <span class="number">0</span>, nums.size()<span class="number">-1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">TreeNode* <span class="title">build</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums, <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(l&gt;r) <span class="keyword">return</span> <span class="literal">nullptr</span>;	                      <span class="comment">//这个判断很关键</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">int</span> index = <span class="number">-1</span>, val = <span class="number">-10000</span>;                 <span class="comment">//index设为-1，保证其不影响递归的加减</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = l; i &lt;= r; ++i)&#123;</span><br><span class="line">        <span class="keyword">if</span>(val &lt; nums[i])&#123;</span><br><span class="line">            val = nums[i];</span><br><span class="line">            index = i;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    TreeNode* root = <span class="keyword">new</span> TreeNode(val);</span><br><span class="line">    root-&gt;left = build(nums, l, index<span class="number">-1</span>);</span><br><span class="line">    root-&gt;right = build(nums, index+<span class="number">1</span>, r);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> root;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>我这里出错的原因是<code>l&gt;r</code>的判定条件写成了<code>l &lt; 0|| r &gt; nums.size()-1</code>，原因是，在递归时会出现<code>l&gt;r</code>的情况，而如果不判断这个在循环的时候就会出错，过不了了~</p>
-<h2 id="P105-前序与中序遍序构造二叉树"><a href="#P105-前序与中序遍序构造二叉树" class="headerlink" title="P105 前序与中序遍序构造二叉树"></a>P105 前序与中序遍序构造二叉树</h2><img src="https://i.loli.net/2020/11/20/4qSxJUemIYBuavl.png" alt="p105.png" style="zoom:50%;" />
+<h2 id="P105-前序与中序遍序构造二叉树"><a href="#P105-前序与中序遍序构造二叉树" class="headerlink" title="P105 前序与中序遍序构造二叉树"></a>P105 前序与中序遍序构造二叉树</h2><img src="https://i.loli.net/2020/11/20/4qSxJUemIYBuavl.png" alt="p105.png" style="zoom:50%;">
 
 <p>在构造树最关键的应该是，找到三种遍历间的关系，在我做二叉树关于三种遍历时我都是这么来想的，以<code>左-中-右</code>来表示左孩子、父结点、右孩子，它们遍历的顺序为：</p>
 <ul>
@@ -2209,7 +2208,7 @@ Jxx M#   (若满足条件，转移到另一处执行)
 <blockquote>
 <p>关键在于：找到前序和中序左子树和右子树建树的位置，即根节点，然后按照往左往右递归地深入下去建树。</p>
 </blockquote>
-<h2 id="P106-中序与后序遍历构造二叉树"><a href="#P106-中序与后序遍历构造二叉树" class="headerlink" title="P106 中序与后序遍历构造二叉树"></a>P106 中序与后序遍历构造二叉树</h2><img src="https://i.loli.net/2020/11/20/WuI8DT5AiNy6Q2z.png" alt="p106.png" style="zoom:50%;" />
+<h2 id="P106-中序与后序遍历构造二叉树"><a href="#P106-中序与后序遍历构造二叉树" class="headerlink" title="P106 中序与后序遍历构造二叉树"></a>P106 中序与后序遍历构造二叉树</h2><img src="https://i.loli.net/2020/11/20/WuI8DT5AiNy6Q2z.png" alt="p106.png" style="zoom:50%;">
 
 <p>与上题类似，这道题我们需要找到中序和后序的关系，分析知道：</p>
 <ul>

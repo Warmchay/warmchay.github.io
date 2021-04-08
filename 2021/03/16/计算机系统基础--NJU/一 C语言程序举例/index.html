@@ -99,7 +99,7 @@
   
     <div class="article-entry" itemprop="articleBody">
        
-  <h1 id="一-C语言程序举例"><a href="#一-C语言程序举例" class="headerlink" title="一 C语言程序举例"></a>一 C语言程序举例</h1><h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><blockquote>
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="一-C语言程序举例"><a href="#一-C语言程序举例" class="headerlink" title="一 C语言程序举例"></a>一 C语言程序举例</h1><h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><blockquote>
 <p><strong>① ISO C90标准，32位系统的程序运行：</strong></p>
 <ul>
 <li>-2147483648 &lt; 2147483648  <strong>False</strong></li>
@@ -115,7 +115,7 @@
 <li>机器级数据的表示和运算</li>
 <li>…</li>
 </ul>
-<p><strong>② x, y都为int型，当x = 65535, y = x*x; y的值是多少？</strong></p>
+<p>*<em>② x, y都为int型，当x = 65535, y = x</em>x; y的值是多少？**</p>
 <ul>
 <li>y = -131071  <strong>WHY?</strong></li>
 </ul>
@@ -129,11 +129,11 @@
 
 <p><strong>Rea：</strong></p>
 <ul>
-<li><strong>关于①</strong>：由于$\frac{a}{-1}$中，<code>-1</code>为常数，在这个过程中程序得知除以<code>-1</code>，其被优化成<strong>取负指令<code>neg</code><strong>，因此没有发生</strong>除法溢出</strong>【检测不到】【可以使用objdump反汇编编码来检测】</li>
-<li><strong>关于②</strong>：因为<code>a、b</code>都为变量，在进行运算时采用的是<strong>除法指令<code>IDIV</code><strong>实现，但它不生成</strong><code>OF</code>指令</strong>，那么是如何判断<strong>溢出异常</strong>的呢？</li>
+<li><strong>关于①</strong>：由于$\frac{a}{-1}$中，<code>-1</code>为常数，在这个过程中程序得知除以<code>-1</code>，其被优化成<strong>取负指令<code>neg</code>**，因此没有发生</strong>除法溢出**【检测不到】【可以使用objdump反汇编编码来检测】</li>
+<li><strong>关于②</strong>：因为<code>a、b</code>都为变量，在进行运算时采用的是<strong>除法指令<code>IDIV</code>**实现，但它不生成</strong><code>OF</code>指令<strong>，那么是如何判断</strong>溢出异常**的呢？</li>
 </ul>
 <blockquote>
-<p>这个实际上是<strong>“除法错”异常#DE（类型0）</strong>，在Linux中，对#DE类型发<strong>SIGFPE****信号</strong></p>
+<p>这个实际上是<strong>“除法错”异常#DE（类型0）</strong>，在Linux中，对#DE类型发<strong>SIGFPE**</strong>信号**</p>
 </blockquote>
 <h2 id="1-2-什么是计算机系统"><a href="#1-2-什么是计算机系统" class="headerlink" title="1.2 什么是计算机系统"></a>1.2 什么是计算机系统</h2><blockquote>
 <p>将计算机系统分为两个部分，四类对象进行了解</p>
@@ -426,8 +426,7 @@
 <li><pre><code class="bash">Ld M#,R# (将存储单元内容装入寄存器)【Ld == Lord  装入】
 St R#,M# (将寄存器内容装入存储单元)【St == Store 存储】
 Add R#,M#(类似的还有Sub、Mul等)
-Jxx M#   (若满足条件，转移到另一处执行)
-</code></pre>
+Jxx M#   (若满足条件，转移到另一处执行)</code></pre>
 <p><img src="https://i.loli.net/2020/11/29/OloWyK5mt17CNQR.jpg" alt="指令描述的功能.jpg"></p>
 </li>
 <li><p>汇编语言（源）程序由<strong>汇编指令</strong>构成</p>
