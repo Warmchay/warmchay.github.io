@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    Operating System 10 -- 信号量 |  
+    uCore Lab 0 |  
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -45,7 +45,7 @@
     <main class="content on">
       <section class="outer">
   <article
-  id="post-十 信号量「Semephore」"
+  id="post-uCore/Lab 0"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -56,18 +56,18 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  Operating System 10 -- 信号量
+  uCore Lab 0
 </h1>
  
 
     </header>
      
     <div class="article-meta">
-      <a href="/2021/03/25/%E5%8D%81%20%E4%BF%A1%E5%8F%B7%E9%87%8F%E3%80%8CSemephore%E3%80%8D/" class="article-date">
-  <time datetime="2021-03-25T13:47:48.823Z" itemprop="datePublished">2021-03-25</time>
+      <a href="/2021/04/04/uCore/Lab%200/" class="article-date">
+  <time datetime="2021-04-04T04:18:50.260Z" itemprop="datePublished">2021-04-04</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+    <a class="article-category-link" href="/categories/uCore/">uCore</a>
   </div>
   
 <div class="word_count">
@@ -75,7 +75,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">965</span>
+            <span class="post-count">2.3k</span>
         </span>
     </span>
 
@@ -84,7 +84,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">3 分钟</span>
+            <span class="post-count">8 分钟</span>
         </span>
     </span>
 </div>
@@ -99,136 +99,88 @@
   
     <div class="article-entry" itemprop="articleBody">
        
-  <script src="/assets/js/APlayer.min.js"> </script><h1 id="十-信号量-「Semaphore」"><a href="#十-信号量-「Semaphore」" class="headerlink" title="十 信号量 「Semaphore」"></a>十 信号量 「Semaphore」</h1><h2 id="10-1-背景"><a href="#10-1-背景" class="headerlink" title="10.1 背景"></a>10.1 背景</h2><ol>
-<li><strong>并发问题：竞争条件（竞态条件）</strong><ul>
-<li>多程序并发存在很大问题</li>
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="Lab-0"><a href="#Lab-0" class="headerlink" title="Lab 0"></a>Lab 0</h1><h2 id="0-1-Intel-80386-处理器硬件"><a href="#0-1-Intel-80386-处理器硬件" class="headerlink" title="0.1 Intel 80386 处理器硬件"></a>0.1 Intel 80386 处理器硬件</h2><h3 id="0-1-1-80386-运行模式"><a href="#0-1-1-80386-运行模式" class="headerlink" title="0.1.1 80386 运行模式"></a>0.1.1 80386 运行模式</h3><p>80386四种模式：实模式、保护模式、SMM模式和虚拟8086模式</p>
+<p>ucore中涉及的是前两种：实模式和保护模式</p>
+<ul>
+<li><strong>实模式</strong></li>
 </ul>
-</li>
-<li><strong>同步</strong><ul>
-<li>多线程共享公共数据的协调执行</li>
-<li>包括互斥与条件同步</li>
-<li>互斥：在同一时间只有一个线程可以执行临界区</li>
+<p>实模式将整个物理内存堪称分段的区域，程序代码和数据位于不同区域，os和用户程序没有区别对待，并且每一个指针都是指向实际的物理地址。</p>
+<p>这样，当用户程序的一个指针如果指向了os区域或其他用户程序区域，后果是灾难性的</p>
+<ul>
+<li><strong>保护模式</strong></li>
 </ul>
-</li>
-<li><strong>确保同步正确很难？</strong><ul>
-<li>需要高层次的编程抽象（如：锁）</li>
-<li>从底层硬件支持编译</li>
+<p><strong>主要目的</strong>是确保应用程序无法对操作系统进行破坏。</p>
+<p>实际上， 80386通过在实模式下初始化控制寄存器以及页表，后通过设置CR0寄存器将其中的<strong>保护模式的使能位置位</strong>，从而进入到80386的保护模式。当80386工作在保护模式下的时候，其所有的32根地址线都可供寻址，物理寻址空间高达4GB。</p>
+<p>在保护模式下，支持内存分页机制，并且支持优先级机制，不同的程序可以运行在不同的特权级上，特权级一共分0～3四个级别，os运行在最高的<strong>特权级0</strong>上</p>
+<h3 id="0-1-2-80386内存架构"><a href="#0-1-2-80386内存架构" class="headerlink" title="0.1.2 80386内存架构"></a>0.1.2 80386内存架构</h3><p>80386时32位处理器，可以寻址的物理内存地址空间为$2^{32} = 4G$字节，在ucore中，需要用到三个地址空间的概念：物理地址、线性地址和逻辑地址</p>
+<p><strong>物理内存地址空间</strong>： 为处理器提交到总线上用于访问计算机系统中的内存和外设的最终地址，一个计算机系统中只有一个物理地址空间</p>
+<p><strong>线性地址空间：</strong> 为80386处理器通过段（Segment）机制控制下形成的地址空间，在os的管理下，每个运行的应用程序都有相对独立的一个或多个内存空间段，每个段有各自的起始地址和长度属性，大小不固定，这样能让多个运行的应用程序之间相互隔离，实现对地址空间的保护</p>
+<p>在os完成对80386处理器段机制的<strong>初始化和配置</strong>（需要os通过<strong>特定的指令和操作间里全局描述符表，完成虚拟地址与线性地址的映射关系</strong>）后，80386处理器的段管理功能单元把虚拟地址转换成线性地址。</p>
+<p>相对而言，段机制对<strong>大量应用程序分散地使用大内存</strong>的支持能力较弱，所以intel公司又加入了页机制，每个页的大小是固定的（一般是4KB），也可以完成对内存单元的安全保护、隔离，能够有效<strong>支持大量应用程序分散地使用大内存</strong>的情况</p>
+<p>在os完成对80386处理器页机制的初始化和配置后，应用程序看到的逻辑地址先被处理器中的段管理功能单元转换为线性地址，然后再通过80386处理器中的页管理功能单元把线性地址转换成物理地址</p>
+<blockquote>
+<p>页机制和段机制有一定程度的功能重复，intel为了向下兼容等目标，使得这两者一直共存</p>
+</blockquote>
+<p>上述三种地址的关系为：</p>
+<ul>
+<li><strong>分段机制启动、分页机制未启动</strong>：逻辑地址–&gt;段机制处理–&gt;线性地址=物理地址</li>
+<li><strong>分段机制和分页机制都启动：</strong> 逻辑地址–&gt;<strong>段机制处理</strong>–&gt;线性地址–&gt;页机制处理–&gt;物理地址</li>
 </ul>
-</li>
+<h3 id="0-1-3-Intel-80386寄存器"><a href="#0-1-3-Intel-80386寄存器" class="headerlink" title="0.1.3 Intel 80386寄存器"></a>0.1.3 Intel 80386寄存器</h3><p>寄存器有8组，我们一般看到的是四组：通用寄存器【General Register】、段寄存器【Segment Register】、指令指针寄存器【Instruction Pointer】、标志寄存器【Flag Register】</p>
+<hr>
+<h2 id="0-2-ucore编程方法"><a href="#0-2-ucore编程方法" class="headerlink" title="0.2 ucore编程方法"></a>0.2 ucore编程方法</h2><h3 id="0-2-1-面向对象编程方法"><a href="#0-2-1-面向对象编程方法" class="headerlink" title="0.2.1 面向对象编程方法"></a>0.2.1 面向对象编程方法</h3><p>采用类似C++的接口概念，接口在C语言中，<strong>表现为一组函数指针的集合</strong>，放在C++中，为<strong>虚表</strong>。接口设计的<strong>难点</strong>是如果找出各种<strong>内核子系统的共性访问/操作模式</strong>，从而可以根据访问模式提取出函数指针列表：</p>
+<ul>
+<li>init：初始化</li>
+<li>init_memmap：分析空闲物理内存并初始化管理</li>
+<li>alloc_pages: 分配物理页</li>
+<li>free_pages：释放物理页</li>
+</ul>
+<p>其他内存子系统需要与物理内存管理子系统交互时，只需要调用<strong>特定物理内存管理子系统</strong>所采用的pmm_manager数据结构变量中的<strong>函数指针</strong>即可</p>
+<h3 id="0-2-2-双向循环链表"><a href="#0-2-2-双向循环链表" class="headerlink" title="0.2.2 双向循环链表"></a>0.2.2 双向循环链表</h3><p>ucore内核中使用了大量的双向循环链表结构来组织数据，包括空闲内存块列表、内存页链表、进程列表、设备链表、文件系统列表等数据组织（在<code>labX/libs/list.h</code>实现），ucore的双向链表结构定义为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">list_entry</span> &#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">list_entry</span> *<span class="title">prev</span>, *<span class="title">next</span>;</span>	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意：list_entry中没有包含data数据与，而是在具体的数据结构中包含链表节点，以lab2的空闲内存块列表为例：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">		<span class="keyword">list_entry_t</span> free_list;</span><br><span class="line">  	<span class="keyword">unsigned</span> <span class="keyword">int</span> nr_free;					</span><br><span class="line">&#125; <span class="keyword">free_area_t</span>;</span><br></pre></td></tr></table></figure>
+
+<p>有关链表操作函数定义如下：</p>
+<ol>
+<li>初始化</li>
 </ol>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210325172037340.png" alt="image-20210325172037340" style="zoom:50%;">
+<p>ucore只定义了链表节点，没有专门定义链表头，那么如何建立一个双向循环链表呢？来看list_init这个内联函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">list_init</span><span class="params">(<span class="keyword">list_entry_t</span> *elm)</span></span>&#123;</span><br><span class="line">	elm-&gt;prev = elm-&gt;next = elm;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h2 id="10-2-信号量"><a href="#10-2-信号量" class="headerlink" title="10.2 信号量"></a>10.2 信号量</h2><p>$Semaphore$是一个同步对象，保持在$0$到指定最大值之间的一个计数值，当线程完成一次对该$Semaphore$对象的等待（$wait$）时，计数值减$1$；当线程完成一次对$ Semaphore$对象的释放（$release$）时，计数值加$1$.</p>
-<p>当计数值为$0$，则线程等待该$ Semaphore$对象不再能成功直至$ Semaphore$对象变成$signaled$状态。$ Semaphore$对象的计数值大于$0$时，为$signaled$状态；等于$0$时，为$non-signaled$状态</p>
-<p><strong>抽象数据类型</strong></p>
-<ul>
-<li>一个整型（<strong>sem</strong>【信号量】），两个<strong>原子操作</strong></li>
-<li>P<code>[wait()]</code> : <code>sem</code>减1，如果<code>sem&lt;0</code>；等待，否则继续。企图进入临界区段的进程，需要先运行P，当sem大于0时，进程才能获准进入临界区段</li>
-<li>V<code>[signal()]</code>:  <code>sem</code>加1，如果<code>sem&lt;=0</code>，意味着当前有进程在等待信号量上面，唤醒一个或多个等待的P。当sem不为负值时，先前被挡住的其他进程，将可获准进入临界区段</li>
-</ul>
-<p><strong>信号量可以类比于铁路，初始化的时候需要给一个非负数的整数值</strong></p>
-<h2 id="10-3-信号量的使用"><a href="#10-3-信号量的使用" class="headerlink" title="10.3 信号量的使用"></a>10.3 信号量的使用</h2><ul>
-<li>信号量是<strong>整数</strong></li>
-<li>信号量是<strong>被保护</strong>的变量<ul>
-<li>初始化完成后，唯一一个改变信号量值的办法是通过<code>P()</code>和<code>V()</code></li>
-<li>操作必须是原子</li>
-</ul>
-</li>
-<li><strong>P()能够阻塞</strong>，V()不会阻塞</li>
-<li>我们假定信号量是“公平的”<ul>
-<li>没有线程被阻塞在P()仍然阻塞如果V()被无限频繁调用（在同一个信号量）</li>
-<li>在实践中，FIFO经常被使用</li>
-</ul>
-</li>
-<li><strong>两种类型信号量</strong><ul>
-<li><strong>二进制信号量：</strong> 0或1</li>
-<li><strong>一般/计数信号量：</strong> 可以取任何非负值</li>
-<li>两者相互表现（给定）</li>
-</ul>
-</li>
-<li><strong>信号量可以用在2个方面</strong><ul>
-<li>互斥</li>
-<li>条件同步（调度约束–一个线程等待另一个线程的事情发生）</li>
-</ul>
-</li>
-</ul>
-<h2 id="10-3-信号量使用"><a href="#10-3-信号量使用" class="headerlink" title="10.3 信号量使用"></a>10.3 信号量使用</h2><ul>
-<li><p>用<strong>二进制信号量实</strong>现的互斥</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mutex = new Semaphore(1);</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>一个线程等待另一个线程处理事情</strong></p>
-<ul>
-<li>比如<strong>生产东西或消费东西</strong></li>
-<li>互斥（锁机制）是不够的</li>
-</ul>
-</li>
-<li><p><strong>如：有界缓冲区的生产者 - 消费者问题</strong></p>
-<ul>
-<li>一个或多个<strong>生产者</strong>产生数据将数据放在一个缓冲区里</li>
-<li>单个<strong>消费者</strong>每次从缓冲区取出数据</li>
-<li>在任何一个时间<strong>只有一个</strong>生产者或消费者可以访问该缓冲区</li>
-</ul>
-</li>
-</ul>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210325191007542.png" alt="image-20210325191007542" style="zoom:50%;">
-
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210325191132809.png" alt="image-20210325191132809" style="zoom:50%;">
-
-<ul>
-<li><strong>每个约束用一个单独的信号量</strong><ul>
-<li>二进制信号量互斥</li>
-<li>一般信号量fullBuffers</li>
-<li>一般信号量emptyBuffers</li>
-</ul>
-</li>
-</ul>
-<h2 id="10-4-信号量实现"><a href="#10-4-信号量实现" class="headerlink" title="10.4 信号量实现"></a>10.4 信号量实现</h2><ol>
-<li><strong>使用硬件原语</strong><ul>
-<li>禁用中断</li>
-<li>原子指令【Test-and-Set】</li>
-</ul>
-</li>
-<li><strong>类似锁</strong></li>
-<li><strong>例如：使用“禁用中断”</strong></li>
+<p>初始化的表头使next、prev指针都指向自己，这样就有了一个表示空闲内存块链的空链表。并且我们能够用头指针的next是否指向自己来判断此链表是否为空，这就是内联函数list_empty的实现</p>
+<ol start="2">
+<li>插入</li>
 </ol>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210325192441087.png" alt="image-20210325192441087" style="zoom:50%;">
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">__list_add(<span class="keyword">list_entry_t</span> *elm, <span class="keyword">list_entry_t</span> *prev, <span class="keyword">list_enry_t</span> *next)&#123;</span><br><span class="line">	prev-&gt;next = next-&gt;prev = elm;</span><br><span class="line">  elm-&gt;next = next;</span><br><span class="line">  elm-&gt;prev = prev;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<ul>
-<li><strong>信号量的双用途</strong><ul>
-<li>互斥和条件同步</li>
-<li>但等待条件是独立的互斥</li>
-</ul>
-</li>
-</ul>
-<p><strong>存在的缺点</strong></p>
-<ul>
-<li><strong>读/开发代码比较困难</strong></li>
-<li><strong>容易出错</strong><ul>
-<li>使用的信号量已经被另一个线程占用</li>
-<li>忘记释放信号量</li>
-</ul>
-</li>
-<li><strong>不能够处理死锁问题</strong></li>
-</ul>
-<h2 id="10-5-管程「Monitor」"><a href="#10-5-管程「Monitor」" class="headerlink" title="10.5 管程「Monitor」"></a>10.5 管程「Monitor」</h2><ol>
-<li><p>目的：分离互斥和条件同步的关注</p>
-</li>
-<li><p><strong>什么是管程呢？</strong></p>
-<ul>
-<li><p><strong>一个锁：</strong> 指定临界区</p>
-</li>
-<li><p><strong>0或者多个条件变量：</strong> 等待/通知信号量用于管理并发访问共享数据</p>
-</li>
-</ul>
-</li>
-<li><p><strong>一般方法</strong></p>
-<ul>
-<li><strong>收集在对象/模块中的相关共享数据</strong></li>
-<li><strong>定义方法来访问共享数据</strong></li>
-</ul>
-</li>
+<ol start="3">
+<li>删除</li>
 </ol>
-<h2 id="10-6-经典同步问题"><a href="#10-6-经典同步问题" class="headerlink" title="10.6 经典同步问题"></a>10.6 经典同步问题</h2> 
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">list_del</span><span class="params">(<span class="keyword">list_entry_t</span> *listelm)</span> </span>&#123;</span><br><span class="line">	__list_del(listelm-&gt;prev, listelm-&gt;next);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> __list_del(<span class="keyword">list_enrty_t</span> *prev, list_entry)&#123;</span><br><span class="line">	prev-&gt;next = next;</span><br><span class="line">	next-&gt;prev = prev;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果要确保被删除的节点listelm不再指向链表中的其他节点，可以通过调用list_init函数把listelm的prev、next指针分别指向自身，将节点置为空链状态</p>
+<ol start="4">
+<li>访问链表节点所在的宿主数据结构</li>
+</ol>
+<p>list_entry_t通过双向循环链表中仅保存了某特定数据结构中链表节点成员变量的地址，如何通过这个链表节点成员变量访问到它的所有者（即某特定数据结构的变量），Linux提供了针对数据机构XXX的le2XXX的<strong>宏</strong>，其中le，为list entry的简称，是指向数据结构XXX中list_entry_t成员变量的指针，即存储在双向循环链表中的节点地址值，member则是XXX数据类型中包含的链表节点的成员变量。</p>
+<p>如：我们要遍历访问空闲块链表中所有节点所在的基于PAGE数据结构的变量，可以采用如下编程方式：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//free_area为空闲块管理结构，free_area.free_list是空闲块链表头</span></span><br><span class="line"><span class="keyword">free_area_t</span> free_area;</span><br><span class="line"><span class="keyword">list_entry_t</span> *le = &amp;free_area.free_list;	<span class="comment">//le是空闲块链表头指针</span></span><br><span class="line"><span class="keyword">while</span>((le=list_next(le)) != &amp;free_area.free_list) &#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">Page</span> *<span class="title">p</span> =</span> le2page(le, page_link);	<span class="comment">//获取节点所在基于Page数据结构的变量</span></span><br><span class="line">  .....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>le2page宏的使用为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> le2page(le, number) to_struct((le), struct Page, member)</span></span><br></pre></td></tr></table></figure>
+
+<p>相比之下，实现用到的to_struct宏和offset_of宏有一些复杂：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Return the offset of &#x27;member&#x27; relative to the beginning of a struct type */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> offsetof(type, member) ((size_t)(&amp;((tyoe*)0)-&gt;number))</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">**/</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> to_struct(ptr, type, number) ((type *)((char *)(ptr) - offsetof((type, member)))</span></span><br></pre></td></tr></table></figure>
+
+<p>这里才用了一个利用gcc编译器技术的技巧，即现求得数据结构的成员变量在本宿主数据结构中的偏移量，然后根据成员变量的地址反过来得出属主数据结构变量的地址</p>
+<p>首先来看offsetof宏，size_t最终定义与CPU体系结构相关，本实验都采用Intelx86-32 CPU，因此size_t等价于unsigned int。</p>
+<p><code>((type *0)-&gt;member)</code>的设计目的：为了求得数据结构的成员变量在本宿主数据结构中的偏移量，为了达到这个目标，首先将0地址强制“转换”为type数据结构（比如struct Page）的指针，再访问到type数据结构中的member成员（比如Page_link）的地址，即是type数据结构中member成员相对于数据结构变量的偏移量。</p>
+<p>在offsetof宏中，这个member成员的地址(即”&amp;((type *)0 -&gt; member)”)实际上为type数据结构中member成员相对于数据结构变量的偏移量。</p>
+<p>对于给定一个结构，offsetof(type, number)是一个常量，to_struct宏正是利用这个不变的偏移量来求得链表数据项的变量地址。</p>
+<p>再分析一下to_struct宏，可以发现to_struct宏中用到的ptr变量是链表节点的地址，把它减去offsetof宏所获得的<strong>数据结构内偏移量</strong>，即得到了包含链表节点的<strong>属主数据结构变量</strong>的地址</p>
+ 
       <!-- reward -->
       
       <div id="reword-out">
@@ -298,12 +250,12 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://warmchay.github.io/2021/03/25/%E5%8D%81%20%E4%BF%A1%E5%8F%B7%E9%87%8F%E3%80%8CSemephore%E3%80%8D/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://warmchay.github.io/2021/04/04/uCore/Lab%200/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/uCore/" rel="tag">uCore</a></li></ul>
 
     </footer>
   </div>
@@ -311,19 +263,19 @@
    
   <nav class="article-nav">
     
-      <a href="/2021/04/04/uCore/Lab%200/" class="article-nav-link">
+      <a href="/2021/04/05/uCore/Lab%201/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            uCore Lab 0
+            uCore Lab 1
           
         </div>
       </a>
     
     
-      <a href="/2021/03/24/%E4%B9%9D%20%E5%90%8C%E6%AD%A5/" class="article-nav-link">
+      <a href="/2021/03/25/%E5%8D%81%20%E4%BF%A1%E5%8F%B7%E9%87%8F%E3%80%8CSemephore%E3%80%8D/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Operating System 9 -- 同步</div>
+        <div class="article-nav-title">Operating System 10 -- 信号量</div>
       </a>
     
   </nav>

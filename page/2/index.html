@@ -145,6 +145,655 @@
     
     
     <article
+  id="post-四 非连续内存分配"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/03/20/%E5%9B%9B%20%E9%9D%9E%E8%BF%9E%E7%BB%AD%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/"
+    >Operating System 4 -- 非连续内存分配</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/20/%E5%9B%9B%20%E9%9D%9E%E8%BF%9E%E7%BB%AD%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/" class="article-date">
+  <time datetime="2021-03-20T05:06:32.108Z" itemprop="datePublished">2021-03-20</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="四-非连续内存分配"><a href="#四-非连续内存分配" class="headerlink" title="四 非连续内存分配"></a>四 非连续内存分配</h1><h2 id="4-1-为什么需要非连续内存分配？"><a href="#4-1-为什么需要非连续内存分配？" class="headerlink" title="4.1 为什么需要非连续内存分配？"></a>4.1 为什么需要非连续内存分配？</h2><p>在没有非连续内存分配<strong>之前</strong>：</p>
+<ul>
+<li>分配给一个程序的物理内存是连续的</li>
+<li>内存利用率较低</li>
+<li>有外碎片、内碎片的问题</li>
+</ul>
+<p><strong>非连续分配的优点</strong>：</p>
+<ul>
+<li>一个程序的物理地址空间是非连续的</li>
+<li>更好的内存利用和管理</li>
+<li>允许共享代码与数据（共享库等…）</li>
+<li>支持动态加载和动态链接</li>
+</ul>
+<p><strong>非连续分配的缺点：</strong></p>
+<ul>
+<li>如何建立虚拟地址和物理地址的转换<ul>
+<li>软件方案【开销大】</li>
+<li>硬件方案</li>
+</ul>
+</li>
+</ul>
+<p><strong>两种硬件辅助机制：</strong></p>
+<ul>
+<li><strong>分段【segmentation】</strong></li>
+<li><strong>分页【paging】</strong></li>
+</ul>
+<h2 id="4-2-分段【Segmentation】"><a href="#4-2-分段【Segmentation】" class="headerlink" title="4.2 分段【Segmentation】"></a>4.2 分段【Segmentation】</h2><h3 id="4-2-1-段地址空间"><a href="#4-2-1-段地址空间" class="headerlink" title="4.2.1 段地址空间"></a>4.2.1 段地址空间</h3><p>一个程序是包含多个段的，如：主程序「main prog」、子程序「subroutines」、公用库「common libs」、栈数据「stack data」、堆数据「heap data」和符号表「symbols table」等</p>
+<img src="https://i.loli.net/2021/03/23/qLKu8gXDpRbVMmB.png" alt="1.png" style="zoom:35%;">
+
+<p>这么做的目的是为了让逻辑地址空间<strong>更好的分离与共享</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210319203147119.png" alt="image-20210319203147119" style="zoom:50%;">
+
+<p><strong>分段的逻辑视图表示为：</strong></p>
+<img src="https://i.loli.net/2021/03/23/EX32xnoPUdCMeAS.png" alt="3.png" style="zoom:33%;">
+
+<h3 id="4-2-2-段访问机制"><a href="#4-2-2-段访问机制" class="headerlink" title="4.2.2 段访问机制"></a>4.2.2 段访问机制</h3><p>段分为了两种访问机制</p>
+<ol>
+<li>概念：<strong>一个段</strong>对应于<strong>一个内存“块”</strong>【为一个逻辑地址空间】</li>
+<li>程序访问内存地址需要通过$pair(s, addr)$来定位<ul>
+<li><code>s</code>表示<strong>段号</strong></li>
+<li><code>addr</code>表示<strong>段内偏移</strong></li>
+</ul>
+</li>
+</ol>
+<img src="https://i.loli.net/2021/03/23/XryiLUONDzJm9Bn.png" alt="image-20210319203643989.png" style="zoom:33%;">
+
+<p>根据<strong>操作系统设置的段表</strong>不同段所处的地址不同，段表存储了<code>base &amp; limit register</code>的值</p>
+<h2 id="4-3-分页"><a href="#4-3-分页" class="headerlink" title="4.3 分页"></a>4.3 分页</h2><h3 id="4-3-1-页地址空间"><a href="#4-3-1-页地址空间" class="headerlink" title="4.3.1 页地址空间"></a>4.3.1 页地址空间</h3><ul>
+<li>把物理内存分割为大小合适的帧（Frame， Page Frame）</li>
+</ul>
+<blockquote>
+<p>$2^n$次方，如512， 4096， 8192等</p>
+</blockquote>
+<ul>
+<li>把逻辑地址空间也划分为相同大小的页（Page）</li>
+</ul>
+<blockquote>
+<p>$2^n$次方，如512， 4096， 8192</p>
+</blockquote>
+<ul>
+<li>建立逻辑地址到物理地址的转换机制<ul>
+<li>页表</li>
+<li>MMU/TLB</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-3-2-帧"><a href="#4-3-2-帧" class="headerlink" title="4.3.2 帧"></a>4.3.2 帧</h3><blockquote>
+<p>物理内存被分割为大小相等的帧</p>
+</blockquote>
+<p>一个内存物理地址是一个$pair(f,o)$</p>
+<ul>
+<li><code>f</code> – 帧号（$F$位， 共有$2^F$个帧）</li>
+<li><code>o</code> – 帧内偏移（$S$位，每帧有$2^S$字节）</li>
+</ul>
+<p>物理地址为：$2^S \times f+o$</p>
+<img src="https://i.loli.net/2021/03/23/U1HFVQha9PYwAJj.png" alt="image-20210319204831914.png" style="zoom:33%;">
+
+<h3 id="4-3-3-页"><a href="#4-3-3-页" class="headerlink" title="4.3.3 页"></a>4.3.3 页</h3><p>一个程序的逻辑地址空间被划分为大小相等的页</p>
+<ul>
+<li>（逻辑地址的）页内偏移的大小 = （物理地址的）帧内偏移的大小</li>
+<li>但是（逻辑地址的）页号大小<strong>不一定等于</strong>（物理地址的）帧号大小</li>
+</ul>
+<p>一个逻辑地址也是一个$pair(p,o)$</p>
+<ul>
+<li><p><code>p</code>, 页号（$P$位，$2^P$个页）</p>
+</li>
+<li><p><code>o</code>，页内偏移（$S$位，每页有$2^S$字节）</p>
+</li>
+</ul>
+<p>虚拟地址为：$2^S\times p+o$</p>
+<p>因此<strong>页号</strong>的作用就是通过一个二元组找到一个逻辑地址，而页号和帧号不是相等的</p>
+<hr>
+<p>页表实际上为一个大的数组/哈希表，它的index为页号，对应的value为页帧号，最后我们需要根据页帧号计算得到物理地址。而对于一些页/帧内偏移相等的数据，页表将不保存这些数据。</p>
+<p>通过这种方式能过根据逻辑地址找到对应的物理地址</p>
+<img src="https://i.loli.net/2021/03/23/VoWuiyeQNEv9xDq.png" alt="image-20210319211347612.png" style="zoom:33%;">
+
+<img src="https://i.loli.net/2021/03/23/qLKu8gXDpRbVMmB.png" alt="1.png" style="zoom:33%;">
+
+<h2 id="4-4-页表"><a href="#4-4-页表" class="headerlink" title="4.4 页表"></a>4.4 页表</h2><h3 id="4-4-1-页表概览"><a href="#4-4-1-页表概览" class="headerlink" title="4.4.1 页表概览"></a>4.4.1 页表概览</h3><p>每个运行的程序都会有一个页表</p>
+<ul>
+<li>属于程序运行状态，会动态变化</li>
+<li><strong>PTBR</strong>：页表基址寄存器</li>
+</ul>
+<img src="https://i.loli.net/2021/03/23/F2Nf4uWi5wkKOes.png" alt="image-20210319211619019.png" style="zoom:33%;">
+
+<p>通过标识为能够判断当前页号的性质，举个栗子：</p>
+<img src="https://i.loli.net/2021/03/23/XfC24EakjtBNyRx.png" alt="image-20210319211719305.png" style="zoom:33%;">
+
+<p>逻辑地址$(4,0)$表示页号为4对应的二进制为$100$，根据$Flags（标志位）$的标准，它的$dirty\ bit=1, \ resident bit=0,\ clock/reference\ bit = 0$.因此可以知道逻辑地址$(4,0)$在物理地址中实际是不存在的，如果cpu访问这个逻辑地址会抛出内存访问的异常；</p>
+<p>而逻辑地址$(3, 1023)$中，页号3对应的二进制为$011$，表示$dirty\ bit=0, \ resident bit=1,\ clock/reference\ bit = 1$,说明逻辑地址$(3, 1023)$在物理地址中是存在的。由于逻辑地址的页内偏移和物理地址的帧内偏移是一样的，所以页表不需要保存偏移。</p>
+<p>根据页表，页号3对应的页帧号为4，且他们的偏移量相等，所以逻辑地址$(3, 1023)$对应的物理地址为$(4, 1023)$</p>
+<p>这个页表是由操作系统维护的。</p>
+<hr>
+<p><strong>缺点：空间代价和时间开销</strong></p>
+<ul>
+<li>访问一个内存单元需要2次访问：1⃣️获取页表项；2⃣️访问数据</li>
+<li>页表可能会非常大：如64位机器，如果一页是$1024KB$,页内偏移为$10$位，一个逻辑地址的长度等于计算机位数，即$64$位，因此剩下的$54$位都是留给页号的。此时页表的长度为$2^{54}$，cpu明显装不下</li>
+</ul>
+<p><strong>解决方法：</strong></p>
+<ol>
+<li>使用缓存<code>caching</code></li>
+<li>间接访问<code>indirection</code></li>
+</ol>
+<h3 id="4-4-2-转换后备缓冲区-快表TLB"><a href="#4-4-2-转换后备缓冲区-快表TLB" class="headerlink" title="4.4.2 转换后备缓冲区/快表TLB"></a>4.4.2 转换后备缓冲区/快表TLB</h3><blockquote>
+<p>解决时间开销</p>
+</blockquote>
+<p>TLB实际上为CPU的MMU内存管理单元保存的一段缓存，这段缓存保存的内容为<strong>页表</strong>的一部分，为经常访问到的那部分页表。其余不常用的页表的内容保存在内存中</p>
+<img src="https://i.loli.net/2021/03/23/E6gTKXBuW14s7Fd.png" alt="image-20210319213314173.png" style="zoom:33%;">
+
+<h3 id="4-4-3-二级-多级页表"><a href="#4-4-3-二级-多级页表" class="headerlink" title="4.4.3 二级/多级页表"></a>4.4.3 二级/多级页表</h3><blockquote>
+<p>解决空间开销</p>
+</blockquote>
+<p>这种方法虽然增加了内存访问次数和开销，但是节省了保存页表的空间（时间换空间，然后通过TLB来减少时间消耗）</p>
+<h4 id="lt-1-gt-二级页表"><a href="#lt-1-gt-二级页表" class="headerlink" title="&lt;1&gt; 二级页表"></a>&lt;1&gt; 二级页表</h4><p>逻辑地址中，页号部分分为了2部分<code>p1 &amp; p2</code></p>
+<p>其中<code>p1</code>存放着二级页表的起始地址，<code>p2</code>作用为之前的<code>p</code>，其中<code>p1</code>找二级页表，<code>p2</code>找页，<code>o</code>找地址。其中<code>p1</code>对应的位置时<strong>flags</strong>，如果说<code>resident bit=0</code>，那么整个二级页表都不用在内存中保存，因为这个在一级页表内是无法实现的</p>
+<img src="https://i.loli.net/2021/03/23/QL4CkuKE6yOrPJx.png" alt="image-20210320123814579.png" style="zoom:33%;">
+
+<h4 id="lt-2-gt-多级页表"><a href="#lt-2-gt-多级页表" class="headerlink" title="&lt;2&gt; 多级页表"></a>&lt;2&gt; 多级页表</h4><p>如64位系统采用5级页表，建立了<strong>页表树</strong>的概念</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210320124101005.png" alt="image-20210320124101005" style="zoom:50%;">
+
+<h3 id="4-4-4-反向页表【Inverted-Page-Table】"><a href="#4-4-4-反向页表【Inverted-Page-Table】" class="headerlink" title="4.4.4 反向页表【Inverted Page Table】"></a>4.4.4 反向页表【Inverted Page Table】</h3><p>页表用来表示<strong>物理地址（页帧）号</strong>，而不是之前的<strong>逻辑地址（页号）</strong>，能够减少页表尺寸，但是给映射关系的建立带来了困难</p>
+<h4 id="lt-1-gt-传统页表的缺点"><a href="#lt-1-gt-传统页表的缺点" class="headerlink" title="&lt;1&gt; 传统页表的缺点"></a>&lt;1&gt; 传统页表的缺点</h4><ul>
+<li>对于大地址空间，前向映射页表变得繁琐（例如64位系统采用5级页表）</li>
+<li>逻辑地址空间增长速度快于物理地址空间，所以反向页表，即<strong>index是物理地址</strong>，而<strong>value是逻辑地址</strong>，它的大小会小于传统页表</li>
+</ul>
+<h4 id="lt-2-gt-反向页表的实现"><a href="#lt-2-gt-反向页表的实现" class="headerlink" title="&lt;2&gt; 反向页表的实现"></a>&lt;2&gt; 反向页表的实现</h4><blockquote>
+<p>基于页寄存器<code>page register</code></p>
+</blockquote>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210320124604714.png" alt="image-20210320124604714" style="zoom:50%;">
+
+<ol>
+<li><p>每个帧和一个寄存器关联，寄存器内容包括：</p>
+<ul>
+<li>$Residence\ bit:$此帧是否被占用</li>
+<li>$Occupier:$ 对应的页号</li>
+<li>$Protection\ bits:$ 保护位</li>
+</ul>
+</li>
+<li><p>页寄存器【举个栗子】</p>
+<ul>
+<li><p>物理内存大小：4096*4096 = $4K * 4KB = 16MB$</p>
+</li>
+<li><p>页面大小：$4096\ bytes = 4KB$</p>
+</li>
+<li><p>页帧数：$4096 = 4K$</p>
+</li>
+<li><p>页寄存器使用的空间（假设$8\ bytes/register$）：$8*4096 = 32Kbytes$</p>
+</li>
+<li><p>页寄存器带来的额外开销：32K/16M = $0.2%$</p>
+</li>
+<li><p>虚拟内存的大小 :任意</p>
+</li>
+</ul>
+</li>
+</ol>
+<h4 id="lt-3-gt-反向页表的权衡"><a href="#lt-3-gt-反向页表的权衡" class="headerlink" title="&lt;3&gt;反向页表的权衡"></a>&lt;3&gt;反向页表的权衡</h4><p><strong>利：</strong></p>
+<ul>
+<li>转换表的大小相对于物理内存来说很小</li>
+<li>转换的大小跟逻辑地址空间的大小无关</li>
+</ul>
+<p><strong>弊：</strong></p>
+<p>需要的信息对调了，如何根据帧号找到页号呢？</p>
+<blockquote>
+<p>需要在反向页表里找到想要的页号</p>
+</blockquote>
+<h3 id="4-4-5-反向页表的实现【基于关联内存Associative-Memory】"><a href="#4-4-5-反向页表的实现【基于关联内存Associative-Memory】" class="headerlink" title="4.4.5 反向页表的实现【基于关联内存Associative Memory】"></a>4.4.5 反向页表的实现【基于关联内存Associative Memory】</h3><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210320125805643.png" alt="image-20210320125805643" style="zoom:50%;">
+
+<p>这个方法的开销很大。</p>
+<p>如果帧数较少，页寄存器可以被<strong>放置在关联内存</strong>中；在关联内存中查找逻辑页号，如果成功，帧号会被提取出来；如果失败，返回页错误异常$page\ fault$。</p>
+<p>限制这种方案的因素包括：大量的关联内存非常昂贵（难以在单个时钟周期内完成：耗电）</p>
+<h3 id="4-4-6-反向页表的实现【基于哈希查找Hash】"><a href="#4-4-6-反向页表的实现【基于哈希查找Hash】" class="headerlink" title="4.4.6 反向页表的实现【基于哈希查找Hash】"></a>4.4.6 反向页表的实现【基于哈希查找Hash】</h3><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210320130135706.png" alt="image-20210320130135706" style="zoom:50%;">
+
+<blockquote>
+<p>该方法在反向页表中通过哈希算法来搜索一个页对应的帧号</p>
+</blockquote>
+<ol>
+<li>对页号做哈希计算，为了在“帧表”（每帧都有一个表项）中获取对应的帧号</li>
+<li>页$i$被放置在表中$f(i)$位置，其中$f$是商定的哈希函数</li>
+<li>为了查找页$i$，需要执行下列操作<ul>
+<li>计算哈希函数$f(i)$，并且使用它作为<strong>页寄存器表的索引</strong></li>
+<li>获取对应的页寄存器</li>
+<li>检查寄存器标签是否包含$i$，如果包含，则代表成功；否则失败</li>
+</ul>
+</li>
+</ol>
+<p>需要注意<strong>哈希冲突</strong>的问题</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
+  id="post-三 连续式内存分配"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/03/19/%E4%B8%89%20%E8%BF%9E%E7%BB%AD%E5%BC%8F%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/"
+    >Operating System 3 -- 连续式内存分配</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/19/%E4%B8%89%20%E8%BF%9E%E7%BB%AD%E5%BC%8F%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/" class="article-date">
+  <time datetime="2021-03-19T11:46:36.055Z" itemprop="datePublished">2021-03-19</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="3-连续式内存分配"><a href="#3-连续式内存分配" class="headerlink" title="3 连续式内存分配"></a>3 连续式内存分配</h1><h2 id="3-1-计算机体系结构及内存分层体系"><a href="#3-1-计算机体系结构及内存分层体系" class="headerlink" title="3.1 计算机体系结构及内存分层体系"></a>3.1 计算机体系结构及内存分层体系</h2><h3 id="3-1-1-计算机体系结构"><a href="#3-1-1-计算机体系结构" class="headerlink" title="3.1.1 计算机体系结构"></a>3.1.1 计算机体系结构</h3><p>计算机的组件由：<code>cpu</code>、<code>内存</code>和<code>I/O设备</code>组成</p>
+<img src="https://i.loli.net/2021/03/23/ipqhyfoMmu9COxl.png" alt="1.png" style="zoom:33%;">
+
+<h3 id="3-1-2-内存层次"><a href="#3-1-2-内存层次" class="headerlink" title="3.1.2 内存层次"></a>3.1.2 内存层次</h3><p>内存层次为：<code>高速缓存 --&gt; Main Memory --&gt; Disk（虚拟内存）</code></p>
+<img src="https://i.loli.net/2021/03/23/XMHtc2OEmlA5jC1.png" alt="image-20210319185559865.png" style="zoom:33%;">
+
+<p>操作系统在内存管理内要完成的目标为：</p>
+<ul>
+<li><strong>抽象：</strong> 逻辑地址空间</li>
+<li><strong>保护：</strong> 独立地址空间</li>
+<li><strong>共享：</strong> 访问相同内存</li>
+<li><strong>虚拟化：</strong> 更多的地址空间</li>
+</ul>
+<img src="https://i.loli.net/2021/03/23/UKTNnpBvkHJj7Gc.png" alt="image-20210319185732039.png" style="zoom:33%;">
+
+<p>其不同的内存管理方式有：</p>
+<ul>
+<li>程序重定位</li>
+<li>分段、分页</li>
+<li>虚拟内存</li>
+<li>大多数（如linux）：需要虚拟内存分页</li>
+</ul>
+<p><strong>实现高度依赖硬件</strong></p>
+<ul>
+<li>必须了解内存架构</li>
+<li>MMU（<strong>内存管理单元</strong>）：负责cpu内存访问请求的硬件</li>
+</ul>
+<h2 id="3-2-地址空间-amp-地址生成"><a href="#3-2-地址空间-amp-地址生成" class="headerlink" title="3.2 地址空间 &amp; 地址生成"></a>3.2 地址空间 &amp; 地址生成</h2><h3 id="3-2-1-地址空间的定义"><a href="#3-2-1-地址空间的定义" class="headerlink" title="3.2.1 地址空间的定义"></a>3.2.1 地址空间的定义</h3><ul>
+<li><strong>物理地址空间：</strong> 硬件支持的地址空间</li>
+<li><strong>逻辑地址空间：</strong> 一个运行的程序所拥有的内存范围</li>
+</ul>
+<h3 id="3-2-2-地址生成"><a href="#3-2-2-地址生成" class="headerlink" title="3.2.2 地址生成"></a>3.2.2 地址生成</h3><p>经历<code>编译--汇编--链接--加载（程序重定位）</code>这四个阶段</p>
+<p><strong>应用程序的逻辑地址是如何映射到物理地址呢？</strong></p>
+<p>这个过程中操作系统负责建设逻辑地址<code>LA</code>和物理地址<code>PA</code>的映射</p>
+<ol>
+<li><strong>编译时</strong></li>
+</ol>
+<ul>
+<li>假设起始地址已知</li>
+<li>如果起始地址改变，必须重新编译</li>
+</ul>
+<ol start="2">
+<li><strong>加载时</strong></li>
+</ol>
+<ul>
+<li>如果编译时刻起始位置未知，那么编译器必须生成可重定位的代码「Relocatable Code」</li>
+<li>加载时，生成绝对地址</li>
+</ul>
+<ol start="3">
+<li><strong>执行时</strong></li>
+</ol>
+<ul>
+<li>程序可以被移动</li>
+<li>需要地址翻译的硬件支持</li>
+</ul>
+<ol start="4">
+<li><strong>CPU</strong></li>
+</ol>
+<ul>
+<li><code>ALU</code>需要逻辑地址的内存内容</li>
+<li><code>MMU</code>进行逻辑地址和物理地址的转换</li>
+<li><code>Controller</code>给总线发送物理地址请求</li>
+</ul>
+<ol start="5">
+<li><strong>Memory</strong></li>
+</ol>
+<ul>
+<li><code>Memory</code>发送物理地址的内容给<code>CPU</code></li>
+</ul>
+<img src="https://i.loli.net/2021/03/23/ipqhyfoMmu9COxl.png" alt="1.png" style="zoom:33%;">
+
+<h3 id="3-2-3-地址安全检查"><a href="#3-2-3-地址安全检查" class="headerlink" title="3.2.3 地址安全检查"></a>3.2.3 地址安全检查</h3><p>通过<code>LIMIT</code>和<code>BASE</code>寄存器来判断操作系统程序的<strong>起始（base）</strong>和<strong>最大逻辑（limit）</strong>地址空间</p>
+<h2 id="3-3-连续内存分配"><a href="#3-3-连续内存分配" class="headerlink" title="3.3 连续内存分配"></a>3.3 连续内存分配</h2><h3 id="3-3-1-内存碎片"><a href="#3-3-1-内存碎片" class="headerlink" title="3.3.1 内存碎片"></a>3.3.1 内存碎片</h3><p>在内存分配中，主要存在着三个问题：</p>
+<ol>
+<li><strong>空闲内存</strong>不能得到有效利用</li>
+<li><strong>外部碎片</strong></li>
+</ol>
+<blockquote>
+<p>分配单元之间的未被使用的内存</p>
+</blockquote>
+<ol start="3">
+<li>内部碎片</li>
+</ol>
+<ul>
+<li>分配单元内的未被使用内存</li>
+<li>取决于分配单元大小是否固定</li>
+</ul>
+<p>关于内部和外部是这么分的：</p>
+<img src="https://i.loli.net/2021/03/23/6R7KgjId5r9tVf1.png" alt="image-20210319192015981.png" style="zoom:33%;">
+
+<h3 id="3-3-2-动态分配"><a href="#3-3-2-动态分配" class="headerlink" title="3.3.2 动态分配"></a>3.3.2 动态分配</h3><p>简单的内存管理方式为：</p>
+<ul>
+<li>当程序被允许进入系统时，被<strong>分配内存块</strong></li>
+<li>分配的内存块在地址上是<strong>连续</strong>的</li>
+</ul>
+<blockquote>
+<p>块 = 内存块 = 分区</p>
+</blockquote>
+<p>对于每一个运行的程序，操作系统持续追踪：</p>
+<ul>
+<li>程序运行中的所有已分配内存块</li>
+<li>当前空闲的内存块<strong>Empty-blocks（“holes”）</strong></li>
+</ul>
+<p>一共有三种关于内存的分配策略：</p>
+<hr>
+<ol>
+<li><strong>First Fit Allocation【首次适配分配机制】</strong></li>
+</ol>
+<img src="https://i.loli.net/2021/03/23/iaGnK8N7LH4pecb.png" alt="image-20210319192458252.png" style="zoom:33%;">
+
+<p>因为在内存中$1K \ bytes$是第一个，而不是$500 \ bytes$</p>
+<p><strong>原理 &amp; 实现</strong></p>
+<ul>
+<li><p>实现简单，在高地址空间有大块的空闲分区</p>
+</li>
+<li><p>要求：</p>
+<ul>
+<li>空闲块列表按照地址排序</li>
+<li>分配过程需要搜索一个合适的分区</li>
+<li>释放分区需要检查其是否能够和邻近的空闲分区合并</li>
+</ul>
+</li>
+<li><p><strong>缺点：</strong><code> 外部碎片</code> 和 <code>不确定因素</code></p>
+</li>
+</ul>
+<hr>
+<ol start="2">
+<li><strong>Best Fit Allocation【最佳适配分配机制】</strong></li>
+</ol>
+<img src="https://i.loli.net/2021/03/23/6mBwnMou7PhK13f.png" alt="image-20210319193211332.png" style="zoom:33%;">
+
+<p><strong>原理 &amp; 实现</strong></p>
+<ul>
+<li><strong>优点：</strong> 避免大的空闲块被拆分，减小了外部碎片的大小</li>
+<li><strong>缺点：</strong> 释放分区较慢，容易产生很多无用的小碎片</li>
+<li><strong>要求：</strong><ul>
+<li>空闲块列表按照<strong>大小排序</strong></li>
+<li>分配过程需要查找一个合适的分区</li>
+<li>释放分区需要查找并且合并邻近的空闲分区【如果能找到】</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ol start="3">
+<li><strong>Worst Fit Allocation【最差适配机制】</strong></li>
+</ol>
+<img src="https://i.loli.net/2021/03/23/uWKGbrQ5TNH6zfR.png" alt="image-20210319193625859.png" style="zoom:33%;">
+
+<p><strong>原理 &amp; 实现</strong></p>
+<ul>
+<li><strong>优点：</strong> 避免出现太多的小碎片，属于中等尺寸的时候，效果最好</li>
+<li><strong>缺点：</strong> 释放分区较慢，容易破坏大的空闲块，后续难以分配大的分区</li>
+<li><strong>要求：</strong><ul>
+<li>空闲块列表从大到小排序</li>
+<li>分配非常快（最大的分区）</li>
+<li>释放分区需要<strong>合并邻近的空闲块</strong>（如果有），然后调整空闲块列表</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="3-3-3-碎片整理"><a href="#3-3-3-碎片整理" class="headerlink" title="3.3.3 碎片整理"></a>3.3.3 碎片整理</h3><h4 id="lt-1-gt-Compaction-–-压实"><a href="#lt-1-gt-Compaction-–-压实" class="headerlink" title="&lt;1&gt; Compaction – 压实"></a>&lt;1&gt; Compaction – 压实</h4><img src="https://i.loli.net/2021/03/23/5X4CI1nBOPJGmD8.png" alt="image-20210319194015415.png" style="zoom:33%;">
+
+<h4 id="lt-2-gt-Swapping-in-out-–-换入换出"><a href="#lt-2-gt-Swapping-in-out-–-换入换出" class="headerlink" title="&lt;2&gt; Swapping in/out – 换入换出"></a>&lt;2&gt; Swapping in/out – 换入换出</h4><p>当运行中的<strong>程序1</strong>需要更多的内存时，抢占内存中等待的<strong>程序2</strong>，回收它们的内存于<code>Disk</code>中，后把<strong>程序1</strong>放入主存中运行</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
+  id="post-二 操作系统基础操作"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/03/19/%E4%BA%8C%20%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C/"
+    >Operating System 2 -- 基础操作</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/19/%E4%BA%8C%20%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C/" class="article-date">
+  <time datetime="2021-03-19T11:46:00.742Z" itemprop="datePublished">2021-03-19</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="2-操作系统基础操作"><a href="#2-操作系统基础操作" class="headerlink" title="2 操作系统基础操作"></a>2 操作系统基础操作</h1><img src="https://i.loli.net/2021/03/23/STmQ34s5DPFoIcL.png" alt="image-20210319115425183.png" style="zoom:35%;">
+
+<blockquote>
+<p>CPU，I/O与内存通过总线连接</p>
+</blockquote>
+<h2 id="2-1-操作系统的启动"><a href="#2-1-操作系统的启动" class="headerlink" title="2.1 操作系统的启动"></a>2.1 操作系统的启动</h2><img src="https://i.loli.net/2021/03/23/d7kRQjFPgoclyE2.png" alt="image-20210319115815465.png" style="zoom:33%;">
+
+<p><strong>内存映射：</strong></p>
+<p><strong>DISK:</strong> 存放OS</p>
+<p><strong>BIOS:</strong> Basic I/O system，基本I/O处理系统，加载OS到内存当中</p>
+<p>电脑通电后，段寄存器CS和指令寄存器IP会确定一个内存地址，如<code>CS:IP = 0xf000:fff0</code></p>
+<p><strong>POST(加电自检)**， 寻找显卡和执行</strong>BIOS**[检查显示器、键盘等是否正常]</p>
+<p><strong>步骤：</strong></p>
+<ol>
+<li><strong>BIOS:</strong> 将Bootloader从磁盘的磁盘引导扇区（512字节）加载到<code>0x7c00</code>；跳转到<code>CS:IP=0000:7C00</code>的内存区域</li>
+<li><strong>Bootloader:</strong> 将操作系统的代码和数据从硬盘加载到内存中，跳转到操作系统的起始地址</li>
+</ol>
+<p><strong>系统调用：</strong> （来源于应用程序）应用程序主动向操作系统发出服务请求</p>
+<p><strong>异常：</strong> （来源于不良的应用程序）非法指令或者其它不好的处理状态（e.g. 内存出错）</p>
+<p><strong>中断：</strong> （来源于外设）来自不同硬件设备的计时器和网络的中断</p>
+<hr>
+<h3 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q &amp; A"></a>Q &amp; A</h3><ol>
+<li><strong>为什么应用程序不能直接访问硬件而是通过操作系统呢？</strong></li>
+</ol>
+<ul>
+<li>计算机运行时，内核是被信任的第三方</li>
+<li>只有内核能够执行特权指令</li>
+<li>为了方便应用程序</li>
+</ul>
+<ol start="2">
+<li><strong>操作系统如何设计和实现中断/异常和系统调用，他们三者的区别和特点</strong></li>
+</ol>
+<p><strong>&lt;如何产生？&gt;</strong></p>
+<ul>
+<li><strong>系统调用</strong>主动向操作系统发服务请求</li>
+<li><strong>中断</strong>为不同硬件设备的计时器和网络的中断</li>
+<li><strong>异常</strong>为不良的应用程序产生的<strong>非法指令</strong>或<strong>其他不好的处理状态</strong>的问题</li>
+</ul>
+<p><strong>&lt;产生的源头&gt;</strong></p>
+<ul>
+<li><strong>中断：</strong> 外设（键盘/鼠标/网卡/声卡/显卡，可以产生各种事件）</li>
+<li><strong>异常：</strong> 应用程序意想不到的行为（e.g. 异常，恶意服务，应用程序需要的资源未得到满足）</li>
+<li><strong>系统调用（sys call）：</strong> 应用程序请求操作服务（打开/关闭/读写文件，发送网络包）</li>
+</ul>
+<p><strong>&lt;处理时间&gt;</strong></p>
+<ul>
+<li><strong>中断：</strong> 异步</li>
+</ul>
+<blockquote>
+<p>事件产生时，应用程序并不知道他什么时候会产生，只有当他产生了才去处理</p>
+</blockquote>
+<ul>
+<li><strong>异常：</strong> 同步</li>
+</ul>
+<blockquote>
+<p>一定是执行到某一条特定指令时一定会产生</p>
+</blockquote>
+<ul>
+<li><strong>系统调用：</strong> 异步或同步</li>
+</ul>
+<blockquote>
+<p>同步：执行到某一条特定指令时一定会产生</p>
+<p>异步：从系统调用的返回时间来看，如果应用程序发出系统调用请求后一直在等待则为同步，如果应用程序去做别的事则为异步</p>
+</blockquote>
+<p><strong>&lt;响应&gt;</strong></p>
+<ul>
+<li><strong>中断：</strong> 持续、对用户应用程序时为透明</li>
+<li><strong>异常：</strong> 杀死或者重新执行意想不到的应用程序指令</li>
+<li><strong>系统调用：</strong> 等待和持续</li>
+</ul>
+<hr>
+<h2 id="2-2-中断-异常和系统调用"><a href="#2-2-中断-异常和系统调用" class="headerlink" title="2.2 中断/异常和系统调用"></a>2.2 中断/异常和系统调用</h2><ol>
+<li>中断/异常的<strong>处理机制</strong></li>
+</ol>
+<p>中断是外设的事件，异常是cpu的事件</p>
+<ol start="2">
+<li><strong>中断处理机制</strong><ul>
+<li><strong>硬件：</strong> 设置中断标记<strong>（CPU初始化）</strong><ul>
+<li>将内部/外部事件设置中断标记</li>
+<li>中断事件的ID（程序访问的中断向量的地址）</li>
+</ul>
+</li>
+<li><strong>软件：</strong> 操作系统<ul>
+<li>保存当前处理状态</li>
+<li>中断服务程序处理</li>
+<li>清除中断标记</li>
+<li>恢复之前保存的处理状态</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>异常处理机制</strong><ul>
+<li><strong>异常：异常编号</strong><ul>
+<li>保存现场</li>
+<li>异常处理：杀死产生异常的程序，重新执行异常指令</li>
+<li>恢复现场</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>系统调用</strong><ul>
+<li>一条指令会触发一个系统调用</li>
+<li>程序访问主要是通过高层次的API接口而不是直接进行系统调用</li>
+<li>通常情况下，存在于每个系统调用相关的序号，系统调用接口根据这些序号来维护表的索引</li>
+<li>系统调用接口调用内核态中预期的系统调用，并返回系统调用的状态和其他返回值</li>
+<li>用户不需要知道系统调用是如何实现的，只需要获取API和了解操作新系统讲什么作为返回结果。操作系统<strong>接口的细节大部分都隐藏在AP</strong>I中，并通过运行程序支持的库来管理</li>
+<li><strong>用户态：</strong> 应用程序在执行的过程中，cpu执行的特权级的<strong>状态很低，不能访问特殊机器指令和IO</strong></li>
+<li><strong>内核态：</strong> 应用程序在执行的过程中，cpu执行的特权级的<strong>状态高，操作系统可以执行cpu任何一条指令</strong></li>
+<li>系统调用时涉及到<strong>特权级从用户态到内核态</strong>的转换，<strong>应用程序和操作系统有各自的堆栈</strong>，这两个变化比函数调用的开销更大，但更安全和可靠</li>
+</ul>
+</li>
+<li><strong>跨越操作系统边界的开销</strong><ul>
+<li>在执行时间上超过程序调用</li>
+<li><strong>开销包括：</strong><ol>
+<li>建立<strong>中断/异常/系统调用</strong>和与<strong>对应服务例程映射关系</strong>的初始化开销</li>
+<li>建立内核堆栈（操作系统和应用程序的堆栈不一样）</li>
+<li>验证参数（操作系统会检查数据）</li>
+<li>内核态映射到用户态的地址空间，更新页面映射权限（内存拷贝开销）</li>
+<li>内核态独立地址空间TLB</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-一 概述"
   class="article article-type-post"
   itemscope
@@ -1589,250 +2238,6 @@ Jxx M#   (若满足条件，转移到另一处执行)
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%A0%91/" rel="tag">树</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
 
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-MapReduce【Ⅰ】"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/03/16/MapReduce%E3%80%90%E2%85%A0%E3%80%91/"
-    >MapReduce I</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/03/16/MapReduce%E3%80%90%E2%85%A0%E3%80%91/" class="article-date">
-  <time datetime="2021-03-16T01:24:27.622Z" itemprop="datePublished">2021-03-16</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <h1 id="MapReduce【Ⅰ】"><a href="#MapReduce【Ⅰ】" class="headerlink" title="MapReduce【Ⅰ】"></a>MapReduce【Ⅰ】</h1><blockquote>
-<p>因为是第一次读MapReduce，并且也是第一次接触到分布式，所以不懂得地方会很多，如果有想要找到相关部分的朋友，可以点对应的索引栏查找，如果没有找到你的问题，欢迎评论，我会及时回复你~</p>
-</blockquote>
-<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><h3 id="lt-1-gt-什么是MapReduce"><a href="#lt-1-gt-什么是MapReduce" class="headerlink" title="&lt;1&gt;什么是MapReduce"></a>&lt;1&gt;什么是MapReduce</h3><ul>
-<li>MapReduce为一个programming model</li>
-<li>同时也是一个实现了处理和生成超大数据集的算法模型</li>
-</ul>
-<h3 id="lt-2-gt-Basic-Implemation"><a href="#lt-2-gt-Basic-Implemation" class="headerlink" title="&lt;2&gt;Basic Implemation"></a>&lt;2&gt;Basic Implemation</h3><p>用户首先创建一个<code>Map</code>函数来处理一个基于<code>key/value pair</code>的数据模型，输出中间的基于<code>key/value</code>的数据集合，然后再创建一个Reduce函数来合并所有具有相同<code>intemediate key</code>的<code>intermediate value</code>。</p>
-<h3 id="lt-3-gt-特点"><a href="#lt-3-gt-特点" class="headerlink" title="&lt;3&gt;特点"></a>&lt;3&gt;特点</h3><ul>
-<li>MapReduce架构的程序能够在大量的普通配置的计算机<strong>【commodity machines】</strong>上实行并行化<strong>【parallelized】</strong>处理</li>
-</ul>
-<p>这个<code>run-time system</code>仅关心：</p>
-<ul>
-<li>如何<strong>分割</strong>输入数据【<strong>partitioning the input data</strong>】</li>
-<li>在大量计算机组成的集群上的<strong>调度</strong>【<strong>scheduling the program’s execution accross machines</strong>】</li>
-<li>集群中计算机的错误处理<strong>【handling machines failures】</strong></li>
-<li>管理集群中计算机之间必要的通信【<strong>managing the required communication</strong>】</li>
-</ul>
-<blockquote>
-<p>一个典型的MapReduce计算往往由几千台机器组成、处理以TB计算的数据<strong>【Highly scalable】</strong></p>
-</blockquote>
-<h2 id="1-Introduction"><a href="#1-Introduction" class="headerlink" title="1 Introduction"></a>1 Introduction</h2><h3 id="1-1-为什么提出了MapReduce"><a href="#1-1-为什么提出了MapReduce" class="headerlink" title="1.1 为什么提出了MapReduce"></a>1.1 为什么提出了MapReduce</h3><p><strong>To compute various kinds of derived data【衍生数据】</strong>，例如爬虫爬取的网面数量汇总、每天被请求的最多的查询集合等等。因为输入的数据量巨大，如果要在可接受的时间内完成运算，需要把这些<code>data</code>分布在成百上千的主机上。</p>
-<p>而我们前面提到的如何处理并行运算、如何分发数据、如何处理错误，这些问题综合在一起，需要大量的代码处理，但是这么综合解决需要大量的代码，那么怎么简单处理呢？</p>
-<h3 id="1-2-解决复杂问题"><a href="#1-2-解决复杂问题" class="headerlink" title="1.2 解决复杂问题"></a>1.2 解决复杂问题</h3><p>为了解决这些<code>complexity</code>，我们设计一个<code>new abstraction to express the simple computation</code><strong>【只用表述执行简单的运算】</strong>，不用去关心并行计算<strong>（parallelization）</strong>、容错<strong>（fault-tolerance）</strong>、数据分布<strong>（data distribution）</strong>、负载均衡<strong>（load balancing）</strong>等复杂的细节，而现在这些问题都被封装到了一个库里面，设计这个抽象模型的灵感来源于<code>Lisp</code>和其他函数式语言的<code>Map</code>和<code>Reduce</code>的原语。</p>
-<p>而大多数的运算都包含着这样的操作：</p>
-<ul>
-<li>先在输入数据的“逻辑”记录上应用<code>Map</code>操作得出一个中间<code>key/value pair</code>集合</li>
-<li>之后对所有具有相同<code>key</code>值的<code>value</code>值上应用<code>Reduce</code>操作，从而达到<strong>合并中间的数据</strong>，得到一个想要的结果的目的</li>
-<li>而后使用<code>MapReduce</code>模型，结合用户实现的<code>Map</code>和<code>Reduce</code>函数，从而能较为容易地实现大规模并行化计算</li>
-</ul>
-<p>而通过<code>MapReduce</code>模型自带的<code>re-execution</code>【<strong>“再次执行”</strong>】功能，也提供了初级的容错【<strong>fault tolerance</strong>】实现方案</p>
-<h3 id="1-3-Major-Contribution"><a href="#1-3-Major-Contribution" class="headerlink" title="1.3 Major Contribution"></a>1.3 Major Contribution</h3><blockquote>
-<p>这个工作【<strong>实现一个MapReduce框架模型</strong>】的主要贡献是通过简单的接口来实现<strong>自动的并行化和大规模的分布式计算</strong>，通过使用MapReduce模型接口实现在大量普通的PC机上<strong>高性能计算</strong></p>
-</blockquote>
-<blockquote>
-<p>PC机：个人计算机</p>
-</blockquote>
-<p>接下来几个部分将会讲述：</p>
-<ul>
-<li><strong>Section 2：</strong>Basic programming model and gives examples</li>
-<li><strong>Section 3：</strong>描述了一个经过裁剪的、适合于基于集群的计算环境中的MapReduce实现</li>
-<li><strong>Section 4：</strong>描述 一些在MapReduce编程模型中实用的技巧</li>
-<li><strong>Section 5：</strong>Performance measurements【<strong>测量性能</strong>】 of variety of tasks’ implementation.</li>
-<li><strong>Section 6：</strong>谷歌内部用MapReduce作为基础重写的索引系统产品，以及其他一些使用<strong>MapReduce的经验</strong></li>
-<li><strong>Section 7：</strong>Related and future work.</li>
-</ul>
-<h2 id="2-Progrmming-Model-编程模型"><a href="#2-Progrmming-Model-编程模型" class="headerlink" title="2 Progrmming Model [编程模型]"></a>2 Progrmming Model [编程模型]</h2><h3 id="Intro-–-MapReduce原理"><a href="#Intro-–-MapReduce原理" class="headerlink" title="Intro – MapReduce原理"></a>Intro – MapReduce原理</h3><p>Takes a set of input <code>key/value pairs</code>，produce a set of output <code>key/value pairs</code>.MapReduce的library groups<strong>【用户】</strong>用两个函数来表达该计算：<code>Map</code>and<code>Reduce</code>。</p>
-<p>用户自定义的<code>Map</code>函数接受一个输入的<code>key\value pairs</code>，然后产生一个中间<code>key/value</code>值的集合，<code>MapReduce</code>库把所有具有相同中间<code>key</code>值Ⅰ和相关的一个<code>value</code>值集合在一起传递给<code>reduce</code>函数；</p>
-<p>而用户定义的<code>Reduce</code>函数接受一个中间<code>key</code>的值Ⅰ和一个相关的<code>value</code>值的集合，<code>Reduce</code>函数合并这些<code>value</code>值，形成一个较小的<code>value</code>值的集合。一般的，每个<code>Reduce</code>函数调用只产生$0$或$1$个输出<code>value</code>值。通常我们通过一个迭代器把中间<code>value</code>值提供给<code>Redece</code>函数，这样我们就能够处理无法全部放入内存中的大量<code>value</code>值的集合。</p>
-<h3 id="2-1-例子"><a href="#2-1-例子" class="headerlink" title="2.1 例子"></a>2.1 例子</h3><p>以计算一个大的文档集合中包含每个单词出现的次数，伪代码为：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">map</span>(String Key, String value)&#123;</span><br><span class="line">    <span class="comment">//Key---doucument name</span></span><br><span class="line">    <span class="comment">//Value---documents content</span></span><br><span class="line">    <span class="keyword">for</span> each word w in value:</span><br><span class="line">    	EmitIntermediate(w, <span class="string">&quot;l&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">reduce(String key, Ste=ing)&#123;</span><br><span class="line">    <span class="comment">//key: a word</span></span><br><span class="line">    <span class="comment">//values: a list of counts</span></span><br><span class="line">    <span class="keyword">int</span> result = <span class="number">0</span>；</span><br><span class="line">    <span class="keyword">for</span> each v in values:</span><br><span class="line">    	result += ParseInt(v);</span><br><span class="line">   	Emit(AsString(result));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>其中， <code>Map</code>函数输出文档中的每个词，以及这个词的出现次数（在这个例子失踪）</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">分布式</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-GiteeGit-上传文件"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/03/16/GiteeGit-%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6/"
-    >Gitee/Git 上传文件</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/03/16/GiteeGit-%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6/" class="article-date">
-  <time datetime="2021-03-16T01:24:27.621Z" itemprop="datePublished">2021-03-16</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E9%9A%8F%E7%AC%94/">随笔</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p>想着之后用gitee托管代码会比较方便，kexueshangwang对于懒癌来说目前除了翻墙找“学习”资源浪费学习时间外，没什么必要。</p>
-<p>但是git怎么上传文件，我也琢磨了好久，这是在上传时的步骤和中间出现的一些问题</p>
-</blockquote>
-<p><strong>在建立了项目的文件夹后，点开这个文件夹，在文件夹目录这块<code>git bash</code></strong></p>
-<ul>
-<li><strong>Ⅰ 建立远程连接</strong></li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git remote add origin <span class="string">&#x27;xxx&#x27;</span>   //这个xxx是你的仓库地址，在<span class="built_in">clone</span>(克隆/下载)那里直接复制paste在这就ok了</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><strong>Ⅱ 将文件夹连接到分支【上传文件到缓存区必做的一步】</strong></li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git pull origin master</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><strong>Ⅲ 添加文件至缓冲区</strong></li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git add .</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><strong>Ⅳ 将缓冲区的文件上传至master分支</strong></li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push origin master</span><br></pre></td></tr></table></figure>
-
-<p>最后你就能够发现你的仓库文件已经更新啦~</p>
-<p><strong>小问题：</strong></p>
-<ul>
-<li>在与远程仓库建立连接的过程中你会看到，原先仓库里的文件也会到你的文件夹中，我觉得是因为在<code>git pull</code>的时候<code>fetch</code>操作也加进来了，但因为我在上传过程中出现了几个bug，后续确认下是否是这样，<strong>欢迎指正鸭</strong></li>
-<li><strong>注意：</strong>在<code>git push</code>过程中如果单单在项目文件加了一个空文件夹外，其他什么都没有，<code>git push</code>会报<code>error</code>的~~【我就是这么过来的orz】</li>
-</ul>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Git/" rel="tag">Git</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-About Me"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/03/16/About%20Me/"
-    >About Me</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/03/16/About%20Me/" class="article-date">
-  <time datetime="2021-03-16T01:24:27.594Z" itemprop="datePublished">2021-03-16</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <blockquote>
-<p><strong>平稳、健康、幸福(●ˇ∀ˇ●)</strong></p>
-</blockquote>
-<hr>
-<p><strong>Name：</strong> <strong>王清 / Zoris Wang</strong></p>
-<p><strong>Address：</strong> <strong>陕西西安，广西北海</strong></p>
-<p><strong>邮箱：</strong><a href="mailto:&#87;&#x61;&#114;&#x6d;&#99;&#104;&#x61;&#121;&#64;&#x31;&#54;&#x33;&#46;&#x63;&#111;&#109;">&#87;&#x61;&#114;&#x6d;&#99;&#104;&#x61;&#121;&#64;&#x31;&#54;&#x33;&#46;&#x63;&#111;&#109;</a></p>
-<p><strong>CSDN：</strong> <a target="_blank" rel="noopener" href="https://blog.csdn.net/Shea111?spm=1010.2135.3001.5113">Warmchay</a></p>
-<p><strong>博客园：</strong><a target="_blank" rel="noopener" href="https://home.cnblogs.com/u/Warmchay">Warmchay</a>【已停更，懒癌日常= v =】</p>
-<p><img src="https://i.loli.net/2020/11/06/WGPKHfjqIn4FrZx.png" alt="aboutme.png"></p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
     </footer>
   </div>
 
