@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    OOP 2 -- 基础语法I |  
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="Yitee" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-OOP/二 基础语法 I"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  OOP 2 -- 基础语法I
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/04/08/OOP/%E4%BA%8C%20%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95%20I/" class="article-date">
+  <time datetime="2021-04-08T12:18:32.824Z" itemprop="datePublished">2021-04-08</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/OOP/">OOP</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.6k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">6 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="二-基础语法-I"><a href="#二-基础语法-I" class="headerlink" title="二 基础语法 I"></a>二 基础语法 I</h1><h2 id="2-1-变量定义"><a href="#2-1-变量定义" class="headerlink" title="2.1 变量定义"></a>2.1 变量定义</h2><ol>
+<li><p><strong>auto</strong>变量</p>
+<p>由编译器根据上下文自动确定变量的类型，如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> i=<span class="number">3</span>;</span><br><span class="line"><span class="keyword">auto</span> f=<span class="number">4.0f</span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>指针变量的动态生成与删除</p>
+<ul>
+<li>通过new/delete来动态生成和释放内存</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> *ptr = <span class="keyword">new</span> <span class="keyword">int</span>;	<span class="comment">//开辟一个可以放int型的内存空间</span></span><br><span class="line"><span class="keyword">int</span> *<span class="built_in">array</span> = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">10</span>];	</span><br><span class="line"><span class="keyword">delete</span> prt;	<span class="comment">//删除指针变量所指向的内存单元</span></span><br><span class="line"><span class="keyword">delete</span>[] <span class="built_in">array</span>;	<span class="comment">//删除多个单元组成的内存块(删除指向该内存的地址的值)</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>左值引用</strong></p>
+<p>在定义的时候先初始化，给另一个变量起别名</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> v0;</span><br><span class="line"><span class="keyword">int</span> &amp;v1 = v0;<span class="comment">//v1为v0的别名，在内存中是同一单元的两个不同名字</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>引用必须在定义时进行初始化</li>
+<li>函数的参数也可以是引用类型，改变形参将改变实参</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">int</span>&amp; a, <span class="keyword">int</span>&amp; b)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> tmp = b;</span><br><span class="line">	b = a;</span><br><span class="line">	a = tmp;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>函数返回值可以是引用类型，但是不能是函数里面定义的临时变量</li>
+</ul>
+</li>
+<li><p><strong>右值引用</strong></p>
+<ul>
+<li>不能<strong>取地址的、没有名字</strong>的就是右值【匿名变量】</li>
+<li><code>int &amp;&amp;sum = 3+4;</code>即让sum保存3+4的结果</li>
+<li>典型应用是在函数参数中：<code>void AcceptRvalueRef(T &amp;&amp; s)&#123;...&#125;</code>。目的是减少临时变量传给函数时，把内容复制过去带来的时间上的开销</li>
+</ul>
+</li>
+</ol>
+<h2 id="2-2-变量初始化、类型推导及基于范围的循环"><a href="#2-2-变量初始化、类型推导及基于范围的循环" class="headerlink" title="2.2 变量初始化、类型推导及基于范围的循环"></a>2.2 变量初始化、类型推导及基于范围的循环</h2><h3 id="2-2-1-变量初始化"><a href="#2-2-1-变量初始化" class="headerlink" title="2.2.1 变量初始化"></a>2.2.1 变量初始化</h3><ol>
+<li>初始化列表</li>
+</ol>
+<ul>
+<li><p><code>int a[] = &#123;1, 3, 5&#125;;</code></p>
+</li>
+<li><p>或：<code>int a[]&#123;1, 3, 5&#125;</code>与上句等效</p>
+</li>
+</ul>
+<ol start="2">
+<li>变量的初始化方式</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a = <span class="number">3</span>+<span class="number">5</span>;</span><br><span class="line"><span class="keyword">int</span> a = &#123;<span class="number">3</span>+<span class="number">5</span>&#125;;</span><br><span class="line"><span class="keyword">int</span> a&#123;<span class="number">3</span>+<span class="number">5</span>&#125;;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">a</span><span class="params">(<span class="number">3</span>+<span class="number">5</span>)</span></span>;</span><br><span class="line"><span class="keyword">int</span> *i = <span class="keyword">new</span> <span class="keyword">int</span>(<span class="number">10</span>);<span class="comment">//分配一个内存空间能放int,这个空间存着10</span></span><br><span class="line"><span class="keyword">double</span> *d = <span class="keyword">new</span> <span class="keyword">double</span>&#123;<span class="number">1.2f</span>&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-2-类型推导"><a href="#2-2-2-类型推导" class="headerlink" title="2.2.2 类型推导"></a>2.2.2 类型推导</h3><p>使用<code>decltype</code>对变量/表达式结果的类型进行推导</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span>&#123;</span> <span class="keyword">char</span>* name; &#125;anou_u;</span><br><span class="line"><span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">	<span class="keyword">decltype</span>(anou_u) id;</span><br><span class="line">	<span class="keyword">int</span> score</span><br><span class="line">&#125;anou_s;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="keyword">decltype</span>(anou_s) as;</span><br><span class="line">  <span class="built_in">cin</span> &gt;&gt; as[<span class="number">0</span>].id.name;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-3-基于范围的for循环"><a href="#2-2-3-基于范围的for循环" class="headerlink" title="2.2.3 基于范围的for循环"></a>2.2.3 基于范围的for循环</h3><p>用“:”分为两部分：(迭代变量 : 遍历数组)</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> arr[]&#123;<span class="number">1</span>, <span class="number">3</span>, <span class="number">9</span>&#125;;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">auto</span> e:arr)&#123;</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; e &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="2-3-函数重载"><a href="#2-3-函数重载" class="headerlink" title="2.3 函数重载"></a>2.3 函数重载</h2><p>同一个名字，有不同的函数体，要求传入参数类型不一样</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span><span class="params">(<span class="keyword">char</span> *msg)</span></span>&#123;</span><br><span class="line">	<span class="built_in">cout</span> &lt;&lt; msg &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span><span class="params">(<span class="keyword">int</span> score)</span></span>&#123;</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; score &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>多个同名的函数实现之间，必须保证至少有一个函数参数类型有区别。</p>
+<p>返回值、参数名称等不能作为区分标识。</p>
+<h2 id="2-4-函数参数缺省-amp-追踪返回类型"><a href="#2-4-函数参数缺省-amp-追踪返回类型" class="headerlink" title="2.4 函数参数缺省 &amp; 追踪返回类型"></a>2.4 函数参数缺省 &amp; 追踪返回类型</h2><h3 id="2-4-1-函数参数缺省"><a href="#2-4-1-函数参数缺省" class="headerlink" title="2.4.1 函数参数缺省"></a>2.4.1 函数参数缺省</h3><p>函数参数在定义时设置默认值（缺省值），这样在调用时，如果没有设置参数，函数会自动赋值给参数</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span><span class="params">(<span class="keyword">char</span> *msg = <span class="string">&quot;hello&quot;</span>)</span></span>&#123;</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; msg &lt;&lt; <span class="string">&quot;#&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">  print(<span class="string">&quot;HaHa...&quot;</span>);</span><br><span class="line">  print();</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// HaHa...#hello#</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>有缺省的函数参数，必须写在最后一个</li>
+<li>如果带有多个，都只能在没有缺省值的参数后面出现</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span><span class="params">(<span class="keyword">char</span> *name, <span class="keyword">int</span> score, <span class="keyword">char</span> *msg = <span class="string">&quot;hello&quot;</span>)</span></span>&#123;</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; name &lt;&lt; <span class="string">&quot;.&quot;</span> &lt;&lt; score &lt;&lt; <span class="string">&quot;.&quot;</span> &lt;&lt; msg &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-2-追踪返回类型"><a href="#2-4-2-追踪返回类型" class="headerlink" title="2.4.2 追踪返回类型"></a>2.4.2 追踪返回类型</h3><p>可以将函数返回类型的声明信息放到函数参数列表的后面进行声明</p>
+<ul>
+<li>普通函数声明：<code>int func(char *ptr, int val);</code></li>
+<li><strong>追踪返回类型的函数声明：</strong> <code>auto func(char *ptr, int val) -&gt; int</code></li>
+</ul>
+<blockquote>
+<p>追踪返回类型在原本函数返回值的位置使用auto，箭头由编译器找寻</p>
+</blockquote>
+<h2 id="2-5-类的定义"><a href="#2-5-类的定义" class="headerlink" title="2.5 类的定义"></a>2.5 类的定义</h2><p>用户自定义类型 – 类CLASS</p>
+<ul>
+<li>一种用户自定义的类型，包含函数与数据的特殊“结构体”</li>
+<li>类中包含的函数，称为“成员函数”；包含的数据，称为“数据成员”</li>
+<li>类中函数既可以在类中给出定义，也可以在类外给出定义</li>
+<li>类的成员（数据、函数）可以根据需要分成组，不同族设置不同的访问权限</li>
+</ul>
+<blockquote>
+<p>Public(公有)， private（私有）， protected（保护）</p>
+</blockquote>
+<p>通过<code>“对象名.成员名”</code>的形式，可以使用对象的数据</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> MATRIX_H</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MATRIX_H</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Matrix</span>&#123;</span></span><br><span class="line">  <span class="keyword">int</span> data[<span class="number">6</span>][<span class="number">6</span>];</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">fill</span><span class="params">(<span class="keyword">char</span> dir)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-1-在实现文件中定义类"><a href="#2-5-1-在实现文件中定义类" class="headerlink" title="2.5.1 在实现文件中定义类"></a>2.5.1 在实现文件中定义类</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// matrix.cpp</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;matrix.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Matrix::fill</span><span class="params">(<span class="keyword">char</span> dir)</span></span>&#123;</span><br><span class="line">  ...<span class="comment">//函数实现</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通常，类的声明放在头文件中，而类的成员函数放在实现文件中</li>
+<li>为了便于管理和代码复用，一般将不同的类分别保存为不同的头文件和实现文件</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Matrix</span>&#123;</span></span><br><span class="line">  <span class="keyword">int</span> data[<span class="number">6</span>][<span class="number">6</span>];</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">fill</span><span class="params">(<span class="keyword">char</span> dir)</span></span>&#123;</span><br><span class="line">    ...;	<span class="comment">// &lt;1&gt;类内定义成员函数</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line">-------------</span><br><span class="line">  <span class="comment">//一般放在单独的cpp文件中</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Matrix::fill</span><span class="params">(<span class="keyword">char</span> dir)</span></span>&#123;</span><br><span class="line">  ...;	<span class="comment">// &lt;2&gt;类外定义成员函数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-5-2-this指针"><a href="#2-5-2-this指针" class="headerlink" title="2.5.2 this指针"></a>2.5.2 this指针</h3><blockquote>
+<p>所有成员函数的参数重，隐含一个只想当前对象的指针变量<code>this</code></p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Matrix</span>&#123;</span></span><br><span class="line">  <span class="keyword">int</span> data[<span class="number">6</span>][<span class="number">6</span>];</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">fill</span><span class="params">(<span class="keyword">char</span> dir)</span></span>&#123;</span><br><span class="line">    ...;	<span class="comment">// &lt;1&gt;类内定义成员函数</span></span><br><span class="line">    <span class="keyword">this</span>-&gt;data[<span class="number">0</span>][<span class="number">0</span>] = <span class="number">1</span>;<span class="comment">//等价于data[0][0]=1</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line">-------------</span><br><span class="line">  <span class="comment">//一般放在单独的cpp文件中</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Matrix::fill</span><span class="params">(<span class="keyword">char</span> dir)</span></span>&#123;</span><br><span class="line">  <span class="keyword">this</span>-&gt;data[<span class="number">0</span>][<span class="number">0</span>] = <span class="number">1</span>;	<span class="comment">// &lt;2&gt;类外定义成员函数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-6-类成员的访问权限与友元"><a href="#2-6-类成员的访问权限与友元" class="headerlink" title="2.6 类成员的访问权限与友元"></a>2.6 类成员的访问权限与友元</h2><h3 id="2-6-1-类成员的访问权限"><a href="#2-6-1-类成员的访问权限" class="headerlink" title="2.6.1 类成员的访问权限"></a>2.6.1 类成员的访问权限</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Matric</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">fill</span><span class="params">(<span class="keyword">char</span> dir)</span></span>;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">  <span class="keyword">int</span> data[<span class="number">6</span>][<span class="number">6</span>];</span><br><span class="line">&#125;; <span class="comment">//&lt;1&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Matrix</span>&#123;</span></span><br><span class="line">	<span class="keyword">int</span> data[<span class="number">6</span>][<span class="number">6</span>];	<span class="comment">//class中成员的缺省属性为private</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">fill</span><span class="params">(<span class="keyword">char</span> dir)</span></span>;</span><br><span class="line">&#125;; <span class="comment">//&lt;2&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>访问对象的成员（数据、函数）</strong></li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.cpp</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;matrix.h&quot;</span>	<span class="comment">// Matrix类的声明</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">  Matrix obj;	<span class="comment">//定义变量（对象）</span></span><br><span class="line">  obj.fill(<span class="string">&#x27;u&#x27;</span>);	<span class="comment">//访问公有成员</span></span><br><span class="line">  <span class="comment">//可以使用：obj-&gt;fill(&#x27;u&#x27;);</span></span><br><span class="line">  obj.data[<span class="number">1</span>][<span class="number">1</span>] = <span class="number">23</span>;	<span class="comment">//私有！Error！</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>不允许用<code>.</code>访问对象的私有/保护成员，只能访问公有属性</p>
+</blockquote>
+<h3 id="2-6-2-友元"><a href="#2-6-2-友元" class="headerlink" title="2.6.2 友元"></a>2.6.2 友元</h3><blockquote>
+<p>当需要允许某些函数访问对象的私有成员，可以通过声明该函数类的<strong>“友元”</strong>来实现</p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span>&#123;</span></span><br><span class="line">  <span class="keyword">int</span> id;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="function"><span class="keyword">friend</span> <span class="keyword">void</span> <span class="title">print</span><span class="params">(Test obj)</span></span>;</span><br><span class="line">  ...</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span><span class="params">(Test obj)</span></span>&#123;</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; obj.id &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Test类中声明了Test类的友元函数print</span></span><br><span class="line"><span class="comment">// 函数在实现时可以访问Test类定义对象的私有成员（如int id）</span></span><br></pre></td></tr></table></figure>
+
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://warmchay.github.io/2021/04/08/OOP/%E4%BA%8C%20%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95%20I/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/" rel="tag">C++</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2021/04/10/OOP/%E4%B8%89%20%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95%20II/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            OOP 3 -- 基础语法II
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/04/08/OOP/%E4%B8%80%20%E7%BC%96%E7%A8%8B%E7%8E%AF%E5%A2%83&%E7%AE%80%E4%BB%8B/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">OOP 1 -- 头文件&amp;make</div>
+      </a>
+    
+  </nav>
+
+   
+<!-- valine评论 -->
+<div id="vcomments-box">
+  <div id="vcomments"></div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+<script>
+  new Valine({
+    el: "#vcomments",
+    app_id: "WPk3BYXTvroAcMVBUmuhww02-gzGzoHsz",
+    app_key: "dVytxHwDjvcuO9IyGIKc128B",
+    path: window.location.pathname,
+    avatar: "monsterid",
+    placeholder: "给我的文章加点评论吧~",
+    recordIP: true,
+  });
+  const infoEle = document.querySelector("#vcomments .info");
+  if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+    infoEle.childNodes.forEach(function (item) {
+      item.parentNode.removeChild(item);
+    });
+  }
+</script>
+<style>
+  #vcomments-box {
+    padding: 5px 30px;
+  }
+
+  @media screen and (max-width: 800px) {
+    #vcomments-box {
+      padding: 5px 0px;
+    }
+  }
+
+  #vcomments-box #vcomments {
+    background-color: #fff;
+  }
+
+  .v .vlist .vcard .vh {
+    padding-right: 20px;
+  }
+
+  .v .vlist .vcard {
+    padding-left: 10px;
+  }
+</style>
+
+ 
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2021
+        <i class="ri-heart-fill heart_icon"></i> Zoris Wang
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        由 <a href="https://hexo.io" target="_blank">Hexo</a> 强力驱动
+        <span class="division">|</span>
+        主题 - <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></s>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="Yitee"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/">区块链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2021/03/16/About%20Me">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://i.loli.net/2020/10/30/GFDWywm9ProCXcR.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://i.loli.net/2020/10/30/urJAkYB276w5gvD.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="52"
+        src="//music.163.com/outchain/player?type=2&id=1332662900&auto=0&height=32"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+  </div>
+</body>
+
+</html>
