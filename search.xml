@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title></title>
+    <title>OOP 4 -- 基础语法III</title>
     <url>/2021/04/10/OOP/%E5%9B%9B%20%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95%20III/</url>
     <content><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><h1 id="四-基础语法-III"><a href="#四-基础语法-III" class="headerlink" title="四 基础语法 III"></a>四 基础语法 III</h1><h2 id="4-1-继承"><a href="#4-1-继承" class="headerlink" title="4.1 继承"></a>4.1 继承</h2><ul>
 <li>在已有类的基础上，通过“继承”来定义新的类，实现对已有代码的复用</li>
@@ -129,6 +129,12 @@
 </li>
 </ul>
 ]]></content>
+      <categories>
+        <category>OOP</category>
+      </categories>
+      <tags>
+        <tag>C++</tag>
+      </tags>
   </entry>
   <entry>
     <title>OOP 3 -- 基础语法II</title>
