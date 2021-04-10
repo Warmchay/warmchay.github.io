@@ -145,6 +145,192 @@
     
     
     <article
+  id="post-六 页面置换算法"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/03/22/%E5%85%AD%20%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95/"
+    >Operating System 6 -- 页面置换算法</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/22/%E5%85%AD%20%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95/" class="article-date">
+  <time datetime="2021-03-22T09:17:36.334Z" itemprop="datePublished">2021-03-22</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="六-页面置换算法"><a href="#六-页面置换算法" class="headerlink" title="六 页面置换算法"></a>六 页面置换算法</h1><h2 id="6-1-功能与目标"><a href="#6-1-功能与目标" class="headerlink" title="6.1 功能与目标"></a>6.1 功能与目标</h2><p><strong>功能：</strong> 缺页中断发生，需要调入新的页面而内存已满时，选择内存当中需要被置换的页面</p>
+<p><strong>目标：</strong> <font color="red"><b>尽可能地减少页面的换进换出次数</b></font>「即缺页中断的次数」。具体讲，把<strong>未来不再使用的或短期内较少使用的页面换出</strong>，通常只能在局部性原理指导下依据过去的统计数据来进行预测「减少交换带来的时间开销」</p>
+<p><strong>页面锁定（frame locking）：</strong> 用于描述必须常驻内存的os的关键部分或<strong>时间关键（time-critical）</strong>的应用进程。实现的方法是：在页表中添加<strong>锁定标志位（lock bit）</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322171811496.png" alt="image-20210322171811496" style="zoom:50%;">
+
+<h2 id="6-2-局部页面置换算法"><a href="#6-2-局部页面置换算法" class="headerlink" title="6.2 局部页面置换算法"></a>6.2 局部页面置换算法</h2><h3 id="6-2-1-最优页面置换算法「OPT，optional」"><a href="#6-2-1-最优页面置换算法「OPT，optional」" class="headerlink" title="6.2.1 最优页面置换算法「OPT，optional」"></a>6.2.1 最优页面置换算法「OPT，optional」</h3><p><strong>基本思路：</strong> 当一个缺页中断发生时，对于保存在内存当中的每一个逻辑页面，计算他的下一次访问之前，还需要等待多长时间，<strong>选择等待时间最长的那个，作为被置换的页面</strong></p>
+<blockquote>
+<p>这只是一种理想情况，实际系统中无法实现，因为os无法知道每一个页面要等待多长时间以后才会被再次访问</p>
+</blockquote>
+<p>可以用来作为其他算法的性能评价指标（在一个模拟器上运行某个程序，并记录每一次的页面访问情况，在第二遍运行时即可使用最优算法）</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322172535251.png" alt="image-20210322172535251" style="zoom:50%;">
+
+<h3 id="6-2-2-先进先出算法「FIFO」"><a href="#6-2-2-先进先出算法「FIFO」" class="headerlink" title="6.2.2 先进先出算法「FIFO」"></a>6.2.2 先进先出算法「FIFO」</h3><p><strong>基本思路：</strong> 选择在内存中<strong>驻留时间最长的页面并淘汰</strong>。即系统维护着一个链表，记录了所有位于内存当中的逻辑页面，从链表的排列顺序来看，链首页面的驻留时间最长，链尾页面驻留的时间最短。</p>
+<p>当发生一个缺页中断时，把链首页面淘汰出局，并把新的页面添加到链表的末尾</p>
+<p><strong>缺点：</strong> 性能较差，调出的页面有可能是经常要访问的页面。并且有$Belady$现象，FIFO算法很少单独使用</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322190815350.png" alt="image-20210322190815350" style="zoom:50%;">
+
+
+
+<h3 id="6-2-3-最近最久未使用算法「LRU，Least-Recently-Used」"><a href="#6-2-3-最近最久未使用算法「LRU，Least-Recently-Used」" class="headerlink" title="6.2.3 最近最久未使用算法「LRU，Least Recently Used」"></a>6.2.3 最近最久未使用算法「LRU，Least Recently Used」</h3><p><strong>基本思路：</strong> 当一个缺页中断发生时，淘汰最久未使用的页面</p>
+<p><strong>描述：</strong> 是对最优页面置换算法的一个近似，依据的是程序的局部性原理，即在最近一小段时间（最近几条指令）内，如果某些页面被频繁的访问，那么在将来的一小段时间内，他们还可能会再一次被频繁的访问。</p>
+<p>反过来说，如果在过去某些页面长时间未被访问，那么在将来它们还可能会长时间的得不到访问。</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322191410812.png" alt="image-20210322191410812" style="zoom:50%;">
+
+<p>LRU算法需要记录哥哥页面使用时间的先后顺序，开销比较大，两种可能的实现方法是：</p>
+<ol>
+<li><strong>系统维护一个页面链表</strong>，最近刚刚使用过的页面作为首结点，最久未使用的作为尾节点。每一次访问内存时，找到相应的页面，把他从链表中摘下来，再移动到链表之首。<strong>每次缺页中断发生时，淘汰链表末尾的页面</strong></li>
+<li><strong>设置一个活动页面栈。</strong> 需要淘汰时，选择栈底的页面，就是最久未使用的</li>
+</ol>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322191954433.png" alt="image-20210322191954433" style="zoom:50%;">
+
+<h3 id="6-2-4-时钟页面置换算法「Clock」"><a href="#6-2-4-时钟页面置换算法「Clock」" class="headerlink" title="6.2.4 时钟页面置换算法「Clock」"></a>6.2.4 时钟页面置换算法「Clock」</h3><blockquote>
+<p>是LRU的近似，对FIFO的一种改进</p>
+</blockquote>
+<p><strong>基本思路：</strong></p>
+<ul>
+<li>需要用到页表项当中的访问位。当一个页面被装入内存时，初始化该位为0。如果该页面被访问，则把该位置调为1</li>
+<li>把各个页面组织成环形链表（类似钟表面），把指针指向最老的页面（最新进来）</li>
+<li>当发生一个缺页中断时，考察指针所指向的最老页面，如果它的访问位为0，立即淘汰；若访问位为1，把该位置设为0，指针往下移动一格。如此下去，直到找到被淘汰的页面，然后把指针移动到它的下一格。</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322193041915.png" alt="image-20210322193041915" style="zoom:50%;">
+
+<p>**注意<code>used bit</code>是0/1 **</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322193640150.png" alt="image-20210322193640150" style="zoom:50%;">
+
+<h3 id="6-2-5-二次机会法「Enhanced-Clock-Algorithm」"><a href="#6-2-5-二次机会法「Enhanced-Clock-Algorithm」" class="headerlink" title="6.2.5 二次机会法「Enhanced Clock Algorithm」"></a>6.2.5 二次机会法「Enhanced Clock Algorithm」</h3><ul>
+<li>Clock算法中有巨大的代价来替换“脏”页</li>
+<li>修改Clock算法，使它允许<strong>脏页总是在第一次时钟头扫描中保留下来</strong></li>
+</ul>
+<blockquote>
+<p>同时使用“脏位”和使用位来指导置换</p>
+</blockquote>
+<p>对$a, b$执行写操作，由$(1, 0) \rightarrow (1, 1)$，即执行写操作<code>dirty bit = 1</code></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322202042975.png" alt="image-20210322202042975" style="zoom:50%;">
+
+<p>优先把只读页先换出去，给了写操作二次存活的机会【复活甲！】</p>
+<h3 id="6-2-5-最不常用算法「LFU，Least-Frequently-Used」"><a href="#6-2-5-最不常用算法「LFU，Least-Frequently-Used」" class="headerlink" title="6.2.5 最不常用算法「LFU，Least Frequently Used」"></a>6.2.5 最不常用算法「LFU，Least Frequently Used」</h3><p><strong>基本思路：</strong> 当一个缺页中断发生时，选择访问次数最少的那个页面，并淘汰之</p>
+<p><strong>实现方法：</strong> 对每个页面设置一个访问计数器，每当一个页面被访问时，该页面的访问计数器加1。当发生缺页中断时，淘汰计数值最小的那个页面</p>
+<p><strong>缺点：</strong> 这里硬件开发很大，如果前期开发使用次数多，后期很难判断。可以把访问计数器一定时间内左移一位减少2倍。</p>
+<p><strong>LRU和LFU的区别：</strong> LRU考察的是<strong>多久未访问</strong>，时间越短越好；而LFU考察的是<strong>访问的次数或额度</strong>，访问次数越多越好。</p>
+<h3 id="6-2-6-Belady现象"><a href="#6-2-6-Belady现象" class="headerlink" title="6.2.6 Belady现象"></a>6.2.6 Belady现象</h3><p><strong>解释：</strong> 在采用FIFO算法时，有时会出现<strong>分配的物理页面数增加</strong>，<strong>缺页率反而提高</strong>的异常现象的异常现象</p>
+<p><strong>产生原因：</strong> FIFO算法的替换特征与<strong>进程访问内存的动态特征</strong>是矛盾的，与置换算法的目标是不一致的（即替换较少的页面），因此被他<strong>置换出去的页面不一定是进程不会访问</strong>的</p>
+<h3 id="6-2-7-LRU、FIFO和Clock的比较"><a href="#6-2-7-LRU、FIFO和Clock的比较" class="headerlink" title="6.2.7 LRU、FIFO和Clock的比较"></a>6.2.7 LRU、FIFO和Clock的比较</h3><blockquote>
+<p>LRU和FIFO本质上都是先进先出</p>
+</blockquote>
+<p>LRU是针对页面的最近访问时间来排序；FIFO是针对页面进入内存的时间来排序，这个时间是固定不变的</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322203633347.png" alt="image-20210322203633347" style="zoom:50%;">
+
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322203751942.png" alt="image-20210322203751942" style="zoom:50%;">
+
+<h2 id="6-3-全局页面置换算法"><a href="#6-3-全局页面置换算法" class="headerlink" title="6.3 全局页面置换算法"></a>6.3 全局页面置换算法</h2><h3 id="6-3-1局面页面替换算法的问题"><a href="#6-3-1局面页面替换算法的问题" class="headerlink" title="6.3.1局面页面替换算法的问题"></a><strong>6.3.1局面页面替换算法的问题</strong></h3><p>前面介绍的各种页面置换算法，都是机遇程序的局部性原理，但是这个原理是否成立？</p>
+<ul>
+<li><strong>如果局部性原理不成立，</strong> 那么各种页面置换算法就没有什么分别，也没有什么意义。例如：假设进程对逻辑页面的访问顺序为$1, 2, 3, 4, 5, 6, 7, 8, 9…$,即单调递增。那么在物理页面数有限的前提下，无论采用什么置换算法，每次的页面访问都必然导致缺页中断</li>
+<li><strong>如果局部性原理成立，</strong> 证明存在和用其进行定量分析的为工作集模型</li>
+</ul>
+<h3 id="6-3-2-工作集模型「Working-Set」"><a href="#6-3-2-工作集模型「Working-Set」" class="headerlink" title="6.3.2 工作集模型「Working Set」"></a>6.3.2 工作集模型「Working Set」</h3><p><strong>工作集：</strong> 一个进程当前<strong>正在使用的</strong>逻辑页面集合</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323091316028.png" alt="image-20210323091316028" style="zoom:50%;">
+
+<p><strong>举个栗子：</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323091653180.png" alt="image-20210323091653180" style="zoom:50%;">
+
+<blockquote>
+<p>$t_2$的局部性较好</p>
+</blockquote>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323091816367.png" alt="image-20210323091816367" style="zoom:50%;">
+
+<p><strong>常驻集：</strong> 指在当前时刻，进程<strong>实际驻留在内存当中的页面</strong>集合</p>
+<ul>
+<li>工作集是进程在运行过程中固有的性质，而常驻集取决于系统分配给进程的物理页面数目，以及所采用的页面置换算法</li>
+<li>如果一个进程的整个工作集都在内存当中，即常驻集包含于工作集，那么进程将很顺利的运行，不会造成太多的缺页中断（指导工作集发生剧烈变动，从而过渡到另一个状态）</li>
+<li>当进程常驻集的大小达到某个数目之后，再给它分配更多的物理页面，<strong>缺页率</strong>也不会明显的下降</li>
+</ul>
+<h3 id="6-3-3-工作集页置换算法"><a href="#6-3-3-工作集页置换算法" class="headerlink" title="6.3.3 工作集页置换算法"></a>6.3.3 工作集页置换算法</h3><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323093222033.png" alt="image-20210323093222033" style="zoom:50%;">
+
+<p>$Page\ d=-1, Page\ e=-2$,时间长度为$3$</p>
+<p>超出时间窗口的都将被直接清除</p>
+<h3 id="6-3-4-缺页率置换算法"><a href="#6-3-4-缺页率置换算法" class="headerlink" title="6.3.4 缺页率置换算法"></a>6.3.4 缺页率置换算法</h3><p><strong>可变分配策略：</strong> 常驻集大小可变，如每个进程在刚开始运行的时候，先根据程序大小给它分配一定数目的物理页面，然后在进程运行过程中，再动态的调整常驻集的大小</p>
+<ul>
+<li>可采用<strong>全局页面置换</strong>的方式，当发生一个缺页中断时，被置换的页面可以是在其他进程当中，各个并发进程竞争的使用物理页面</li>
+<li><strong>优缺点：</strong>性能较好，但增加了系统开销</li>
+<li><strong>具体实现：</strong>可以使用缺页率算法（PFF，page fault frequency）来动态调整常驻集的大小</li>
+</ul>
+<p><strong>缺页率：</strong> 表示为$\frac{缺页次数}{内存访问次数}$或$\frac{1}{缺页的平均时间间隔}$，影响因素为：</p>
+<ul>
+<li>页面置换算法</li>
+<li>分配给进程的物理页面数目</li>
+<li>页面本身的大小</li>
+<li>程序的编写方法</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323093912412.png" alt="image-20210323093912412" style="zoom:50%;">
+
+<p>一个交替的工作集计算明确的试图最小化页缺失</p>
+<ul>
+<li>缺页率高，增加工作集</li>
+<li>缺页率低，减少工作集</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323094113240.png" alt="image-20210323094113240" style="zoom:50%;">
+
+<blockquote>
+<p>4-1 = 3 &gt; 2 删除page a &amp; page b</p>
+</blockquote>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323094448846.png" alt="image-20210323094448846" style="zoom:50%;">
+
+<p>不断进行page的动态调整</p>
+<h3 id="6-3-5-抖动问题「thrashing」"><a href="#6-3-5-抖动问题「thrashing」" class="headerlink" title="6.3.5 抖动问题「thrashing」"></a>6.3.5 抖动问题「thrashing」</h3><ul>
+<li>如果分配给一个进程的物理页面太少，不能包含整个工作集，进程可能会造成很多缺页中断，需要频繁的在内存与外存之间替换页面，从而使进程的运行速度变得很慢，把这种状态称为<strong>“抖动”</strong></li>
+<li><strong>产生原因：</strong> 随着驻留内存的进程数目增加，分配给每个进程的物理页面数不断减小，缺页率不断上升，所以os要选择<strong>一个适当的进程数目和进程需要的帧数，以便在并发水平和缺页率之间达到一个平衡</strong></li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323094930617.png" alt="image-20210323094930617" style="zoom:50%;">
+
+<p><strong>找到最高值「平衡点」</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323095219014.png" alt="image-20210323095219014" style="zoom:50%;">
+
+<p>达到高的并发水平同时减少缺页率</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-五 虚拟内存"
   class="article article-type-post"
   itemscope
@@ -2003,103 +2189,6 @@ Jxx M#   (若满足条件，转移到另一处执行)</code></pre>
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="tag">区块链</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-字符串+线索二叉树"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/03/16/%E5%AD%97%E7%AC%A6%E4%B8%B2+%E7%BA%BF%E7%B4%A2%E4%BA%8C%E5%8F%89%E6%A0%91/"
-    >学习记录--字符串+线索二叉树构建</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/03/16/%E5%AD%97%E7%AC%A6%E4%B8%B2+%E7%BA%BF%E7%B4%A2%E4%BA%8C%E5%8F%89%E6%A0%91/" class="article-date">
-  <time datetime="2021-03-16T01:24:27.625Z" itemprop="datePublished">2021-03-16</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%E4%BB%AA/">学习记录仪</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <script src="/assets/js/APlayer.min.js"> </script><h2 id="一-字符串"><a href="#一-字符串" class="headerlink" title="一 字符串"></a>一 字符串</h2><p>今天的上机有几道题提醒了我可能我关于高精度和字符串掌握程度不熟，所以再来回顾一遍</p>
-<h3 id="1-1-高精度存值"><a href="#1-1-高精度存值" class="headerlink" title="1.1 高精度存值"></a>1.1 高精度存值</h3><p>这个使输入一个阶乘的值然后用数组来保存，一开始我的方法是：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> str;</span><br><span class="line"><span class="keyword">int</span> sum = <span class="number">0</span>, count = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=str.length()<span class="number">-1</span>; i&gt;=<span class="number">0</span>; --i)&#123;</span><br><span class="line">    sum += (str[i]-<span class="string">&#x27;0&#x27;</span>)*count;</span><br><span class="line">    count *= <span class="number">10</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; sum;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>问题在于：依旧相当于直接输出大的值，改善的点是我能输出多位的值了，思路就是错在输出了</p>
-</blockquote>
-<p>所以，正确的方法应该是用数组去存它们的一个个位的值，这个时候我的问题在于怎么一位一位</p>
-<p>地把数存进去，使用的算法是这样的</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MAX 100;</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">factorial</span><span class="params">(<span class="keyword">int</span> n)</span></span>&#123;			<span class="comment">/*n!*/</span></span><br><span class="line">    <span class="keyword">int</span> a[MAX], tmp;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">2</span>; i&lt;=n; ++i)&#123;</span><br><span class="line">        <span class="keyword">int</span> <span class="built_in">cin</span> = <span class="number">0</span>;			<span class="comment">/*每一轮重置一次进位数*/</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>; j&lt;MAX; ++j)&#123;</span><br><span class="line">            tmp = a[j]+<span class="built_in">cin</span>;		<span class="comment">/*把原有的数加上进位*/</span></span><br><span class="line">            <span class="built_in">cin</span> = a[j]/<span class="number">10</span>;</span><br><span class="line">            a[j] = tmp%<span class="number">10</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> i, sum = <span class="number">0</span>, count = <span class="number">1</span>;				<span class="comment">/*记录最大位在哪*/</span></span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; MAX<span class="number">-1</span>; ++i)&#123;</span><br><span class="line">        <span class="keyword">if</span>(a[i] == <span class="number">0</span>)</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> j = i<span class="number">-1</span>; j&gt;=<span class="number">0</span>; --j)&#123;</span><br><span class="line">        sum += a[j]*count;</span><br><span class="line">        count *= <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="1-2-字符串的一些函数操作"><a href="#1-2-字符串的一些函数操作" class="headerlink" title="1.2 字符串的一些函数操作"></a>1.2 字符串的一些函数操作</h3><h4 id="1-2-1-含有空格的字符串输入"><a href="#1-2-1-含有空格的字符串输入" class="headerlink" title="1.2.1 含有空格的字符串输入"></a>1.2.1 含有空格的字符串输入</h4><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getline(<span class="built_in">cin</span>, str);</span><br></pre></td></tr></table></figure>
-
-<h4 id="1-2-2-字符串的删除与拼接"><a href="#1-2-2-字符串的删除与拼接" class="headerlink" title="1.2.2 字符串的删除与拼接"></a>1.2.2 字符串的删除与拼接</h4><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> s1, s2;		<span class="comment">//s1原串，s2子串</span></span><br><span class="line"><span class="keyword">while</span>(s1.find(s2) &lt; s1.length())&#123;</span><br><span class="line">	s1 = s.erase(s1.find(s2), s2.length());	<span class="comment">/*erase函数(首地址，删除的长度)*/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="1-2-3-字符串的公共前缀"><a href="#1-2-3-字符串的公共前缀" class="headerlink" title="1.2.3 字符串的公共前缀"></a>1.2.3 字符串的公共前缀</h4><p>最大问题在输入怎么输入，一般要求输入在一行内如：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">global glossory</span><br></pre></td></tr></table></figure>
-
-<p>我是这么输入的</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> s1, s2;</span><br><span class="line"><span class="built_in">cin</span> &gt;&gt; s1;</span><br><span class="line">getchar();</span><br><span class="line"><span class="built_in">cin</span> &gt;&gt; s2;</span><br><span class="line"><span class="comment">/*这样也能达成上述输入的效果，然后处理的时候视为两个字符串处理就好啦~*/</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="二-线索二叉树"><a href="#二-线索二叉树" class="headerlink" title="二 线索二叉树"></a>二 线索二叉树</h2><blockquote>
-<p>这个是复习的时候发现没听懂，所以记一下防止期末又忘了</p>
-</blockquote>
-<p>二叉树的核心在于<strong>线索化</strong>，其作用在于把一颗树转化为双向链表，这样能够判断其前缀和后缀是什么。</p>
-<p>其结构体定义为</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">BiThrNode</span>&#123;</span></span><br><span class="line">    ElemType data;							<span class="comment">//结点数据</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">BiThrNode</span> *<span class="title">lchild</span>, *<span class="title">rchild</span>;</span>		<span class="comment">//左右孩子的指针</span></span><br><span class="line">    <span class="keyword">int</span> ltag, rtag;							<span class="comment">//左右孩子的标志</span></span><br><span class="line">&#125;BiThrNode, *BiThrTree;</span><br></pre></td></tr></table></figure>
-
-<p>在我的理解中，难点在于ltag（rtag）是用来做什么的，因为这个我看了很多书都没能理解，在b站上找了懒猫老师的课，听了一边下来感觉大概清楚线索二叉树的线索化是怎么实现的。</p>
-<blockquote>
-<p>以下仅基于自己的理解，给自己复习的，如果有朋友看，可能你会看不懂qwq</p>
-</blockquote>
-<h3 id="①-空结点个数"><a href="#①-空结点个数" class="headerlink" title="① 空结点个数"></a>① 空结点个数</h3><p>一开始我们会按照前序、中序后者后序的组合（不能是中序+后序）建立好了一棵二叉树，但是我们在判断一个结点是否有子树时，会设置它的<code>lchild、rchild</code>为<code>NULL</code>，这样会使很多结点浪费掉了，做个计算</p>
-<p>设这颗二叉树结点个数为<code>n</code>，它有<code>n-1</code>条边，那么空结点数一共为<br>$$<br>2*n-(n-1) = n+1<br>$$<br>怎么理解呢？一个结点能引出两条边，而树的边两端真正连有结点的一共为<code>n-1</code>条，所以拿<code>2*n-(n-1)</code>就是空结点的个数<br>从<code>n+1</code>看来这个浪费的程度有点大，那么如何利用他们呢？</p>
-<h3 id="②-前缀、后缀"><a href="#②-前缀、后缀" class="headerlink" title="② 前缀、后缀"></a>② 前缀、后缀</h3><p>因为我们在建树的过程中，是把原有的顺序拆开的，比如说前序为<code>ABCDEF</code>,中序为<code>CBDAEF</code>,这样搭建出来的树<code>A</code>为根结点，其左孩子为<code>B</code> ，右孩子为 <code>E</code>，但是在中序遍历中，其前缀不为B，后缀为E，也就说明A两端是有子结点的，一般这种情况我们设A的<code>ltag = 0, rtag = 0</code>，表示其有左右孩子，但不一定为其前缀后者后缀形式。</p>
-<p>相反的，我们那这棵树的<code>C</code>作为另一种表示，C没有前缀，C的后缀为B，但我们知道，它没有左孩子与右孩子，这个时候我们把它的<code>lchild、rchild</code>指向其前驱和后继。所以在这里我们设置其<code>ltag = 1, rtag = 1</code>，表示其没有左右孩子，这时它的左右孩子的地址指向的是其在某种遍历方式里的前驱和后继。</p>
-<p>所以<code>ltag、rtag</code>可以看作是一种判断符，分为<code>1/0</code>的情况</p>
-<h3 id="₯③-保存状态结点–pre"><a href="#₯③-保存状态结点–pre" class="headerlink" title="₯③ 保存状态结点–pre"></a>₯③ 保存状态结点–pre</h3><p>那么如何保存其左右结点呢？</p>
-<p>我们先来看整个遍历的代码吧，这个是实现创建线索二叉树【中序遍历】的代码：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">InThreading</span><span class="params">(BiThrTree p)</span></span>&#123;</span><br><span class="line">    <span class="keyword">static</span> BiThrTree pre;			<span class="comment">//设置静态变量，让pre在每一次遍历中都能察觉到</span></span><br><span class="line">	<span class="keyword">if</span>(p == <span class="literal">NULL</span>) <span class="keyword">return</span>;</span><br><span class="line">	InThreding(p-&gt;lchild);			<span class="comment">//先递归到左子树最低点</span></span><br><span class="line">	<span class="keyword">if</span>(!p-&gt;lchild)&#123;					<span class="comment">//如果p没有左孩子</span></span><br><span class="line">		p-&gt;ltag = <span class="number">1</span>;				<span class="comment">//标志其为线索化的结点，即其左子树为其前驱，不是其真实的左孩子</span></span><br><span class="line">		p-&gt;lchild = pre;			<span class="comment">//pre为p上一个节点</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span>(!pre-&gt;rchild)&#123;</span><br><span class="line">		pre-&gt;rtag = <span class="number">1</span>;</span><br><span class="line">		pre-&gt;rchild = p;			<span class="comment">//开头在创建的过程中pre会经过两遍</span></span><br><span class="line">	&#125;</span><br><span class="line">	pre = p;</span><br><span class="line">	InThreading(p-&gt;rchild);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>通过这种方式我们就创建好了一颗线索二叉树</p>
-<p>最后，还有主要的是如果我的<code>ltag/rtag = 0</code>呢？那打印的时候我怎么保证遍历到的是其前驱呢？解决办法依旧是不断递归，假如要打印的是前驱</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">inOrder</span><span class="params">(BiThrTree t)</span></span>&#123;</span><br><span class="line">	BiThrTree p = t-&gt;lchild;			<span class="comment">//p指向t的左子树 </span></span><br><span class="line">	<span class="keyword">while</span>(p-&gt;ltag != <span class="number">0</span>)&#123;</span><br><span class="line">		p = p-&gt;lchild;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">cout</span> &lt;&lt; p-&gt;data &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">	<span class="keyword">while</span>(p-&gt;rtag &amp;&amp; p-&gt;rchild != t)&#123;	<span class="comment">//防止p指向右孩子出错</span></span><br><span class="line">		p = p-&gt;rchild;</span><br><span class="line">		<span class="built_in">cout</span> &lt;&lt; p-&gt;data &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">	&#125; </span><br><span class="line">	p = p-&gt;rchild;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%97%E7%AC%A6%E4%B8%B2/" rel="tag">字符串</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%A0%91/" rel="tag">树</a></li></ul>
 
     </footer>
   </div>
