@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    Operating System 2 -- 基础操作 |  
+    Operating System 8 -- 调度 |  
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -45,7 +45,7 @@
     <main class="content on">
       <section class="outer">
   <article
-  id="post-二 操作系统基础操作"
+  id="post-OS/八 调度"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -56,15 +56,15 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  Operating System 2 -- 基础操作
+  Operating System 8 -- 调度
 </h1>
  
 
     </header>
      
     <div class="article-meta">
-      <a href="/2021/03/19/%E4%BA%8C%20%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C/" class="article-date">
-  <time datetime="2021-03-19T11:46:00.742Z" itemprop="datePublished">2021-03-19</time>
+      <a href="/2021/03/24/OS/%E5%85%AB%20%E8%B0%83%E5%BA%A6/" class="article-date">
+  <time datetime="2021-03-24T02:11:28.778Z" itemprop="datePublished">2021-03-24</time>
 </a> 
   <div class="article-category">
     <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
@@ -75,7 +75,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1.3k</span>
+            <span class="post-count">1.8k</span>
         </span>
     </span>
 
@@ -84,7 +84,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">4 分钟</span>
+            <span class="post-count">6 分钟</span>
         </span>
     </span>
 </div>
@@ -99,130 +99,247 @@
   
     <div class="article-entry" itemprop="articleBody">
        
-  <script src="/assets/js/APlayer.min.js"> </script><h1 id="2-操作系统基础操作"><a href="#2-操作系统基础操作" class="headerlink" title="2 操作系统基础操作"></a>2 操作系统基础操作</h1><img src="https://i.loli.net/2021/03/23/STmQ34s5DPFoIcL.png" alt="image-20210319115425183.png" style="zoom:35%;">
-
-<blockquote>
-<p>CPU，I/O与内存通过总线连接</p>
-</blockquote>
-<h2 id="2-1-操作系统的启动"><a href="#2-1-操作系统的启动" class="headerlink" title="2.1 操作系统的启动"></a>2.1 操作系统的启动</h2><img src="https://i.loli.net/2021/03/23/d7kRQjFPgoclyE2.png" alt="image-20210319115815465.png" style="zoom:33%;">
-
-<p><strong>内存映射：</strong></p>
-<p><strong>DISK:</strong> 存放OS</p>
-<p><strong>BIOS:</strong> Basic I/O system，基本I/O处理系统，加载OS到内存当中</p>
-<p>电脑通电后，段寄存器CS和指令寄存器IP会确定一个内存地址，如<code>CS:IP = 0xf000:fff0</code></p>
-<p><strong>POST(加电自检)**， 寻找显卡和执行</strong>BIOS**[检查显示器、键盘等是否正常]</p>
-<p><strong>步骤：</strong></p>
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="八-调度"><a href="#八-调度" class="headerlink" title="八 调度"></a>八 调度</h1><h2 id="8-1-背景"><a href="#8-1-背景" class="headerlink" title="8.1 背景"></a>8.1 背景</h2><ol>
+<li><strong>上下文切换</strong><ol>
+<li>切换CPU的当前任务，从一个进程/线程到另一个</li>
+<li>保存当前进程/线程在PCB/TCP中的执行上下文（CPU状态）</li>
+<li>读取下一个进程/线程的上下文</li>
+</ol>
+</li>
+<li><strong>CPU调度</strong><ol>
+<li>从就绪队列中挑选一个进程/线程作为CPU将要运行的下一个进程/线程</li>
+<li>调度程序：挑选进程/线程的内核函数（通过一些调度策略）</li>
+</ol>
+</li>
+</ol>
+<p><strong>那么在进程/线程的生命周期中什么时候进行调度呢？</strong></p>
+<hr>
+<p><strong>内核运行调度程序的条件（满足一条即可）</strong></p>
+<ul>
+<li>一个进程从运行状态切换到等待状态</li>
+<li>一个进程被终止了</li>
+</ul>
+<p><strong>不可抢占式</strong>『non-preemptive』</p>
+<ul>
+<li>调度程序必须等待事件结束</li>
+</ul>
+<p><strong>可以抢占</strong>『preemptive』</p>
+<ul>
+<li>调度程序在中断被响应后执行</li>
+<li>当前的进程<strong>从运行切换到就绪</strong>，或者一个进程<strong>从等待切换到就绪</strong></li>
+<li>当前运行的进程可以被换出</li>
+</ul>
+<h2 id="8-2-调度原则"><a href="#8-2-调度原则" class="headerlink" title="8.2 调度原则"></a>8.2 调度原则</h2><h3 id="8-2-1-调度策略"><a href="#8-2-1-调度策略" class="headerlink" title="8.2.1 调度策略"></a>8.2.1 调度策略</h3><p>执行模型：程序在CPU突发和I/O中交替</p>
+<p><strong>评价指标：</strong></p>
 <ol>
-<li><strong>BIOS:</strong> 将Bootloader从磁盘的磁盘引导扇区（512字节）加载到<code>0x7c00</code>；跳转到<code>CS:IP=0000:7C00</code>的内存区域</li>
-<li><strong>Bootloader:</strong> 将操作系统的代码和数据从硬盘加载到内存中，跳转到操作系统的起始地址</li>
+<li><strong>CPU使用率：</strong> cpu处于忙状态所占时间的百分比</li>
+<li><strong>吞吐量：</strong> 单位时间内<strong>完成的进程数量</strong></li>
+<li><strong>周转时间：</strong> 一个进程从初始化到结束，包括所有等待事件所花费的时间</li>
+<li><strong>等待时间：</strong> 进程在就绪队列中等待到running的总时间</li>
+<li><strong>响应时间：</strong> 从一个请求被提交到产生第一次响应所花费的时间</li>
 </ol>
-<p><strong>系统调用：</strong> （来源于应用程序）应用程序主动向操作系统发出服务请求</p>
-<p><strong>异常：</strong> （来源于不良的应用程序）非法指令或者其它不好的处理状态（e.g. 内存出错）</p>
-<p><strong>中断：</strong> （来源于外设）来自不同硬件设备的计时器和网络的中断</p>
-<hr>
-<h3 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q &amp; A"></a>Q &amp; A</h3><ol>
-<li><strong>为什么应用程序不能直接访问硬件而是通过操作系统呢？</strong></li>
-</ol>
+<p><strong>什么是“更快”的服务呢？</strong></p>
 <ul>
-<li>计算机运行时，内核是被信任的第三方</li>
-<li>只有内核能够执行特权指令</li>
-<li>为了方便应用程序</li>
+<li>传输文件是的<strong>高带宽</strong></li>
+<li>玩游戏时的<strong>低延迟</strong></li>
+<li>这两个因素是独立的</li>
 </ul>
+<p><strong>和“水管”类比：</strong></p>
+<ul>
+<li><strong>低延迟：</strong> 喝水的时候想要一打开水龙头水就流出来</li>
+<li><strong>高带宽：</strong> 给游泳池充水时希望从水龙头里同时<strong>流出大量的水</strong>，并且不介意是否存在延迟</li>
+</ul>
+<p><strong>调度算法的提升指标</strong></p>
+<ul>
+<li><strong>减少响应时间：</strong> 及时处理用户的输出并且尽快将输出提供给用户</li>
+<li><strong>减少平均响应时间的变动：</strong> 在交互系统中，可预测性比<strong>高差异低平均</strong>更重要</li>
+<li><strong>增加吞吐量：</strong> 1⃣️减少开销（os开销，上下文切换）；2⃣️系统资源的高效利用（CPU、I/O设备）</li>
+<li><strong>减少等待时间：</strong> 减少每个进程的等待时间</li>
+</ul>
+<p><strong>指标提高的表现</strong></p>
+<ul>
+<li><p>低延迟调度增加了交互式表现【鼠标点的快！】</p>
+</li>
+<li><p>os需要<strong>保证吞吐量不受影响</strong></p>
+</li>
+<li><p>吞吐量是os的计算<strong>带宽</strong></p>
+</li>
+<li><p>响应时间是os的计算<strong>延迟</strong></p>
+</li>
+<li><p>还需要相对的<strong>公平</strong>，通过调度算法使每个进程享有相同的服务</p>
+</li>
+</ul>
+<h2 id="8-3-调度算法"><a href="#8-3-调度算法" class="headerlink" title="8.3 调度算法"></a>8.3 调度算法</h2><ol>
+<li><strong>FCFS「First Come First Served」【先来先服务】</strong></li>
+</ol>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324132140786.png" alt="image-20210324132140786" style="zoom:50%;">
+
 <ol start="2">
-<li><strong>操作系统如何设计和实现中断/异常和系统调用，他们三者的区别和特点</strong></li>
+<li><strong>SPN（SJF） SRT 【Shortest Job First】</strong></li>
 </ol>
-<p><strong>&lt;如何产生？&gt;</strong></p>
-<ul>
-<li><strong>系统调用</strong>主动向操作系统发服务请求</li>
-<li><strong>中断</strong>为不同硬件设备的计时器和网络的中断</li>
-<li><strong>异常</strong>为不良的应用程序产生的<strong>非法指令</strong>或<strong>其他不好的处理状态</strong>的问题</li>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324132513213.png" alt="image-20210324132513213" style="zoom:50%;">
+
+<blockquote>
+<p>SRT可以抢占正在运行的进程，比较的运行中进程的<strong>结束剩余时间</strong>和新进程的<strong>执行时间</strong></p>
+</blockquote>
+<p><strong>缺点</strong></p>
+<ol>
+<li>可能导致<strong>饥饿</strong><ul>
+<li>连续的短任务流会使长任务饥饿</li>
+<li>短任务可用时的任何长任务的CPU时间都会增加平均等待时间</li>
 </ul>
-<p><strong>&lt;产生的源头&gt;</strong></p>
-<ul>
-<li><strong>中断：</strong> 外设（键盘/鼠标/网卡/声卡/显卡，可以产生各种事件）</li>
-<li><strong>异常：</strong> 应用程序意想不到的行为（e.g. 异常，恶意服务，应用程序需要的资源未得到满足）</li>
-<li><strong>系统调用（sys call）：</strong> 应用程序请求操作服务（打开/关闭/读写文件，发送网络包）</li>
+</li>
+<li><strong>需要预知未来</strong><ul>
+<li>如何预估下一个CPU突发的持续时间</li>
+<li>简单的解决办法：询问用户</li>
 </ul>
-<p><strong>&lt;处理时间&gt;</strong></p>
+</li>
+</ol>
+<p>通过过去预知未来的算法：</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324133135071.png" alt="image-20210324133135071" style="zoom:50%;">
+
+<p>来猜测下一个进程的执行时间，实验数据：</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324133222742.png" alt="image-20210324133222742" style="zoom:50%;">
+
+<ol start="3">
+<li>最高响应比优先「HRN」</li>
+</ol>
 <ul>
-<li><strong>中断：</strong> 异步</li>
+<li>在SPN调度的基础上改进</li>
+<li>不可抢占</li>
+<li>关注进程等待了多长时间</li>
+<li>防止无限期推迟</li>
+</ul>
+<p>$$<br>R = \frac{w+s}{s}<br>$$</p>
+<blockquote>
+<p>w: waiting time 等待时间。 s: service time 执行时间</p>
+</blockquote>
+<p>选择R值高的</p>
+<ol start="4">
+<li>轮询调度算法【<strong>RR Round Robin</strong>】</li>
+</ol>
+<ul>
+<li>在叫做量子（或时间切片）的离散单元中分配处理器</li>
+<li>时间片结束时，切换到下一个准备好的进程</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324133548510.png" alt="image-20210324133548510" style="zoom:50%;">
+
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324133758476.png" alt="image-20210324133758476" style="zoom:50%;">
+
+<p><strong>探究时间片大小的影响</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324133903614.png" alt="image-20210324133903614" style="zoom:50%;">
+
+<p><strong>再次改进：</strong></p>
+<ul>
+<li>就绪队列划分成独立的队列</li>
 </ul>
 <blockquote>
-<p>事件产生时，应用程序并不知道他什么时候会产生，只有当他产生了才去处理</p>
+<p>前台（交互）， 后台（批处理）</p>
 </blockquote>
 <ul>
-<li><strong>异常：</strong> 同步</li>
+<li>每个队列有自己的调度策略</li>
 </ul>
 <blockquote>
-<p>一定是执行到某一条特定指令时一定会产生</p>
+<p>如前台：RR，后台：FCFS</p>
 </blockquote>
 <ul>
-<li><strong>系统调用：</strong> 异步或同步</li>
+<li>调度必须在队列间进行<ol>
+<li><strong>固定优先级</strong><ul>
+<li>先处理前台，再处理后台</li>
+<li>可能导致饥饿</li>
+</ul>
+</li>
+<li><strong>时间切片</strong><ul>
+<li>每个队列都能得到一个确定的能够调度其进程的CPU总时间</li>
+<li>E.g. 80%给使用RR的前台，20%给使用FCFS的后台</li>
+</ul>
+</li>
+</ol>
+</li>
 </ul>
 <blockquote>
-<p>同步：执行到某一条特定指令时一定会产生</p>
-<p>异步：从系统调用的返回时间来看，如果应用程序发出系统调用请求后一直在等待则为同步，如果应用程序去做别的事则为异步</p>
+<p>于是出现了多级反馈队列</p>
 </blockquote>
-<p><strong>&lt;响应&gt;</strong></p>
+<ol start="5">
+<li><strong>多级反馈队列</strong></li>
+</ol>
 <ul>
-<li><strong>中断：</strong> 持续、对用户应用程序时为透明</li>
-<li><strong>异常：</strong> 杀死或者重新执行意想不到的应用程序指令</li>
-<li><strong>系统调用：</strong> 等待和持续</li>
+<li>一个进程可以在不同的队列中移动</li>
+<li>如：n级优先级-优先级调度在所有级别中，RR在每个级别中</li>
 </ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324162554607.png" alt="image-20210324162554607" style="zoom:50%;">
+
+<ol start="6">
+<li><strong>FFS「Fair File Share」</strong></li>
+</ol>
+<ul>
+<li>一些用户组比其他用户组更重要</li>
+<li>保证不重要的组无法垄断资源</li>
+<li><strong>未使用的资源</strong>按照每个组所分配的资源的比例来分配</li>
+<li>没有达到资源使用率目标的组获得更高的优先级</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324162905916.png" alt="image-20210324162905916" style="zoom:50%;">
+
+<p><strong>如何评价模型？</strong></p>
+<ol>
+<li><strong>确定性建模：</strong> 确定一个工作量，然后计算每个算法的表现</li>
+<li><strong>队列模型：</strong> 用来处理<strong>随机工作负载</strong>的数学方法</li>
+<li><strong>实现/模拟：</strong> 建立一个允许算法运行实际数据的系统，需要很灵活/有一致性</li>
+</ol>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324163255535.png" alt="image-20210324163255535" style="zoom:50%;">
+
+<h2 id="8-4-实时调度"><a href="#8-4-实时调度" class="headerlink" title="8.4 实时调度"></a>8.4 实时调度</h2><h3 id="8-4-1-实时系统"><a href="#8-4-1-实时系统" class="headerlink" title="8.4.1 实时系统"></a>8.4.1 实时系统</h3><p><strong>定义：</strong> 正确性依赖于<strong>时间</strong>【real time】和<strong>功能</strong></p>
+<p><strong>性能指标：</strong> 1⃣️ 时间约束的及时性「ddl」；2⃣️ 速度和平均性能相对不重要</p>
+<p><strong>主要特性：</strong> 时间约束的可预测性</p>
+<p><strong>实时分类：</strong> 1⃣️ 硬实时「强实时」：保证规定时间内必须完成任务； 2⃣️ 要求重要的进程的优先级更高，尽量完成，并非必需</p>
+<p><strong>如何衡量进程在限定时间内可完成呢？</strong></p>
+<p>发起任务–「就绪」–&gt;执行–&gt;不能超过relative ddl的时间间隔</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324164247351.png" alt="image-20210324164247351" style="zoom:50%;">
+
 <hr>
-<h2 id="2-2-中断-异常和系统调用"><a href="#2-2-中断-异常和系统调用" class="headerlink" title="2.2 中断/异常和系统调用"></a>2.2 中断/异常和系统调用</h2><ol>
-<li>中断/异常的<strong>处理机制</strong></li>
-</ol>
-<p>中断是外设的事件，异常是cpu的事件</p>
-<ol start="2">
-<li><strong>中断处理机制</strong><ul>
-<li><strong>硬件：</strong> 设置中断标记<strong>（CPU初始化）</strong><ul>
-<li>将内部/外部事件设置中断标记</li>
-<li>中断事件的ID（程序访问的中断向量的地址）</li>
-</ul>
-</li>
-<li><strong>软件：</strong> 操作系统<ul>
-<li>保存当前处理状态</li>
-<li>中断服务程序处理</li>
-<li>清除中断标记</li>
-<li>恢复之前保存的处理状态</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><strong>异常处理机制</strong><ul>
-<li><strong>异常：异常编号</strong><ul>
-<li>保存现场</li>
-<li>异常处理：杀死产生异常的程序，重新执行异常指令</li>
-<li>恢复现场</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><strong>系统调用</strong><ul>
-<li>一条指令会触发一个系统调用</li>
-<li>程序访问主要是通过高层次的API接口而不是直接进行系统调用</li>
-<li>通常情况下，存在于每个系统调用相关的序号，系统调用接口根据这些序号来维护表的索引</li>
-<li>系统调用接口调用内核态中预期的系统调用，并返回系统调用的状态和其他返回值</li>
-<li>用户不需要知道系统调用是如何实现的，只需要获取API和了解操作新系统讲什么作为返回结果。操作系统<strong>接口的细节大部分都隐藏在AP</strong>I中，并通过运行程序支持的库来管理</li>
-<li><strong>用户态：</strong> 应用程序在执行的过程中，cpu执行的特权级的<strong>状态很低，不能访问特殊机器指令和IO</strong></li>
-<li><strong>内核态：</strong> 应用程序在执行的过程中，cpu执行的特权级的<strong>状态高，操作系统可以执行cpu任何一条指令</strong></li>
-<li>系统调用时涉及到<strong>特权级从用户态到内核态</strong>的转换，<strong>应用程序和操作系统有各自的堆栈</strong>，这两个变化比函数调用的开销更大，但更安全和可靠</li>
-</ul>
-</li>
-<li><strong>跨越操作系统边界的开销</strong><ul>
-<li>在执行时间上超过程序调用</li>
-<li><strong>开销包括：</strong><ol>
-<li>建立<strong>中断/异常/系统调用</strong>和与<strong>对应服务例程映射关系</strong>的初始化开销</li>
-<li>建立内核堆栈（操作系统和应用程序的堆栈不一样）</li>
-<li>验证参数（操作系统会检查数据）</li>
-<li>内核态映射到用户态的地址空间，更新页面映射权限（内存拷贝开销）</li>
-<li>内核态独立地址空间TLB</li>
+<ul>
+<li><p><strong>硬时限</strong></p>
+<ol>
+<li>如果错过了ddl，会有严重的后果</li>
+<li>必须验证在最坏的情况下也能满足时限【保证确定性】</li>
 </ol>
 </li>
+<li><p><strong>软时限</strong></p>
+<ol>
+<li>理想情况下，时限应该被最大满足，否则就相应地降低要求</li>
+<li>需要尽最大努力去保证</li>
+</ol>
+<p>设置优先级调度方法来满足ddl要求</p>
+</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324164724307.png" alt="image-20210324164724307" style="zoom:50%;">
+
+<blockquote>
+<p>静态：优先级提前设置好           动态：优先级可调整</p>
+</blockquote>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324164849527.png" alt="image-20210324164849527" style="zoom:50%;">
+
+<h2 id="8-5-多处理器调度与优先级反转"><a href="#8-5-多处理器调度与优先级反转" class="headerlink" title="8.5 多处理器调度与优先级反转"></a>8.5 多处理器调度与优先级反转</h2><h3 id="8-5-1-多处理器调度"><a href="#8-5-1-多处理器调度" class="headerlink" title="8.5.1 多处理器调度"></a>8.5.1 多处理器调度</h3><ol>
+<li>多处理器的CPU调度更加复杂<ul>
+<li>多个相同的单处理器组成一个多处理器</li>
+<li>优点：负载共享</li>
+</ul>
+</li>
+<li>对称多处理器<ul>
+<li>每个处理器运行自己的调度程序</li>
+<li>需要在<strong>调度程序中同步</strong></li>
 </ul>
 </li>
 </ol>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324165104306.png" alt="image-20210324165104306" style="zoom:50%;">
+
+<h3 id="8-5-2-优先级反转"><a href="#8-5-2-优先级反转" class="headerlink" title="8.5.2 优先级反转"></a>8.5.2 优先级反转</h3><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324165159392.png" alt="image-20210324165159392" style="zoom:50%;">
+
+<ul>
+<li><strong>优先级天花板：</strong> “资源”的优先级和“所有可以<strong>锁定该资源的任务中优先级最高的那个任务”的优先级相同</strong></li>
+<li>除非优先级高于系统中所有被锁定的资源的优先级上限，否则任务尝试执行临界区时会被阻塞</li>
+<li>持有<strong>最高优先级上限信号量锁</strong>的任务，会继承被该锁阻塞的任务的优先级</li>
+</ul>
  
       <!-- reward -->
       
@@ -293,7 +410,7 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://warmchay.github.io/2021/03/19/%E4%BA%8C%20%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://warmchay.github.io/2021/03/24/OS/%E5%85%AB%20%E8%B0%83%E5%BA%A6/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -306,19 +423,19 @@
    
   <nav class="article-nav">
     
-      <a href="/2021/03/19/%E4%B8%89%20%E8%BF%9E%E7%BB%AD%E5%BC%8F%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/" class="article-nav-link">
+      <a href="/2021/03/24/OS/%E4%B9%9D%20%E5%90%8C%E6%AD%A5/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            Operating System 3 -- 连续式内存分配
+            Operating System 9 -- 同步
           
         </div>
       </a>
     
     
-      <a href="/2021/03/19/%E4%B8%80%20%E6%A6%82%E8%BF%B0/" class="article-nav-link">
+      <a href="/2021/03/23/OS/%E4%B8%83%20%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Operating System 1 -- 概述</div>
+        <div class="article-nav-title">Operating System 7 -- 进程管理</div>
       </a>
     
   </nav>

@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    Operating System 5 -- 虚拟内存 |  
+     
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -45,37 +45,24 @@
     <main class="content on">
       <section class="outer">
   <article
-  id="post-五 虚拟内存"
+  id="post-uCore/Lab 2 物理内存管理"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
   data-scroll-reveal
 >
   <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  Operating System 5 -- 虚拟内存
-</h1>
- 
-
-    </header>
      
     <div class="article-meta">
-      <a href="/2021/03/22/%E4%BA%94%20%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98/" class="article-date">
-  <time datetime="2021-03-22T08:31:40.153Z" itemprop="datePublished">2021-03-22</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
-  </div>
-  
+      <a href="/2021/04/11/uCore/Lab%202%20%E7%89%A9%E7%90%86%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="article-date">
+  <time datetime="2021-04-11T11:52:10.059Z" itemprop="datePublished">2021-04-11</time>
+</a>   
 <div class="word_count">
     <span class="post-time">
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1.9k</span>
+            <span class="post-count">2.8k</span>
         </span>
     </span>
 
@@ -84,7 +71,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">6 分钟</span>
+            <span class="post-count">10 分钟</span>
         </span>
     </span>
 </div>
@@ -99,124 +86,138 @@
   
     <div class="article-entry" itemprop="articleBody">
        
-  <script src="/assets/js/APlayer.min.js"> </script><h1 id="五-虚拟内存"><a href="#五-虚拟内存" class="headerlink" title="五 虚拟内存"></a>五 虚拟内存</h1><h2 id="5-1-起因"><a href="#5-1-起因" class="headerlink" title="5.1 起因"></a>5.1 起因</h2><blockquote>
-<p>程序规模的增长速度远远大于存储器容量的增长速度</p>
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="Lab-2-物理内存管理"><a href="#Lab-2-物理内存管理" class="headerlink" title="Lab 2 物理内存管理"></a>Lab 2 物理内存管理</h1><blockquote>
+<p>这个lab目的是完成一个简单的物理内存管理系统</p>
 </blockquote>
-<p>理想中的存储器：更大更快更便宜的非易失性存储器</p>
-<p><strong>实际：</strong></p>
-<img src="https://i.loli.net/2021/03/22/VSd2z58utmBQp4L.png" alt="image-20210322144502671.png" style="zoom:50%;">
-
-<p>主存储器贵，硬盘大但传输速度慢</p>
-<p><strong>有效管理内存</strong>：分页分段机制，现有的物理内存通过操作系统去获得更快更大的内存空间</p>
-<p><strong>当出现内存不够用的情况怎么办？</strong></p>
-<ul>
-<li>如果程序太大，超出内存容量，可以采用手动的覆盖（overlay），把需要的指令和数据保存在内存当中</li>
-<li>或者采用<strong>自动的交换技术（swapping）</strong>，把暂时不能执行的程序送到外存中</li>
-<li>想要在有限容量的内存中，以<strong>更小的页粒度</strong>为单位装人更多更大的程序，采用<strong>自动的虚拟存储技术</strong></li>
+<h1 id="1-实验目的"><a href="#1-实验目的" class="headerlink" title="1 实验目的"></a>1 实验目的</h1><ul>
+<li>理解基于段页式内存地址的转换机制</li>
+<li>理解页表的建立和使用方法</li>
+<li>理解物理内存的管理方法</li>
 </ul>
-<h2 id="5-2-覆盖技术"><a href="#5-2-覆盖技术" class="headerlink" title="5.2 覆盖技术"></a>5.2 覆盖技术</h2><h3 id="lt-1-gt-目标"><a href="#lt-1-gt-目标" class="headerlink" title="&lt;1&gt;  目标"></a>&lt;1&gt;  目标</h3><p>在较小的可用内存中运行较大的程序，常用语多道程序系统，和分区存储管理配合使用</p>
-<h3 id="lt-2-gt-原理"><a href="#lt-2-gt-原理" class="headerlink" title="&lt;2&gt; 原理"></a>&lt;2&gt; 原理</h3><p>把程序按照自身逻辑结构，划分为若干个功能上相对独立的程序模块</p>
-<p>将不会同时执行的模块共享同一块内存区域，按照时间先后来运行</p>
-<ul>
-<li><strong>必要部分（常用功能）</strong>的代码和数据常驻内存</li>
-<li><strong>可选部分（不常用功能）</strong>在其他程序模块中实现，平时存在外存，<strong>使用时装入内存</strong></li>
-<li>不存在调用关系的模块不需要同时装入内存中，从而能够相互覆盖，即这些模块共用一个分区【类似<strong>“分时”</strong>】</li>
-</ul>
-<p>举个栗子【<strong>进程树</strong>】</p>
-<blockquote>
-<p><strong>同一层</strong>的子进程可以相互覆盖，因此放在同一个覆盖区</p>
-</blockquote>
-<p>另一种覆盖方法：</p>
-<img src="https://i.loli.net/2021/03/22/quJQm9Hd6XCf3nA.png" alt="image-20210322150451018.png" style="zoom:50%;">
-
-<h3 id="lt-3-gt-缺点"><a href="#lt-3-gt-缺点" class="headerlink" title="&lt;3&gt; 缺点"></a>&lt;3&gt; 缺点</h3><ul>
-<li>如何将大程序划分为多个小功能模块，来确定各个模块的覆盖关系费时费力</li>
-<li>覆盖模块<strong>从外存装入内存</strong>，是以时间延长换取空间节省</li>
-</ul>
-<h2 id="5-3-交换技术"><a href="#5-3-交换技术" class="headerlink" title="5.3 交换技术"></a>5.3 交换技术</h2><h3 id="lt-1-gt-目标-1"><a href="#lt-1-gt-目标-1" class="headerlink" title="&lt;1&gt; 目标"></a>&lt;1&gt; 目标</h3><p>多道程序在内存中，让正在运行的程序或需要运行的程序获得更多的内存资源</p>
-<h3 id="lt-2-gt-方法"><a href="#lt-2-gt-方法" class="headerlink" title="&lt;2&gt; 方法"></a>&lt;2&gt; 方法</h3><ul>
-<li>可将暂时不能运行的程序送到外存，从而获得空闲内存空间</li>
-<li>操作系统把一个进程的<strong>整个地址空间内容保存到外存</strong>中（swap out）<strong>「os认为这个程序不用执行」</strong>，<strong>将外存中某个进程的地址空间读入内存中</strong>（swap in）。换入换出内容的大小为整个程序的地址空间</li>
-</ul>
-<img src="https://i.loli.net/2021/03/22/aSFpnHUwV8lYhIC.png" alt="image-20210322151545762.png" style="zoom:50%;">
-
-<h3 id="lt-3-gt-问题"><a href="#lt-3-gt-问题" class="headerlink" title="&lt;3&gt; 问题"></a>&lt;3&gt; 问题</h3><ul>
-<li><strong>什么时候需要交换？</strong></li>
-</ul>
-<p>只当内存空间不够或者存在危险时才换出</p>
-<ul>
-<li><strong>交换区的大小？</strong></li>
-</ul>
-<p>需要足够大来存放所有用户进程的所有内存映像的拷贝，才能对这些内存映像进行直接存取</p>
-<ul>
-<li><strong>内存地址固定吗？</strong></li>
-</ul>
-<p>采用<strong>动态地址映射</strong>，换入换出的内存位置不一定相同</p>
-<h3 id="lt-4-gt-覆盖-v-s-交换"><a href="#lt-4-gt-覆盖-v-s-交换" class="headerlink" title="&lt;4&gt; 覆盖 v.s 交换"></a>&lt;4&gt; 覆盖 v.s 交换</h3><ol>
-<li><strong>覆盖：</strong> 覆盖<strong>只能发生相互之间没有调用关系</strong>的程序模块之间，程序员必须给出程序内的各个模块之间逻辑覆盖结构</li>
-<li><strong>交换：</strong> 以内存中的程序大小为单位进行，不需要给出各个模块之间的逻辑覆盖结构</li>
-<li><strong>总结一下：</strong> 交换发生在内存中程序与管理程序或操作系统之间，而覆盖发生在运行程序的内部</li>
+<h1 id="2-实验内容"><a href="#2-实验内容" class="headerlink" title="2 实验内容"></a>2 实验内容</h1><ol>
+<li>了解如何发现系统中的物理内存</li>
+<li>了解如何建立对物理内存的初步管理，即了解<strong>连续物理内存管理</strong></li>
+<li>最后了解页表的相关操作，即如何<strong>建立页表</strong>来实现虚拟内存到物理内存之间的映射，对段页式内存管理机制有全面的了解</li>
 </ol>
-<h2 id="5-4-虚存技术"><a href="#5-4-虚存技术" class="headerlink" title="5.4 虚存技术"></a>5.4 虚存技术</h2><h3 id="5-4-1-目标"><a href="#5-4-1-目标" class="headerlink" title="5.4.1 目标"></a>5.4.1 目标</h3><p><strong>覆盖：</strong> 程序员需要自己确定程序各个模块的覆盖关系</p>
-<p><strong>交换：</strong> 以进程作为交换，需要把进程的整个地址空间都换入换出，增加了处理器开销</p>
-<p><strong>虚存目标：</strong></p>
+<h2 id="2-2-1-练习"><a href="#2-2-1-练习" class="headerlink" title="2.2.1 练习"></a>2.2.1 练习</h2><p>一共3个基本练习和2个扩展练习</p>
+<h2 id="2-2-2-项目组成"><a href="#2-2-2-项目组成" class="headerlink" title="2.2.2 项目组成"></a>2.2.2 项目组成</h2><p>实验二在实验一基础上增加和修改的文件有：</p>
 <ul>
-<li>不把所有程序放入内存，因而能够运行比当前空闲内存更大的程序，由操作系统自己完成，不需要程序员手动操作</li>
-<li>能够实现内存与外存之间的交换，来获得更多的空闲内存空间。但只对进程的部分内容进行交换，减少了开销。</li>
+<li><code>boot/bootasm.S</code>: 增加了对计算机系统中物理内存布局的探测功能</li>
+<li><code>kern/init/entry.S:</code> 根据临时段表重新暂时建立好新的段空间，为进行分页做准备</li>
+<li><code>kern/mm/default_pmm.[ch]:</code> 提供基于链表方法的物理内存管理</li>
+<li><code>kern/mm/pmm.[ch]:</code> pmm.h定义物理内存管理类框架<code>struct pmm_manager，</code> 基于这个通用框架可以实现不同的物理内存管理策略和算法，来实现一个基于此框架的简单物理内存管理策略；<code>pmm.c</code>包含了对此物理内存管理类框架的访问，以及与建立、修改、访问页表相关的各种函数实现</li>
+<li><code>kern/sync/sync.h:</code> 提供两个功能，一是保存eflag寄存器中的中断屏蔽位信息并屏蔽中断的功能，另一个是根据保存的中断屏蔽位信息来使能中断的功能</li>
+<li><code>libs/list.h:</code> 定义了通用双向链表结构以及相关的查找、插入等基本操作，建立基于链表方法的物理内存管理（以及其他内核功能）的基础</li>
+<li><code>libs/atomic.h:</code> 定义了对一个变量进行读写的原子操作，确保相关操作不被中断打断</li>
+<li><code>tools/kernel.ld:</code> <code>ld</code>形成执行文件的地址所用到的链接脚本，修改了ucore的起始入口和代码段的起始地址</li>
 </ul>
-<img src="https://i.loli.net/2021/03/22/IQvrAWuk4HsORJM.png" alt="image-20210322153118350.png" style="zoom:50%;">
+<h1 id="3-前置知识"><a href="#3-前置知识" class="headerlink" title="3 前置知识"></a>3 前置知识</h1><h2 id="3-1-x86-特权级（Privilege-Levels）"><a href="#3-1-x86-特权级（Privilege-Levels）" class="headerlink" title="3.1 x86 特权级（Privilege Levels）"></a>3.1 x86 特权级（Privilege Levels）</h2><ul>
+<li>RING 0(内核)</li>
+<li>RING 1(服务)</li>
+<li>RING 2(服务)</li>
+<li>RING 3(应用程序)</li>
+</ul>
+<p>当前os一般只用到了RING 0&amp;3, 如<strong>LINUX</strong>， 在访问数据段页表进入中断服务例程（ISR）CPU会检查特权级</p>
+<h2 id="3-2-x86-特权级检查失败"><a href="#3-2-x86-特权级检查失败" class="headerlink" title="3.2 x86 特权级检查失败"></a>3.2 x86 特权级检查失败</h2><p>会提示<code>General Protection Fault</code>一般保护错误</p>
+<h2 id="3-3-x86-特权级检查"><a href="#3-3-x86-特权级检查" class="headerlink" title="3.3 x86 特权级检查"></a>3.3 x86 特权级检查</h2><p><code>RPL</code> <strong>请求</strong>特权级 <code>DS ES GS FS</code>数据段</p>
+<p><code>CPL</code> 当前特权级 存在于<code>CS/SS</code>的低2位</p>
+<p><strong>选择子结构：</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210412084055852.png" alt="image-20210412084055852" style="zoom:50%;">
 
-<h3 id="5-4-2-程序局部性原理"><a href="#5-4-2-程序局部性原理" class="headerlink" title="5.4.2 程序局部性原理"></a>5.4.2 程序局部性原理</h3><blockquote>
-<p><strong>局部性原理：</strong> 程序执行过程中的一个较短时期内，所执行的指令地址和指令的操作数地址，<strong>分别局限于一定区域</strong></p>
-</blockquote>
-<ul>
-<li><strong>时间局部性：</strong> 一个数据的一次访问和下次访问集中在较短时期内</li>
-<li><strong>空间局部性：</strong> 当前指令和邻近的几条指令，当前访问的数据和邻近的几个数据都集中在一个较小区域内，<strong>内存中靠的很近</strong>。</li>
-</ul>
-<p><img src="https://i.loli.net/2021/03/22/nTCQV48cqfISBNa.png" alt="image-20210322154212146.png" style="zoom:50%;"><img src="https://i.loli.net/2021/03/22/5GywzFrBdVRWb7c.png" alt="image-20210322162031899.png"></p>
-<blockquote>
-<p>默认行优先，如果按列来遍历，时间开销会非常大，因为$a_{0, 0} –&gt; a_{1, 0}$相差$1024KB$.而$a_{0,0} –&gt; a_{0,1}$相差$1KB$.</p>
-<p>因此，按列访问，访问次数为$1024 * 1024$</p>
-<p>而按行为$1024$次</p>
-</blockquote>
-<h3 id="5-4-3-基本概念"><a href="#5-4-3-基本概念" class="headerlink" title="5.4.3 基本概念"></a>5.4.3 基本概念</h3><blockquote>
-<p>虚存可以在页式或段式内存管理的基础上实现</p>
-</blockquote>
-<ul>
-<li>装入程序时，不用将全部都装入到内存，只需要将当前需要执行的部分页面或段载入主存，让程序执行即可</li>
-<li>程序执行时，如果执行的指令或者访问的数据<strong>没有</strong>在内存<strong>「缺页/缺段」</strong>，由<strong>处理器</strong>通知操作系统将相应的页面或段掉入内存，继续执行程序</li>
-<li>另外，os将内存中暂时不使用的页面或段调出保存在外存上，腾出更多空闲时间存放将要装入的程序及要调入的页面或段</li>
-</ul>
-<h3 id="5-4-4-基本特征"><a href="#5-4-4-基本特征" class="headerlink" title="5.4.4 基本特征"></a>5.4.4 基本特征</h3><ul>
-<li><strong>用户空间大：</strong> 把物理内存与外存相结合，提供给用户的虚存空间通常大于实际的物理内存，实现两者的分离</li>
-<li><strong>部分交换：</strong> 虚存的调入和调出是对部分虚拟地址空间进行的</li>
-<li><strong>不连续性：</strong> 物理内存分配的不连续，虚存地址空间使用的不连续</li>
-</ul>
-<h3 id="5-4-5-虚拟页式内存管理"><a href="#5-4-5-虚拟页式内存管理" class="headerlink" title="5.4.5 虚拟页式内存管理"></a>5.4.5 虚拟页式内存管理</h3><ul>
-<li>大部分虚拟存储系统都采用<strong>虚拟页式存储管理技术</strong>，即在页式存储管理的基础上，增加<strong>请求调页和页面置换</strong>功能</li>
-<li><strong>基本思路</strong>：<ul>
-<li>当一个用户程序要调入内存运行时，只装入部分的页面，就可以启动程序运行</li>
-<li>在运行的过程中，如果发现要运行的程序或者要访问的数据不在内存<strong>「因为页面只映射了一部分」</strong>，cpu会向操作系统发出<strong>缺页中断</strong>请求。系统在处理这个中断时，将外存中相应的页面调入内存，使程序继续运行</li>
-</ul>
-</li>
-</ul>
-<p><img src="https://i.loli.net/2021/03/22/5GywzFrBdVRWb7c.png" alt="image-20210322162031899.png"></p>
-<img src="https://i.loli.net/2021/03/22/gTyuKezlvwW6iRZ.png" alt="image-20210322162327848.png" style="zoom:50%;">
+<p><strong>DPL段或者门的特权级</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210412084158645.png" alt="image-20210412084158645" style="zoom:50%;">
 
-<h3 id="5-4-6-后备存储-Backing-Store"><a href="#5-4-6-后备存储-Backing-Store" class="headerlink" title="5.4.6 后备存储 Backing Store"></a>5.4.6 后备存储 Backing Store</h3><p><strong>在哪里保存没有映射的页？</strong></p>
-<ul>
-<li>能够简单地识别二级存储器中的页</li>
-<li>交换空间（磁盘或者文件）：特殊格式，用于存储未被映射的页面</li>
-</ul>
-<p><strong>后备存储「backing store」</strong></p>
-<ul>
-<li>一个虚拟地址空间的页面可以被映射到一个文件（在二级存储中）的某个位置</li>
-<li><strong>代码段：</strong> 映射到可执行二进制文件</li>
-<li><strong>动态加载的共享库程序段：</strong> 映射到动态调用的库文件</li>
-<li><strong>其他段：</strong> 可能被映射到交换文件<strong>（swap file）</strong></li>
-</ul>
-<h3 id="5-4-7-虚拟内存性能"><a href="#5-4-7-虚拟内存性能" class="headerlink" title="5.4.7 虚拟内存性能"></a>5.4.7 虚拟内存性能</h3><img src="https://i.loli.net/2021/03/22/eySsPrOgQAjvp9L.png" alt="image-20210322163317854.png" style="zoom:50%;">
+<p>访问门时<code>CPL &lt;= DPL[门]&amp;&amp; CPL &gt;= DPL[段]</code></p>
+<p>访问段时<code>MAX(CPL, RPL) &lt;= DPL[段]</code>，具体看附录A</p>
+<h2 id="3-3-x86-通过中断切换特权级"><a href="#3-3-x86-通过中断切换特权级" class="headerlink" title="3.3 x86 通过中断切换特权级"></a>3.3 x86 通过中断切换特权级</h2><p>首先在<strong>IDT</strong>建立好<strong>中断门</strong>来实现中断切换特权级</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210412084400481.png" alt="image-20210412084400481" style="zoom:50%;">
 
+<h2 id="3-4-RING-0-–-gt-RING-3"><a href="#3-4-RING-0-–-gt-RING-3" class="headerlink" title="3.4 RING 0 –&gt; RING 3"></a>3.4 RING 0 –&gt; RING 3</h2><p>当<code>RING 0</code>内核态发生中断的时候，首先因为发生中断的时候还是在<code>RING 0</code>所以不会将<code>ss esp</code>压入堆栈中，只会压入<code>Eflags cs eip</code>和中断错误码</p>
+<p>因此，为了实现从<code>RING 0</code>到<code>RING 3</code>的特权级转换，将其<code>ss</code>改成特权级3的栈<code>CS</code>改为用户代码段，最后通过<code>IRET</code>将这些信息<code>POP</code>出栈，此时运行环境就进入了用户态中了</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210412162659335.png" alt="image-20210412162659335" style="zoom:50%;">
+
+<h2 id="3-5-RING-3-–-gt-RING-0"><a href="#3-5-RING-3-–-gt-RING-0" class="headerlink" title="3.5 RING 3 –&gt; RING 0"></a>3.5 RING 3 –&gt; RING 0</h2><p>当<code>RING 3</code>用户态发生中断时，会将<code>ss esp</code>压入堆栈中，这是为了跳出中断的时候，还能返回到这个用户态中，但目前是为了实现从<code>RING 3</code>到<code>RING 0</code>的特权级转换</p>
+<p>因此<code>ss esp</code>是不需要的，将它们去掉同时将<code>CS</code>改为内核态代码段，最后还是通过<code>IRET</code>将这些信息<code>POP</code>出栈，就回到了<code>RING 0</code>内核态中</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210412162914362.png" alt="image-20210412162914362" style="zoom:50%;">
+
+<h2 id="3-6-TSS-任务状态段-Task-State-Segment"><a href="#3-6-TSS-任务状态段-Task-State-Segment" class="headerlink" title="3.6 TSS 任务状态段(Task State Segment)"></a>3.6 TSS 任务状态段(Task State Segment)</h2><p>TSS的位置能够从GDT中的<code>任务状态描述符表(Task State Descriptor)</code>中找到</p>
+<p>因为IDT中的中断门有代码段选择子可以用它作为索引从GDT中找到实际的代码段的内存地址，但是ss和esp是不存在于中断门中的</p>
+<p>他们存在于TSS中，TR（Task Register）寄存器会缓存TSS从而实现任务的切换</p>
+<p>TSS在里面只会保存<code>RING 0~RING 2</code>的ss和esp，但是不会保存<code>RING 3</code>的<code>ss</code>和<code>esp</code>，因为CPU仅默认支持从<strong>低特权级跳转到高特权级</strong>，而RING 3是最低的特权级，不会有其他的特权级跳过去了，因此不再保存RING 3的SS和ESP</p>
+<h2 id="3-7-x86-内存管理单元-MMU"><a href="#3-7-x86-内存管理单元-MMU" class="headerlink" title="3.7 x86 内存管理单元 MMU"></a>3.7 x86 内存管理单元 MMU</h2><p><strong>段机制</strong></p>
+<p>首先通过<strong>段选择子</strong>作为索引在 GDT中找到段描述符，如果没有启动页机制的话，那么现在就找到线性地址</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210412165915653.png" alt="image-20210412165915653" style="zoom:50%;">
+
+<p>GDT存在于内存当中，因为它所占空间比较大，但是由于内存比较慢，每次去访问段表的时候，耗费比较大，因此硬件会将GDT中的描述信息放在CPU中来加快段的映射过程</p>
+<p><strong>页机制</strong></p>
+<p><strong>如何开启页机制</strong></p>
+<ol>
+<li>准备好页目标表和页表</li>
+<li>页目录表物理地址，写入CR3寄存器</li>
+<li>CR0最高位PG位置1</li>
+</ol>
+<p><strong>段机制和页机制都能作为映射机制，怎么选择？</strong></p>
+<ul>
+<li>选择页机制有助于硬件机制对其进行有效的处理</li>
+<li>段机制和页机制结合成段页式的存储管理，从而既能便于程序的共享和保护，又能高效率利用存储空间</li>
+</ul>
+<p><strong>各种地址</strong></p>
+<ul>
+<li>保护模式：<code>段机制+段偏移 = 线性地址</code>， <code>若没有分页机制，则为物理地址</code></li>
+<li><strong>实模式/保护模式：</strong> <code>段偏移 = 有效地址（逻辑地址）</code></li>
+<li>开启分页后: <code>线性地址 == 虚拟地址</code></li>
+</ul>
+<h1 id="附录-中断"><a href="#附录-中断" class="headerlink" title="附录 中断"></a>附录 中断</h1><h2 id="附录A-调用门与特权级（CPL-amp-DPL-amp-RPL）"><a href="#附录A-调用门与特权级（CPL-amp-DPL-amp-RPL）" class="headerlink" title="附录A 调用门与特权级（CPL &amp; DPL &amp; RPL）"></a>附录A 调用门与特权级（CPL &amp; DPL &amp; RPL）</h2><blockquote>
+<p>这个为保护模式下($CR_{0}=1$)的调用门与特权级</p>
+</blockquote>
+<h3 id="1-特权级"><a href="#1-特权级" class="headerlink" title="1 特权级"></a>1 特权级</h3><blockquote>
+<p>从0(kern)-3(user)，数字越小表示特权级别越大</p>
+<p>有时也把高特权级称为内层，低特权级称为外层</p>
+</blockquote>
+<h4 id="1-1-CPL"><a href="#1-1-CPL" class="headerlink" title="1.1 CPL"></a>1.1 CPL</h4><p>CPL表示当前执行的程序或任务所处的特权级，存储在<code>CS</code>和<code>SS</code>第0位和第1位上。当程序转移到不同特权级的代码段时，处理器将改变CPL，<strong>只有0和3两个值，分别表示用户态和内核态</strong></p>
+<h4 id="1-2-DPL（Descriptor-Privilege-Level）"><a href="#1-2-DPL（Descriptor-Privilege-Level）" class="headerlink" title="1.2 DPL（Descriptor Privilege Level）"></a>1.2 DPL（Descriptor Privilege Level）</h4><p>DPL表示段或门的特权级，它被存储在段描述符或门描述符的DPL字段中，DPL将会和CPL及段/门选择子的RPL相比较，根据段或者门类型的不同，DPL将会区别对待</p>
+<h4 id="1-3-RPL（Request-Privilege-Level）"><a href="#1-3-RPL（Request-Privilege-Level）" class="headerlink" title="1.3 RPL（Request Privilege Level）"></a>1.3 RPL（Request Privilege Level）</h4><p>RPL根据代码中不同段跳转而确定，以动态刷新CS里的CPL，在代码段选择符中，而且RPL对每个段来说都<strong>不是固定</strong>的，两次访问同一段时的RPL可以不同，os通过用RPL来避免低特权级应用程序访问高特权级段内的数据</p>
+<p>即便提出访问请求的段有足够的特权级，RPL不够也不行，当RPL值大于CPL值时，RPL起决定性作用，即RPL相当于附加的一个权限控制</p>
+<p>但只有当<code>RPL&gt;DPL</code>，才能起到实际的限制作用</p>
+<h3 id="2-调用门"><a href="#2-调用门" class="headerlink" title="2 调用门"></a>2 调用门</h3><h4 id="2-1-结构"><a href="#2-1-结构" class="headerlink" title="2.1 结构"></a>2.1 结构</h4><p>调用门用于<strong>在不同特权级之间实现受控的程序控制转移</strong>，通常仅用于使用特权级保护机制的os中。本质上，它只是一个描述符，一个不同于代码段和数据段的描述符，可以安装在GDT/LGT中，但是不能安装在IDT中。</p>
+<p>它主要定义了目标代码对应段的选择子、入口地址的偏移和一些属性等</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210412154333664.png" alt="image-20210412154333664" style="zoom:50%;">
+
+<p>一个门描述了由一个选择子和一个偏移所制定的线性地址，程序通过这个地址进行转移</p>
+<h4 id="2-2-通过调用门访问代码段"><a href="#2-2-通过调用门访问代码段" class="headerlink" title="2.2 通过调用门访问代码段"></a>2.2 通过调用门访问代码段</h4><p>调用门的访问一般通过<code>call、jmp</code>指令的操作数提供的一个远指针，该指针中的段选择子用于指定调用门，CPU会使用调用门中的偏移值实现跳转</p>
+<p>通过<strong>调用门进行程序的转移控制</strong>时，CPU会检查以下这几个字段：</p>
+<ol>
+<li>当前代码段的CPL</li>
+<li>调用门描述符中的DPL</li>
+<li>调用门描述符中的RPL</li>
+<li>目的代码描述符的DPL</li>
+<li>目标代码段描述符中的一致性标志C</li>
+</ol>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210412154930311.png" alt="image-20210412154930311" style="zoom:50%;">
+
+<p>对于call和jmp指令，有不同的优先级检查规则：</p>
+<p><strong>对于call</strong></p>
+<ul>
+<li>当前<code>CPL&lt;=调用门描述符DPL</code>， <code>RPL&lt;=调用门描述符DPL</code>， 当前<code>CPL&gt;=目的代码段描述符DPL</code></li>
+</ul>
+<p><strong>对于jmp</strong></p>
+<ul>
+<li>除了跟call的<code>“当前CPL&lt;=调用门描述符DPL，RPL&lt;=调用门描述符DPL”</code>一样外，如果目的代码段一致的话，<code>CPL&gt;=目的代码段的DPL</code>， 而如果目的代码段是非一致的话，<code>CPL = 目的代码段的DPL</code></li>
+</ul>
+<p><strong>调用门的作用是，让一个代码段中的过程被不同特权级的程序访问。</strong> 通常用于低特权级代码来访问高特权级的代码段</p>
+<h4 id="2-3-一致代码段-amp-非一致代码段"><a href="#2-3-一致代码段-amp-非一致代码段" class="headerlink" title="2.3 一致代码段 &amp; 非一致代码段"></a>2.3 一致代码段 &amp; 非一致代码段</h4><ul>
+<li><strong>一致代码段</strong></li>
+</ul>
+<p>即os拿出来被共享的代码段，可以被低特权级的用户直接调用访问的代码，向特权级更高的一致性代码段的控制转移，允许程序以当前特权级继续执行。</p>
+<p><font color="red"><b>通常这些共享代码，是“不访问”受保护的资源和某些类型异常处理，对于一致性代码来说，特权级高的程序不允许访问特权级低的数据；即是说核心态不允许调用用户态的数据，而特权级低的程序可以访问到特权级高的数据，但是特权级不会改变，用户态还是用户态</b></font></p>
+<ul>
+<li><strong>非一致代码段</strong></li>
+</ul>
+<p>不同特权级的非一致代码段转移将导致一般保护异常，除非使用了任务门或调用门。</p>
+<p><font color="red"><b>对于非一致代码段来说，只允许同级间访问，绝对禁止不同级访问，核心态不能用用户态，用户态也不能使用核心态</b></font></p>
+<p>通常低特权级代码必须通过“门”来实现对高特权代码的访问和调用，不访问保护措施的系统工具和某些异常类型的处理过程需要放在一致性代码段中，需要防止低特权级程序访问的工具要放在非一致代码段中</p>
+<p>当调用门用于把<strong>程序控制转移到一个更高级别</strong>的非一致性代码段中，CPU会自动切换到目的代码段特权级的堆栈去。</p>
+<p><font color="red"><b>每个任务最多定义4个栈，分别对应4个特权级，每个栈都位于不同的段中，</b></font>并且使用段选择符和段中偏移值指定。</p>
  
       <!-- reward -->
       
@@ -287,32 +288,21 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://warmchay.github.io/2021/03/22/%E4%BA%94%20%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://warmchay.github.io/2021/04/11/uCore/Lab%202%20%E7%89%A9%E7%90%86%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
-
     </footer>
   </div>
 
    
   <nav class="article-nav">
     
-      <a href="/2021/03/22/%E5%85%AD%20%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            Operating System 6 -- 页面置换算法
-          
-        </div>
-      </a>
     
-    
-      <a href="/2021/03/21/%E6%B8%85%E6%B8%85%E7%9A%84%E6%98%9F%E6%98%9F%E7%90%83%E7%BA%AA%E5%BD%95-1/" class="article-nav-link">
+      <a href="/2021/04/10/OOP/%E5%9B%9B%20%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95%20III/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">清清的星星球纪录-1</div>
+        <div class="article-nav-title">OOP 4 -- 基础语法III</div>
       </a>
     
   </nav>

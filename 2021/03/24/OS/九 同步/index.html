@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    Operating System 10 -- 信号量 |  
+    Operating System 9 -- 同步 |  
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -45,7 +45,7 @@
     <main class="content on">
       <section class="outer">
   <article
-  id="post-十 信号量「Semephore」"
+  id="post-OS/九 同步"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -56,15 +56,15 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  Operating System 10 -- 信号量
+  Operating System 9 -- 同步
 </h1>
  
 
     </header>
      
     <div class="article-meta">
-      <a href="/2021/03/25/%E5%8D%81%20%E4%BF%A1%E5%8F%B7%E9%87%8F%E3%80%8CSemephore%E3%80%8D/" class="article-date">
-  <time datetime="2021-03-25T13:47:48.823Z" itemprop="datePublished">2021-03-25</time>
+      <a href="/2021/03/24/OS/%E4%B9%9D%20%E5%90%8C%E6%AD%A5/" class="article-date">
+  <time datetime="2021-03-24T09:31:58.599Z" itemprop="datePublished">2021-03-24</time>
 </a> 
   <div class="article-category">
     <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
@@ -75,7 +75,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">965</span>
+            <span class="post-count">1.3k</span>
         </span>
     </span>
 
@@ -84,7 +84,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">3 分钟</span>
+            <span class="post-count">4 分钟</span>
         </span>
     </span>
 </div>
@@ -99,136 +99,169 @@
   
     <div class="article-entry" itemprop="articleBody">
        
-  <script src="/assets/js/APlayer.min.js"> </script><h1 id="十-信号量-「Semaphore」"><a href="#十-信号量-「Semaphore」" class="headerlink" title="十 信号量 「Semaphore」"></a>十 信号量 「Semaphore」</h1><h2 id="10-1-背景"><a href="#10-1-背景" class="headerlink" title="10.1 背景"></a>10.1 背景</h2><ol>
-<li><strong>并发问题：竞争条件（竞态条件）</strong><ul>
-<li>多程序并发存在很大问题</li>
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="九-同步"><a href="#九-同步" class="headerlink" title="九 同步"></a>九 同步</h1><h2 id="9-1-背景"><a href="#9-1-背景" class="headerlink" title="9.1 背景"></a>9.1 背景</h2><ol>
+<li><strong>独立的线程</strong><ul>
+<li>不和其他线程共享资源或状态</li>
+<li><strong>确定性</strong> ==》输入状态决定结果</li>
+<li><strong>可重现</strong> ==》能够重现起始条件，I/O</li>
+<li>调度顺序不重要</li>
 </ul>
 </li>
-<li><strong>同步</strong><ul>
-<li>多线程共享公共数据的协调执行</li>
-<li>包括互斥与条件同步</li>
-<li>互斥：在同一时间只有一个线程可以执行临界区</li>
+<li><strong>合作线程</strong><ul>
+<li>在多个线程中共享状态</li>
+<li>不确定性、不可重现</li>
 </ul>
 </li>
-<li><strong>确保同步正确很难？</strong><ul>
-<li>需要高层次的编程抽象（如：锁）</li>
-<li>从底层硬件支持编译</li>
+<li><strong>不确定性</strong>和<strong>不可重现</strong>意味着bug可能是间歇性发生的</li>
+</ol>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324171031949.png" alt="image-20210324171031949" style="zoom:50%;">
+
+<p><strong>可能出现的问题</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324171243129.png" alt="image-20210324171243129" style="zoom:50%;">
+
+<p><strong>但是os要求</strong></p>
+<ol>
+<li>无论<strong>多个线程的指令序列怎样交替执行，程序都必须正常工作</strong></li>
+</ol>
+<ul>
+<li>多线程程序具有不确定性和不可重现的特点</li>
+<li>不经过专门设计，<strong>调试难度很高</strong></li>
+</ul>
+<ol start="2">
+<li><strong>不确定性要求并行程序的正确性</strong></li>
+</ol>
+<h2 id="9-2-一些概念"><a href="#9-2-一些概念" class="headerlink" title="9.2 一些概念"></a>9.2 一些概念</h2><p><strong>Race Condition【竞态条件】</strong></p>
+<ul>
+<li>系统缺陷：结果依赖于并发执行或者事件的顺序/时间</li>
+<li><strong>如何避免竞态呢？</strong> — 让指令不被打断</li>
+</ul>
+<p><strong>Atomic Operation【原子操作】</strong></p>
+<ul>
+<li><strong>原子操作是一次不存在任何中断或者失败的执行</strong><ul>
+<li>该执行成功结束|根本没有执行</li>
+<li>并且不存在部分执行的状态</li>
+</ul>
+</li>
+<li><strong>实际上操作往往不是原子的</strong><ul>
+<li>如<code>A++</code>由3条指令构成</li>
+<li>有时单条机器指令也不是原子的：<code>pipeline</code>、<code>super-scalar</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>Critical section【临界区】</strong></p>
+<p>临界区指进程中一段需要访问共享资源，而当另一个进程处于相应代码区域时不会被执行的代码区域</p>
+<p><strong>Mutual exclusion【互斥】</strong></p>
+<p>当一个进程处于临界区并访问共享资源时，没有其他进程会处于临界区并且访问任何相同的共享资源</p>
+<p><strong>Dead lock【死锁】</strong></p>
+<p>两个或以上的进程，在相互等待完成特定任务，而最终设法将自身任务进行下去</p>
+<p><strong>Starvation【饥饿】</strong></p>
+<p>一个可执行的进程，被调度器持续忽略，以至于<strong>虽然处于可执行状态而不被执行</strong></p>
+<p><strong>忙等待：</strong> 进程等待的时候，是在消耗CPU的时间，这个叫<code>busy waiting</code></p>
+<p>于是设置了<strong>临界区</strong>，在任何时候保证只有一个进程在执行，防止变量的出错，且这个一定是原子操作</p>
+<h2 id="9-3-临界区「Critical-Section」"><a href="#9-3-临界区「Critical-Section」" class="headerlink" title="9.3 临界区「Critical Section」"></a>9.3 临界区「Critical Section」</h2><p>临界区的特点有：</p>
+<ul>
+<li><p><strong>互斥：</strong> 同一时间临界区最多存在一个线程</p>
+</li>
+<li><p><strong>Progress：</strong> 如果一个线程想要进入临界区，那么它最终会成功</p>
+</li>
+<li><p><strong>有限等待：</strong> 如果一个线程i在入口区，那么在i的请求被接受之前，其他线程进入临界区的时间是有限制的</p>
+</li>
+<li><p><strong>无忙等待（可选）：</strong> 如果一个进程在等待进入临界区，那么在它可以进入之前会被挂起【避免了消耗CPU资源，减少忙等待】</p>
+</li>
+</ul>
+<p><strong>设计一些方法来对CPU资源进行保护！</strong></p>
+<h2 id="9-4-方法1-禁用硬件中断"><a href="#9-4-方法1-禁用硬件中断" class="headerlink" title="9.4 方法1: 禁用硬件中断"></a>9.4 方法1: 禁用硬件中断</h2><ol>
+<li><strong>进入和离开临界区的代码</strong><ul>
+<li><code>ENTER_CRITICAL_SECTION</code></li>
+<li><code>EXIT_CRITICAL_SECTION</code></li>
+</ul>
+</li>
+<li><strong>基本的机制</strong><ul>
+<li><strong>禁用中断</strong></li>
+<li>软件方法（如Peterson算法）</li>
+<li>更高级的抽象</li>
+</ul>
+</li>
+<li>比较不同的机制<ul>
+<li>性能：并发级别</li>
 </ul>
 </li>
 </ol>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210325172037340.png" alt="image-20210325172037340" style="zoom:50%;">
-
-<h2 id="10-2-信号量"><a href="#10-2-信号量" class="headerlink" title="10.2 信号量"></a>10.2 信号量</h2><p>$Semaphore$是一个同步对象，保持在$0$到指定最大值之间的一个计数值，当线程完成一次对该$Semaphore$对象的等待（$wait$）时，计数值减$1$；当线程完成一次对$ Semaphore$对象的释放（$release$）时，计数值加$1$.</p>
-<p>当计数值为$0$，则线程等待该$ Semaphore$对象不再能成功直至$ Semaphore$对象变成$signaled$状态。$ Semaphore$对象的计数值大于$0$时，为$signaled$状态；等于$0$时，为$non-signaled$状态</p>
-<p><strong>抽象数据类型</strong></p>
-<ul>
-<li>一个整型（<strong>sem</strong>【信号量】），两个<strong>原子操作</strong></li>
-<li>P<code>[wait()]</code> : <code>sem</code>减1，如果<code>sem&lt;0</code>；等待，否则继续。企图进入临界区段的进程，需要先运行P，当sem大于0时，进程才能获准进入临界区段</li>
-<li>V<code>[signal()]</code>:  <code>sem</code>加1，如果<code>sem&lt;=0</code>，意味着当前有进程在等待信号量上面，唤醒一个或多个等待的P。当sem不为负值时，先前被挡住的其他进程，将可获准进入临界区段</li>
-</ul>
-<p><strong>信号量可以类比于铁路，初始化的时候需要给一个非负数的整数值</strong></p>
-<h2 id="10-3-信号量的使用"><a href="#10-3-信号量的使用" class="headerlink" title="10.3 信号量的使用"></a>10.3 信号量的使用</h2><ul>
-<li>信号量是<strong>整数</strong></li>
-<li>信号量是<strong>被保护</strong>的变量<ul>
-<li>初始化完成后，唯一一个改变信号量值的办法是通过<code>P()</code>和<code>V()</code></li>
-<li>操作必须是原子</li>
+<p><strong>禁用中断存在的问题</strong></p>
+<ol>
+<li><strong>一旦中断被禁用，线程就无法被停止</strong><ul>
+<li>整个系统都会停下来</li>
+<li>可能导致其他线程处于<strong>饥饿状态</strong></li>
 </ul>
 </li>
-<li><strong>P()能够阻塞</strong>，V()不会阻塞</li>
-<li>我们假定信号量是“公平的”<ul>
-<li>没有线程被阻塞在P()仍然阻塞如果V()被无限频繁调用（在同一个信号量）</li>
-<li>在实践中，FIFO经常被使用</li>
+<li><strong>要是临界区可以任意长怎么办</strong><ul>
+<li>无法限制响应中断所需的时间</li>
 </ul>
 </li>
-<li><strong>两种类型信号量</strong><ul>
-<li><strong>二进制信号量：</strong> 0或1</li>
-<li><strong>一般/计数信号量：</strong> 可以取任何非负值</li>
-<li>两者相互表现（给定）</li>
-</ul>
-</li>
-<li><strong>信号量可以用在2个方面</strong><ul>
-<li>互斥</li>
-<li>条件同步（调度约束–一个线程等待另一个线程的事情发生）</li>
-</ul>
-</li>
-</ul>
-<h2 id="10-3-信号量使用"><a href="#10-3-信号量使用" class="headerlink" title="10.3 信号量使用"></a>10.3 信号量使用</h2><ul>
-<li><p>用<strong>二进制信号量实</strong>现的互斥</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mutex = new Semaphore(1);</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><strong>一个线程等待另一个线程处理事情</strong></p>
-<ul>
-<li>比如<strong>生产东西或消费东西</strong></li>
-<li>互斥（锁机制）是不够的</li>
-</ul>
-</li>
-<li><p><strong>如：有界缓冲区的生产者 - 消费者问题</strong></p>
-<ul>
-<li>一个或多个<strong>生产者</strong>产生数据将数据放在一个缓冲区里</li>
-<li>单个<strong>消费者</strong>每次从缓冲区取出数据</li>
-<li>在任何一个时间<strong>只有一个</strong>生产者或消费者可以访问该缓冲区</li>
-</ul>
-</li>
-</ul>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210325191007542.png" alt="image-20210325191007542" style="zoom:50%;">
-
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210325191132809.png" alt="image-20210325191132809" style="zoom:50%;">
-
-<ul>
-<li><strong>每个约束用一个单独的信号量</strong><ul>
-<li>二进制信号量互斥</li>
-<li>一般信号量fullBuffers</li>
-<li>一般信号量emptyBuffers</li>
-</ul>
-</li>
-</ul>
-<h2 id="10-4-信号量实现"><a href="#10-4-信号量实现" class="headerlink" title="10.4 信号量实现"></a>10.4 信号量实现</h2><ol>
-<li><strong>使用硬件原语</strong><ul>
-<li>禁用中断</li>
-<li>原子指令【Test-and-Set】</li>
-</ul>
-</li>
-<li><strong>类似锁</strong></li>
-<li><strong>例如：使用“禁用中断”</strong></li>
+<li>所以临界区一般不长，需要注意的是多CPU情况下，是无法解决互斥问题的</li>
 </ol>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210325192441087.png" alt="image-20210325192441087" style="zoom:50%;">
+<h2 id="9-5-方法2-基于软件的解决方法"><a href="#9-5-方法2-基于软件的解决方法" class="headerlink" title="9.5 方法2: 基于软件的解决方法"></a>9.5 方法2: 基于软件的解决方法</h2><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324194130651.png" alt="image-20210324194130651" style="zoom:50%;">
 
+<p>有四类算法，最主要的是Peterson算法，举个Bakery算法的例子</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324195541528.png" alt="image-20210324195541528" style="zoom:50%;">
+
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324195611394.png" alt="image-20210324195611394" style="zoom:50%;">
+
+<h3 id="9-6-方法3：-更高级的抽象"><a href="#9-6-方法3：-更高级的抽象" class="headerlink" title="9.6 方法3： 更高级的抽象"></a>9.6 方法3： 更高级的抽象</h3><ol>
+<li><p><strong>硬件提供了一些原语</strong></p>
 <ul>
-<li><strong>信号量的双用途</strong><ul>
-<li>互斥和条件同步</li>
-<li>但等待条件是独立的互斥</li>
+<li>如中断禁用，原子操作指令等</li>
 </ul>
 </li>
-</ul>
-<p><strong>存在的缺点</strong></p>
+<li><p><strong>os提供更高级的编程抽象来简化并行编程</strong></p>
 <ul>
-<li><strong>读/开发代码比较困难</strong></li>
-<li><strong>容易出错</strong><ul>
-<li>使用的信号量已经被另一个线程占用</li>
-<li>忘记释放信号量</li>
+<li><strong>如锁，信号量</strong>；从硬件原语中构建</li>
 </ul>
 </li>
-<li><strong>不能够处理死锁问题</strong></li>
-</ul>
-<h2 id="10-5-管程「Monitor」"><a href="#10-5-管程「Monitor」" class="headerlink" title="10.5 管程「Monitor」"></a>10.5 管程「Monitor」</h2><ol>
-<li><p>目的：分离互斥和条件同步的关注</p>
-</li>
-<li><p><strong>什么是管程呢？</strong></p>
+<li><p><strong>锁是一个抽象的数据结构</strong></p>
 <ul>
-<li><p><strong>一个锁：</strong> 指定临界区</p>
-</li>
-<li><p><strong>0或者多个条件变量：</strong> 等待/通知信号量用于管理并发访问共享数据</p>
-</li>
+<li>一个二进制状态【锁定/解锁】，两种方法</li>
+<li><code>Lock::Acquire()</code> - 锁被释放前一直等待，然后等待锁</li>
+<li><code>Lock::Release()</code> - 释放锁，唤醒任何等待的进程</li>
 </ul>
 </li>
-<li><p><strong>一般方法</strong></p>
+<li><p><strong>使用锁来编写临界区</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">lock_next_pid-&gt;Acquire();</span><br><span class="line">new_pid = next_pid++;</span><br><span class="line">lock_next_pid-&gt;Release();</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>大多数现代体系结构都提供特殊的原子操作指令</strong></p>
 <ul>
-<li><strong>收集在对象/模块中的相关共享数据</strong></li>
-<li><strong>定义方法来访问共享数据</strong></li>
+<li>通过特殊的内存访问电路</li>
+<li>针对单处理器和多处理器</li>
 </ul>
+</li>
+<li><p><strong><code>Test-and-Set</code> 测试和置位</strong></p>
+<ul>
+<li>从内存中读取值</li>
+<li>测试该值是否为1（然后返回true/false）</li>
+<li>内存值设置为1</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324200740252.png" alt="image-20210324200740252" style="zoom:50%;">
+
+<blockquote>
+<p>rv记录寄存器里的值，然后将寄存器的值设为1，返回的是原来寄存器的值（0或1）</p>
+</blockquote>
+</li>
+<li><p><strong>交换「CAS」</strong></p>
+<p>交换内存中的两个值</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324200838108.png" alt="image-20210324200838108" style="zoom:50%;">
+
 </li>
 </ol>
-<h2 id="10-6-经典同步问题"><a href="#10-6-经典同步问题" class="headerlink" title="10.6 经典同步问题"></a>10.6 经典同步问题</h2> 
+<p><strong>缺点：</strong></p>
+<ul>
+<li>忙等待消耗CPU时间</li>
+<li>当进程离开临界区并且多个进程在等待的时候可能导致饥饿</li>
+<li><strong>死锁：</strong> <strong>低优先级的进程拥有临界区</strong>并且一个高优先级进程也需求，那么高优先级进程会<strong>获得处理器并等待临界区</strong>。产生了死锁的现象</li>
+</ul>
+<p>总结一下～</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324201738602.png" alt="image-20210324201738602" style="zoom:50%;">
+
+ 
       <!-- reward -->
       
       <div id="reword-out">
@@ -298,7 +331,7 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://warmchay.github.io/2021/03/25/%E5%8D%81%20%E4%BF%A1%E5%8F%B7%E9%87%8F%E3%80%8CSemephore%E3%80%8D/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://warmchay.github.io/2021/03/24/OS/%E4%B9%9D%20%E5%90%8C%E6%AD%A5/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -311,19 +344,19 @@
    
   <nav class="article-nav">
     
-      <a href="/2021/04/04/uCore/Lab%200/" class="article-nav-link">
+      <a href="/2021/03/25/OS/%E5%8D%81%20%E4%BF%A1%E5%8F%B7%E9%87%8F%E3%80%8CSemephore%E3%80%8D/" class="article-nav-link">
         <strong class="article-nav-caption">上一篇</strong>
         <div class="article-nav-title">
           
-            uCore Lab 0
+            Operating System 10 -- 信号量
           
         </div>
       </a>
     
     
-      <a href="/2021/03/24/%E4%B9%9D%20%E5%90%8C%E6%AD%A5/" class="article-nav-link">
+      <a href="/2021/03/24/OS/%E5%85%AB%20%E8%B0%83%E5%BA%A6/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Operating System 9 -- 同步</div>
+        <div class="article-nav-title">Operating System 8 -- 调度</div>
       </a>
     
   </nav>

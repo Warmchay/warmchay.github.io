@@ -6,7 +6,7 @@
   <link href="https://warmchay.github.io/atom.xml" rel="self"/>
   
   <link href="https://warmchay.github.io/"/>
-  <updated>2021-04-10T13:59:20.088Z</updated>
+  <updated>2021-04-12T12:24:55.939Z</updated>
   <id>https://warmchay.github.io/</id>
   
   <author>
@@ -15,6 +15,26 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title></title>
+    <link href="https://warmchay.github.io/2021/04/11/uCore/Lab%202%20%E7%89%A9%E7%90%86%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"/>
+    <id>https://warmchay.github.io/2021/04/11/uCore/Lab%202%20%E7%89%A9%E7%90%86%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</id>
+    <published>2021-04-11T11:52:10.059Z</published>
+    <updated>2021-04-12T12:24:55.939Z</updated>
+    
+    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><h1 id="Lab-2-物理内存管理"><a href="#Lab-2-物理内存管理" class="headerlink" title="Lab 2 物理内存管理"></a>Lab 2 物理内存管理</h1><blockquote><p>这个lab目的是完成一个简单的物理内存管理系统</p></blockquote><h1 id="1-实验目的"><a href="#1-实验目的" class="headerlink" title="1 实验目的"></a>1 实验目的</h1><ul><li>理解基于段页式内存地址的转换机制</li><li>理解页表的建立和使用方法</li><li>理解物理内存的管理方法</li></ul><h1 id="2-实验内容"><a href="#2-实验内容" class="headerlink" title="2 实验内容"></a>2 实验内容</h1><ol><li>了解如何发现系统中的物理内存</li><li>了解如何建立对物理内存的初步管理，即了解<strong>连续物理内存管理</strong></li><li>最后了解页表的相关操作，即如何<strong>建立页表</strong>来实现虚拟内存到物理内存之间的映射，对段页式内存管理机制有全面的了解</li></ol><h2 id="2-2-1-练习"><a href="#2-2-1-练习" class="headerlink" title="2.2.1 练习"></a>2.2.1 练习</h2><p>一共3个基本练习和2个扩展练习</p><h2 id="2-2-2-项目组成"><a href="#2-2-2-项目组成" class="headerlink" title="2.2.2 项目组成"></a>2.2.2 项目组成</h2><p>实验二在实验一基础上增加和修改的文件有：</p><ul><li><code>boot/bootasm.S</code>: 增加了对计算机系统中物理内存布局的探测功能</li><li><code>kern/init/entry.S:</code> 根据临时段表重新暂时建立好新的段空间，为进行分页做准备</li><li><code>kern/mm/default_pmm.[ch]:</code> 提供基于链表方法的物理内存管理</li><li><code>kern/mm/pmm.[ch]:</code> pmm.h定义物理内存管理类框架<code>struct pmm_manager，</code> 基于这个通用框架可以实现不同的物理内存管理策略和算法，来实现一个基于此框架的简单物理内存管理策略；<code>pmm.c</code>包含了对此物理内存管理类框架的访问，以及与建立、修改、访问页表相关的各种函数实现</li><li><code>kern/sync/sync.h:</code> 提供两个功能，一是保存eflag寄存器中的中断屏蔽位信息并屏蔽中断的功能，另一个是根据保存的中断屏蔽位信息来使能中断的功能</li><li><code>libs/list.h:</code> 定义了通用双向链表结构以及相关的查找、插入等基本操作，建立基于链表方法的物理内存管理（以及其他内核功能）的基础</li><li><code>libs/atomic.h:</code> 定义了对一个变量进行读写的原子操作，确保相关操作不被中断打断</li><li><code>tools/kernel.ld:</code> <code>ld</code>形成执行文件的地址所用到的链接脚本，修改了ucore的起始入口和代码段的起始地址</li></ul><h1 id="3-前置知识"><a href="#3-前置知识" class="headerlink" title="3 前置知识"></a>3 前置知识</h1><h2 id="3-1-x86-特权级（Privilege-Levels）"><a href="#3-1-x86-特权级（Privilege-Levels）" class="headerlink" title="3.1 x86 特权级（Privilege Levels）"></a>3.1 x86 特权级（Privilege Levels）</h2><ul><li>RING 0(内核)</li><li>RING 1(服务)</li><li>RING 2(服务)</li><li>RING 3(应用程序)</li></ul><p>当前os一般只用到了RING 0&amp;3, 如<strong>LINUX</strong>， 在访问数据段页表进入中断服务例程（ISR）CPU会检查特权级</p><h2 id="3-2-x86-特权级检查失败"><a href="#3-2-x86-特权级检查失败" class="headerlink" title="3.2 x86 特权级检查失败"></a>3.2 x86 特权级检查失败</h2><p>会提示<code>General Protection Fault</code>一般保护错误</p><h2 id="3-3-x86-特权级检查"><a href="#3-3-x86-特权级检查" class="headerlink" title="3.3 x86 特权级检查"></a>3.3 x86 特权级检查</h2><p><code>RPL</code> <strong>请求</strong>特权级 <code>DS ES GS FS</code>数据段</p><p><code>CPL</code> 当前特权级 存在于<code>CS/SS</code>的低2位</p><p><strong>选择子结构：</strong></p><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210412084055852.png" alt="image-20210412084055852" style="zoom:50%;"><p><strong>DPL段或者门的特权级</strong></p><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210412084158645.png" alt="image-20210412084158645" style="zoom:50%;"><p>访问门时<code>CPL &lt;= DPL[门]&amp;&amp; CPL &gt;= DPL[段]</code></p><p>访问段时<code>MAX(CPL, RPL) &lt;= DPL[段]</code>，具体看附录A</p><h2 id="3-3-x86-通过中断切换特权级"><a href="#3-3-x86-通过中断切换特权级" class="headerlink" title="3.3 x86 通过中断切换特权级"></a>3.3 x86 通过中断切换特权级</h2><p>首先在<strong>IDT</strong>建立好<strong>中断门</strong>来实现中断切换特权级</p><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210412084400481.png" alt="image-20210412084400481" style="zoom:50%;"><h2 id="3-4-RING-0-–-gt-RING-3"><a href="#3-4-RING-0-–-gt-RING-3" class="headerlink" title="3.4 RING 0 –&gt; RING 3"></a>3.4 RING 0 –&gt; RING 3</h2><p>当<code>RING 0</code>内核态发生中断的时候，首先因为发生中断的时候还是在<code>RING 0</code>所以不会将<code>ss esp</code>压入堆栈中，只会压入<code>Eflags cs eip</code>和中断错误码</p><p>因此，为了实现从<code>RING 0</code>到<code>RING 3</code>的特权级转换，将其<code>ss</code>改成特权级3的栈<code>CS</code>改为用户代码段，最后通过<code>IRET</code>将这些信息<code>POP</code>出栈，此时运行环境就进入了用户态中了</p><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210412162659335.png" alt="image-20210412162659335" style="zoom:50%;"><h2 id="3-5-RING-3-–-gt-RING-0"><a href="#3-5-RING-3-–-gt-RING-0" class="headerlink" title="3.5 RING 3 –&gt; RING 0"></a>3.5 RING 3 –&gt; RING 0</h2><p>当<code>RING 3</code>用户态发生中断时，会将<code>ss esp</code>压入堆栈中，这是为了跳出中断的时候，还能返回到这个用户态中，但目前是为了实现从<code>RING 3</code>到<code>RING 0</code>的特权级转换</p><p>因此<code>ss esp</code>是不需要的，将它们去掉同时将<code>CS</code>改为内核态代码段，最后还是通过<code>IRET</code>将这些信息<code>POP</code>出栈，就回到了<code>RING 0</code>内核态中</p><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210412162914362.png" alt="image-20210412162914362" style="zoom:50%;"><h2 id="3-6-TSS-任务状态段-Task-State-Segment"><a href="#3-6-TSS-任务状态段-Task-State-Segment" class="headerlink" title="3.6 TSS 任务状态段(Task State Segment)"></a>3.6 TSS 任务状态段(Task State Segment)</h2><p>TSS的位置能够从GDT中的<code>任务状态描述符表(Task State Descriptor)</code>中找到</p><p>因为IDT中的中断门有代码段选择子可以用它作为索引从GDT中找到实际的代码段的内存地址，但是ss和esp是不存在于中断门中的</p><p>他们存在于TSS中，TR（Task Register）寄存器会缓存TSS从而实现任务的切换</p><p>TSS在里面只会保存<code>RING 0~RING 2</code>的ss和esp，但是不会保存<code>RING 3</code>的<code>ss</code>和<code>esp</code>，因为CPU仅默认支持从<strong>低特权级跳转到高特权级</strong>，而RING 3是最低的特权级，不会有其他的特权级跳过去了，因此不再保存RING 3的SS和ESP</p><h2 id="3-7-x86-内存管理单元-MMU"><a href="#3-7-x86-内存管理单元-MMU" class="headerlink" title="3.7 x86 内存管理单元 MMU"></a>3.7 x86 内存管理单元 MMU</h2><p><strong>段机制</strong></p><p>首先通过<strong>段选择子</strong>作为索引在 GDT中找到段描述符，如果没有启动页机制的话，那么现在就找到线性地址</p><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210412165915653.png" alt="image-20210412165915653" style="zoom:50%;"><p>GDT存在于内存当中，因为它所占空间比较大，但是由于内存比较慢，每次去访问段表的时候，耗费比较大，因此硬件会将GDT中的描述信息放在CPU中来加快段的映射过程</p><p><strong>页机制</strong></p><p><strong>如何开启页机制</strong></p><ol><li>准备好页目标表和页表</li><li>页目录表物理地址，写入CR3寄存器</li><li>CR0最高位PG位置1</li></ol><p><strong>段机制和页机制都能作为映射机制，怎么选择？</strong></p><ul><li>选择页机制有助于硬件机制对其进行有效的处理</li><li>段机制和页机制结合成段页式的存储管理，从而既能便于程序的共享和保护，又能高效率利用存储空间</li></ul><p><strong>各种地址</strong></p><ul><li>保护模式：<code>段机制+段偏移 = 线性地址</code>， <code>若没有分页机制，则为物理地址</code></li><li><strong>实模式/保护模式：</strong> <code>段偏移 = 有效地址（逻辑地址）</code></li><li>开启分页后: <code>线性地址 == 虚拟地址</code></li></ul><h1 id="附录-中断"><a href="#附录-中断" class="headerlink" title="附录 中断"></a>附录 中断</h1><h2 id="附录A-调用门与特权级（CPL-amp-DPL-amp-RPL）"><a href="#附录A-调用门与特权级（CPL-amp-DPL-amp-RPL）" class="headerlink" title="附录A 调用门与特权级（CPL &amp; DPL &amp; RPL）"></a>附录A 调用门与特权级（CPL &amp; DPL &amp; RPL）</h2><blockquote><p>这个为保护模式下($CR_{0}=1$)的调用门与特权级</p></blockquote><h3 id="1-特权级"><a href="#1-特权级" class="headerlink" title="1 特权级"></a>1 特权级</h3><blockquote><p>从0(kern)-3(user)，数字越小表示特权级别越大</p><p>有时也把高特权级称为内层，低特权级称为外层</p></blockquote><h4 id="1-1-CPL"><a href="#1-1-CPL" class="headerlink" title="1.1 CPL"></a>1.1 CPL</h4><p>CPL表示当前执行的程序或任务所处的特权级，存储在<code>CS</code>和<code>SS</code>第0位和第1位上。当程序转移到不同特权级的代码段时，处理器将改变CPL，<strong>只有0和3两个值，分别表示用户态和内核态</strong></p><h4 id="1-2-DPL（Descriptor-Privilege-Level）"><a href="#1-2-DPL（Descriptor-Privilege-Level）" class="headerlink" title="1.2 DPL（Descriptor Privilege Level）"></a>1.2 DPL（Descriptor Privilege Level）</h4><p>DPL表示段或门的特权级，它被存储在段描述符或门描述符的DPL字段中，DPL将会和CPL及段/门选择子的RPL相比较，根据段或者门类型的不同，DPL将会区别对待</p><h4 id="1-3-RPL（Request-Privilege-Level）"><a href="#1-3-RPL（Request-Privilege-Level）" class="headerlink" title="1.3 RPL（Request Privilege Level）"></a>1.3 RPL（Request Privilege Level）</h4><p>RPL根据代码中不同段跳转而确定，以动态刷新CS里的CPL，在代码段选择符中，而且RPL对每个段来说都<strong>不是固定</strong>的，两次访问同一段时的RPL可以不同，os通过用RPL来避免低特权级应用程序访问高特权级段内的数据</p><p>即便提出访问请求的段有足够的特权级，RPL不够也不行，当RPL值大于CPL值时，RPL起决定性作用，即RPL相当于附加的一个权限控制</p><p>但只有当<code>RPL&gt;DPL</code>，才能起到实际的限制作用</p><h3 id="2-调用门"><a href="#2-调用门" class="headerlink" title="2 调用门"></a>2 调用门</h3><h4 id="2-1-结构"><a href="#2-1-结构" class="headerlink" title="2.1 结构"></a>2.1 结构</h4><p>调用门用于<strong>在不同特权级之间实现受控的程序控制转移</strong>，通常仅用于使用特权级保护机制的os中。本质上，它只是一个描述符，一个不同于代码段和数据段的描述符，可以安装在GDT/LGT中，但是不能安装在IDT中。</p><p>它主要定义了目标代码对应段的选择子、入口地址的偏移和一些属性等</p><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210412154333664.png" alt="image-20210412154333664" style="zoom:50%;"><p>一个门描述了由一个选择子和一个偏移所制定的线性地址，程序通过这个地址进行转移</p><h4 id="2-2-通过调用门访问代码段"><a href="#2-2-通过调用门访问代码段" class="headerlink" title="2.2 通过调用门访问代码段"></a>2.2 通过调用门访问代码段</h4><p>调用门的访问一般通过<code>call、jmp</code>指令的操作数提供的一个远指针，该指针中的段选择子用于指定调用门，CPU会使用调用门中的偏移值实现跳转</p><p>通过<strong>调用门进行程序的转移控制</strong>时，CPU会检查以下这几个字段：</p><ol><li>当前代码段的CPL</li><li>调用门描述符中的DPL</li><li>调用门描述符中的RPL</li><li>目的代码描述符的DPL</li><li>目标代码段描述符中的一致性标志C</li></ol><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210412154930311.png" alt="image-20210412154930311" style="zoom:50%;"><p>对于call和jmp指令，有不同的优先级检查规则：</p><p><strong>对于call</strong></p><ul><li>当前<code>CPL&lt;=调用门描述符DPL</code>， <code>RPL&lt;=调用门描述符DPL</code>， 当前<code>CPL&gt;=目的代码段描述符DPL</code></li></ul><p><strong>对于jmp</strong></p><ul><li>除了跟call的<code>“当前CPL&lt;=调用门描述符DPL，RPL&lt;=调用门描述符DPL”</code>一样外，如果目的代码段一致的话，<code>CPL&gt;=目的代码段的DPL</code>， 而如果目的代码段是非一致的话，<code>CPL = 目的代码段的DPL</code></li></ul><p><strong>调用门的作用是，让一个代码段中的过程被不同特权级的程序访问。</strong> 通常用于低特权级代码来访问高特权级的代码段</p><h4 id="2-3-一致代码段-amp-非一致代码段"><a href="#2-3-一致代码段-amp-非一致代码段" class="headerlink" title="2.3 一致代码段 &amp; 非一致代码段"></a>2.3 一致代码段 &amp; 非一致代码段</h4><ul><li><strong>一致代码段</strong></li></ul><p>即os拿出来被共享的代码段，可以被低特权级的用户直接调用访问的代码，向特权级更高的一致性代码段的控制转移，允许程序以当前特权级继续执行。</p><p><font color="red"><b>通常这些共享代码，是“不访问”受保护的资源和某些类型异常处理，对于一致性代码来说，特权级高的程序不允许访问特权级低的数据；即是说核心态不允许调用用户态的数据，而特权级低的程序可以访问到特权级高的数据，但是特权级不会改变，用户态还是用户态</b></font></p><ul><li><strong>非一致代码段</strong></li></ul><p>不同特权级的非一致代码段转移将导致一般保护异常，除非使用了任务门或调用门。</p><p><font color="red"><b>对于非一致代码段来说，只允许同级间访问，绝对禁止不同级访问，核心态不能用用户态，用户态也不能使用核心态</b></font></p><p>通常低特权级代码必须通过“门”来实现对高特权代码的访问和调用，不访问保护措施的系统工具和某些异常类型的处理过程需要放在一致性代码段中，需要防止低特权级程序访问的工具要放在非一致代码段中</p><p>当调用门用于把<strong>程序控制转移到一个更高级别</strong>的非一致性代码段中，CPU会自动切换到目的代码段特权级的堆栈去。</p><p><font color="red"><b>每个任务最多定义4个栈，分别对应4个特权级，每个栈都位于不同的段中，</b></font>并且使用段选择符和段中偏移值指定。</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;script src=&quot;/assets/js/APlayer.min.js&quot;&gt; &lt;/script&gt;&lt;h1 id=&quot;Lab-2-物理内存管理&quot;&gt;&lt;a href=&quot;#Lab-2-物理内存管理&quot; class=&quot;headerlink&quot; title=&quot;Lab 2 物理内存管理&quot;&gt;&lt;/a&gt;</summary>
+      
+    
+    
+    
+    
+  </entry>
   
   <entry>
     <title>OOP 4 -- 基础语法III</title>
@@ -162,8 +182,8 @@
   
   <entry>
     <title>Operating System 10 -- 信号量</title>
-    <link href="https://warmchay.github.io/2021/03/25/%E5%8D%81%20%E4%BF%A1%E5%8F%B7%E9%87%8F%E3%80%8CSemephore%E3%80%8D/"/>
-    <id>https://warmchay.github.io/2021/03/25/%E5%8D%81%20%E4%BF%A1%E5%8F%B7%E9%87%8F%E3%80%8CSemephore%E3%80%8D/</id>
+    <link href="https://warmchay.github.io/2021/03/25/OS/%E5%8D%81%20%E4%BF%A1%E5%8F%B7%E9%87%8F%E3%80%8CSemephore%E3%80%8D/"/>
+    <id>https://warmchay.github.io/2021/03/25/OS/%E5%8D%81%20%E4%BF%A1%E5%8F%B7%E9%87%8F%E3%80%8CSemephore%E3%80%8D/</id>
     <published>2021-03-25T13:47:48.823Z</published>
     <updated>2021-03-25T13:49:01.250Z</updated>
     
@@ -186,8 +206,8 @@
   
   <entry>
     <title>Operating System 9 -- 同步</title>
-    <link href="https://warmchay.github.io/2021/03/24/%E4%B9%9D%20%E5%90%8C%E6%AD%A5/"/>
-    <id>https://warmchay.github.io/2021/03/24/%E4%B9%9D%20%E5%90%8C%E6%AD%A5/</id>
+    <link href="https://warmchay.github.io/2021/03/24/OS/%E4%B9%9D%20%E5%90%8C%E6%AD%A5/"/>
+    <id>https://warmchay.github.io/2021/03/24/OS/%E4%B9%9D%20%E5%90%8C%E6%AD%A5/</id>
     <published>2021-03-24T09:31:58.599Z</published>
     <updated>2021-03-25T13:43:57.236Z</updated>
     
@@ -210,8 +230,8 @@
   
   <entry>
     <title>Operating System 8 -- 调度</title>
-    <link href="https://warmchay.github.io/2021/03/24/%E5%85%AB%20%E8%B0%83%E5%BA%A6/"/>
-    <id>https://warmchay.github.io/2021/03/24/%E5%85%AB%20%E8%B0%83%E5%BA%A6/</id>
+    <link href="https://warmchay.github.io/2021/03/24/OS/%E5%85%AB%20%E8%B0%83%E5%BA%A6/"/>
+    <id>https://warmchay.github.io/2021/03/24/OS/%E5%85%AB%20%E8%B0%83%E5%BA%A6/</id>
     <published>2021-03-24T02:11:28.778Z</published>
     <updated>2021-03-24T12:25:58.355Z</updated>
     
@@ -234,8 +254,8 @@
   
   <entry>
     <title>Operating System 7 -- 进程管理</title>
-    <link href="https://warmchay.github.io/2021/03/23/%E4%B8%83%20%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86/"/>
-    <id>https://warmchay.github.io/2021/03/23/%E4%B8%83%20%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86/</id>
+    <link href="https://warmchay.github.io/2021/03/23/OS/%E4%B8%83%20%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86/"/>
+    <id>https://warmchay.github.io/2021/03/23/OS/%E4%B8%83%20%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86/</id>
     <published>2021-03-23T05:38:52.386Z</published>
     <updated>2021-03-24T12:25:36.462Z</updated>
     
@@ -258,8 +278,8 @@
   
   <entry>
     <title>Operating System 6 -- 页面置换算法</title>
-    <link href="https://warmchay.github.io/2021/03/22/%E5%85%AD%20%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95/"/>
-    <id>https://warmchay.github.io/2021/03/22/%E5%85%AD%20%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95/</id>
+    <link href="https://warmchay.github.io/2021/03/22/OS/%E5%85%AD%20%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95/"/>
+    <id>https://warmchay.github.io/2021/03/22/OS/%E5%85%AD%20%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95/</id>
     <published>2021-03-22T09:17:36.334Z</published>
     <updated>2021-03-23T05:01:16.592Z</updated>
     
@@ -282,8 +302,8 @@
   
   <entry>
     <title>Operating System 5 -- 虚拟内存</title>
-    <link href="https://warmchay.github.io/2021/03/22/%E4%BA%94%20%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98/"/>
-    <id>https://warmchay.github.io/2021/03/22/%E4%BA%94%20%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98/</id>
+    <link href="https://warmchay.github.io/2021/03/22/OS/%E4%BA%94%20%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98/"/>
+    <id>https://warmchay.github.io/2021/03/22/OS/%E4%BA%94%20%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98/</id>
     <published>2021-03-22T08:31:40.153Z</published>
     <updated>2021-03-23T05:00:50.711Z</updated>
     
@@ -330,8 +350,8 @@
   
   <entry>
     <title>Operating System 4 -- 非连续内存分配</title>
-    <link href="https://warmchay.github.io/2021/03/20/%E5%9B%9B%20%E9%9D%9E%E8%BF%9E%E7%BB%AD%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/"/>
-    <id>https://warmchay.github.io/2021/03/20/%E5%9B%9B%20%E9%9D%9E%E8%BF%9E%E7%BB%AD%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/</id>
+    <link href="https://warmchay.github.io/2021/03/20/OS/%E5%9B%9B%20%E9%9D%9E%E8%BF%9E%E7%BB%AD%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/"/>
+    <id>https://warmchay.github.io/2021/03/20/OS/%E5%9B%9B%20%E9%9D%9E%E8%BF%9E%E7%BB%AD%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/</id>
     <published>2021-03-20T05:06:32.108Z</published>
     <updated>2021-03-23T05:00:14.441Z</updated>
     
@@ -354,8 +374,8 @@
   
   <entry>
     <title>Operating System 3 -- 连续式内存分配</title>
-    <link href="https://warmchay.github.io/2021/03/19/%E4%B8%89%20%E8%BF%9E%E7%BB%AD%E5%BC%8F%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/"/>
-    <id>https://warmchay.github.io/2021/03/19/%E4%B8%89%20%E8%BF%9E%E7%BB%AD%E5%BC%8F%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/</id>
+    <link href="https://warmchay.github.io/2021/03/19/OS/%E4%B8%89%20%E8%BF%9E%E7%BB%AD%E5%BC%8F%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/"/>
+    <id>https://warmchay.github.io/2021/03/19/OS/%E4%B8%89%20%E8%BF%9E%E7%BB%AD%E5%BC%8F%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/</id>
     <published>2021-03-19T11:46:36.055Z</published>
     <updated>2021-03-23T04:59:01.001Z</updated>
     
@@ -378,8 +398,8 @@
   
   <entry>
     <title>Operating System 2 -- 基础操作</title>
-    <link href="https://warmchay.github.io/2021/03/19/%E4%BA%8C%20%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C/"/>
-    <id>https://warmchay.github.io/2021/03/19/%E4%BA%8C%20%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C/</id>
+    <link href="https://warmchay.github.io/2021/03/19/OS/%E4%BA%8C%20%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C/"/>
+    <id>https://warmchay.github.io/2021/03/19/OS/%E4%BA%8C%20%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C/</id>
     <published>2021-03-19T11:46:00.742Z</published>
     <updated>2021-03-23T04:59:50.723Z</updated>
     
@@ -402,8 +422,8 @@
   
   <entry>
     <title>Operating System 1 -- 概述</title>
-    <link href="https://warmchay.github.io/2021/03/19/%E4%B8%80%20%E6%A6%82%E8%BF%B0/"/>
-    <id>https://warmchay.github.io/2021/03/19/%E4%B8%80%20%E6%A6%82%E8%BF%B0/</id>
+    <link href="https://warmchay.github.io/2021/03/19/OS/%E4%B8%80%20%E6%A6%82%E8%BF%B0/"/>
+    <id>https://warmchay.github.io/2021/03/19/OS/%E4%B8%80%20%E6%A6%82%E8%BF%B0/</id>
     <published>2021-03-19T03:59:22.737Z</published>
     <updated>2021-03-23T04:59:20.227Z</updated>
     

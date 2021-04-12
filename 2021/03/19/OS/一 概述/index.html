@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    Tag: 操作系统 |  
+    Operating System 1 -- 概述 |  
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -44,280 +44,263 @@
       
     <main class="content on">
       <section class="outer">
-  
-  <article class="articles">
+  <article
+  id="post-OS/一 概述"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
     
-    
-    <h1 class="page-type-title">#&nbsp操作系统</h1>
-    
-    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Operating System 1 -- 概述
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/19/OS/%E4%B8%80%20%E6%A6%82%E8%BF%B0/" class="article-date">
+  <time datetime="2021-03-19T03:59:22.737Z" itemprop="datePublished">2021-03-19</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+  </div>
   
-  
-  
-  
-  
-  
-  <div class="archives-wrap">
-    <div class="archive-year-wrap">
-      <a href="/archives/2021" class="archive-year">2021</a>
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">639</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">2 分钟</span>
+        </span>
+    </span>
+</div>
+ 
     </div>
-    <div class="archives">
       
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2021/03/25/OS/%E5%8D%81%20%E4%BF%A1%E5%8F%B7%E9%87%8F%E3%80%8CSemephore%E3%80%8D/" class="archive-article-date">
-  <time datetime="2021-03-25T13:47:48.823Z" itemprop="datePublished">03/25</time>
-</a>
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
        
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/2021/03/25/OS/%E5%8D%81%20%E4%BF%A1%E5%8F%B7%E9%87%8F%E3%80%8CSemephore%E3%80%8D/"
-    >Operating System 10 -- 信号量</a> 
-</h2>
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="1-概述"><a href="#1-概述" class="headerlink" title="1 概述"></a>1 概述</h1><h2 id="1-1-操作系统的定义"><a href="#1-1-操作系统的定义" class="headerlink" title="1.1 操作系统的定义"></a>1.1 操作系统的定义</h2><p><strong>用户角度：</strong> 操作系统是一个控制软件</p>
+<ul>
+<li>管理应用程序</li>
+<li>为应用程序提供服务</li>
+<li>杀死应用程序</li>
+<li>资源管理</li>
+<li>管理外设/分配资源</li>
+</ul>
+<h3 id="1-1-1-体系结构"><a href="#1-1-1-体系结构" class="headerlink" title="1.1.1 体系结构"></a>1.1.1 体系结构</h3><p>在操作系统下，进程与cpu联系，文件联系于磁盘，地址空间信息存于内存中</p>
+<p>而操作系统位于硬件之上，应用软件之下（为应用软件提供服务支持）。</p>
+<p>其由<code>shell</code>和<code>kernel</code>组成。其中，Linux，Windows界面属于外壳<code>shell</code>，而非内核<code>kernel</code>，我们这里主要讲<code>kernel</code></p>
+<h2 id="1-2-Kernel"><a href="#1-2-Kernel" class="headerlink" title="1.2 Kernel"></a>1.2 Kernel</h2><h3 id="1-1-2-kernel定义"><a href="#1-1-2-kernel定义" class="headerlink" title="1.1.2 kernel定义"></a>1.1.2 kernel定义</h3><p><code>kernel</code>作为操作系统的内部，执行各种资源的管理，包括：</p>
+<ul>
+<li><p>CPU调度器</p>
+</li>
+<li><p>物理内存管理</p>
+</li>
+<li><p>虚拟内存管理</p>
+</li>
+<li><p>文件系统管理</p>
+</li>
+<li><p>中断处理与设备驱动</p>
+</li>
+</ul>
+<h3 id="1-1-3-kernel特征"><a href="#1-1-3-kernel特征" class="headerlink" title="1.1.3 kernel特征"></a>1.1.3 kernel特征</h3><ul>
+<li><strong>并发</strong></li>
+</ul>
+<p>指一段时间内多个程序运行，而并行指一个时间点上多个程序运行，要求多个cpu。计算机系统中同时存在多个运行的程序，需要os管理和调度</p>
+<ul>
+<li><strong>共享</strong></li>
+</ul>
+<p>“同时”访问【实际上是分时】或互斥共享</p>
+<ul>
+<li><strong>虚拟</strong></li>
+</ul>
+<p>利用多道程序设计技术，让每一个用户都觉得有一个计算机专门为他做服务</p>
+<ul>
+<li><strong>异步</strong></li>
+</ul>
+<p>程序的执行不是一步到底，而是走走停停，向前推进的速度不可预知，但只要运行环境相同，OS需要保证程序运行的结果也相同</p>
+<h2 id="1-3-操作系统结构"><a href="#1-3-操作系统结构" class="headerlink" title="1.3 操作系统结构"></a>1.3 操作系统结构</h2><p><strong>分时：</strong> 定时中断用于工作对cpu的复用</p>
+<ol>
+<li><strong>简单的操作系统：</strong> MS-DOS不分模块的单体内核（内部通过函数调用。<strong>缺点：</strong> 复杂、紧耦合，易受攻击）</li>
+<li><strong>微内核：</strong> 尽可能把内核功能移植到用户空间，用户模块间的通信，使用信息传递。<strong>缺点：</strong> 性能低</li>
+<li><strong>外核：</strong> 将内核分配机器的物理资源给多个应用程序，并让每个程序决定如何处理这些资源，程序通过链接到操作系统库<strong>「libOS，Libarary operating systems」</strong></li>
+<li><strong>虚拟机：</strong> VMs【<strong>虚拟机</strong>，s为下标】–&gt; VMM**[虚拟机监视器，也称为管理程序]** –&gt; <strong>物理机硬件【内存、处理器、I/O设备】</strong>，多操作系统共享硬件资源</li>
+</ol>
+<blockquote>
+<p><strong>VMM</strong> 将单独的机器借口转换成很多的幻想，每个<strong>这些接口（虚拟机）</strong>都是一个原始计算机系统的有效副本，并完成所有的处理器指令</p>
+</blockquote>
  
-
-    </header>
-    
-    
+      <!-- reward -->
       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
-
-    
-  </div>
-</article>
-      
-  
-  
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2021/03/24/OS/%E4%B9%9D%20%E5%90%8C%E6%AD%A5/" class="archive-article-date">
-  <time datetime="2021-03-24T09:31:58.599Z" itemprop="datePublished">03/24</time>
-</a>
-       
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/2021/03/24/OS/%E4%B9%9D%20%E5%90%8C%E6%AD%A5/"
-    >Operating System 9 -- 同步</a> 
-</h2>
- 
-
-    </header>
-    
-    
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
-
-    
-  </div>
-</article>
-      
-  
-  
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2021/03/24/OS/%E5%85%AB%20%E8%B0%83%E5%BA%A6/" class="archive-article-date">
-  <time datetime="2021-03-24T02:11:28.778Z" itemprop="datePublished">03/24</time>
-</a>
-       
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/2021/03/24/OS/%E5%85%AB%20%E8%B0%83%E5%BA%A6/"
-    >Operating System 8 -- 调度</a> 
-</h2>
- 
-
-    </header>
-    
-    
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
-
-    
-  </div>
-</article>
-      
-  
-  
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2021/03/23/OS/%E4%B8%83%20%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86/" class="archive-article-date">
-  <time datetime="2021-03-23T05:38:52.386Z" itemprop="datePublished">03/23</time>
-</a>
-       
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/2021/03/23/OS/%E4%B8%83%20%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86/"
-    >Operating System 7 -- 进程管理</a> 
-</h2>
- 
-
-    </header>
-    
-    
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
-
-    
-  </div>
-</article>
-      
-  
-  
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2021/03/22/OS/%E5%85%AD%20%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95/" class="archive-article-date">
-  <time datetime="2021-03-22T09:17:36.334Z" itemprop="datePublished">03/22</time>
-</a>
-       
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/2021/03/22/OS/%E5%85%AD%20%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95/"
-    >Operating System 6 -- 页面置换算法</a> 
-</h2>
- 
-
-    </header>
-    
-    
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
-
-    
-  </div>
-</article>
-      
-  
-  
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2021/03/22/OS/%E4%BA%94%20%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98/" class="archive-article-date">
-  <time datetime="2021-03-22T08:31:40.153Z" itemprop="datePublished">03/22</time>
-</a>
-       
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/2021/03/22/OS/%E4%BA%94%20%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98/"
-    >Operating System 5 -- 虚拟内存</a> 
-</h2>
- 
-
-    </header>
-    
-    
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
-
-    
-  </div>
-</article>
-      
-  
-  
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2021/03/20/OS/%E5%9B%9B%20%E9%9D%9E%E8%BF%9E%E7%BB%AD%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/" class="archive-article-date">
-  <time datetime="2021-03-20T05:06:32.108Z" itemprop="datePublished">03/20</time>
-</a>
-       
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/2021/03/20/OS/%E5%9B%9B%20%E9%9D%9E%E8%BF%9E%E7%BB%AD%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/"
-    >Operating System 4 -- 非连续内存分配</a> 
-</h2>
- 
-
-    </header>
-    
-    
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
-
-    
-  </div>
-</article>
-      
-  
-  
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2021/03/19/OS/%E4%B8%89%20%E8%BF%9E%E7%BB%AD%E5%BC%8F%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/" class="archive-article-date">
-  <time datetime="2021-03-19T11:46:36.055Z" itemprop="datePublished">03/19</time>
-</a>
-       
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/2021/03/19/OS/%E4%B8%89%20%E8%BF%9E%E7%BB%AD%E5%BC%8F%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D/"
-    >Operating System 3 -- 连续式内存分配</a> 
-</h2>
- 
-
-    </header>
-    
-    
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
-
-    
-  </div>
-</article>
-      
-  
-  
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2021/03/19/OS/%E4%BA%8C%20%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C/" class="archive-article-date">
-  <time datetime="2021-03-19T11:46:00.742Z" itemprop="datePublished">03/19</time>
-</a>
-       
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/2021/03/19/OS/%E4%BA%8C%20%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C/"
-    >Operating System 2 -- 基础操作</a> 
-</h2>
- 
-
-    </header>
-    
-    
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
-
-    
-  </div>
-</article>
-      
-  
-  
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2021/03/19/OS/%E4%B8%80%20%E6%A6%82%E8%BF%B0/" class="archive-article-date">
-  <time datetime="2021-03-19T03:59:22.737Z" itemprop="datePublished">03/19</time>
-</a>
-       
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/2021/03/19/OS/%E4%B8%80%20%E6%A6%82%E8%BF%B0/"
-    >Operating System 1 -- 概述</a> 
-</h2>
- 
-
-    </header>
-    
-    
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
-
-    
-  </div>
-</article>
-      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
       
     </div>
-  </div>
-  
-  
+    
 
-  
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://warmchay.github.io/2021/03/19/OS/%E4%B8%80%20%E6%A6%82%E8%BF%B0/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2021/03/19/OS/%E4%BA%8C%20%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Operating System 2 -- 基础操作
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/03/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80--NJU/%E4%B8%80%20C%E8%AF%AD%E8%A8%80%E7%A8%8B%E5%BA%8F%E4%B8%BE%E4%BE%8B/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">计算机系统基础 1</div>
+      </a>
+    
+  </nav>
+
+   
+<!-- valine评论 -->
+<div id="vcomments-box">
+  <div id="vcomments"></div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+<script>
+  new Valine({
+    el: "#vcomments",
+    app_id: "WPk3BYXTvroAcMVBUmuhww02-gzGzoHsz",
+    app_key: "dVytxHwDjvcuO9IyGIKc128B",
+    path: window.location.pathname,
+    avatar: "monsterid",
+    placeholder: "给我的文章加点评论吧~",
+    recordIP: true,
+  });
+  const infoEle = document.querySelector("#vcomments .info");
+  if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+    infoEle.childNodes.forEach(function (item) {
+      item.parentNode.removeChild(item);
+    });
+  }
+</script>
+<style>
+  #vcomments-box {
+    padding: 5px 30px;
+  }
+
+  @media screen and (max-width: 800px) {
+    #vcomments-box {
+      padding: 5px 0px;
+    }
+  }
+
+  #vcomments-box #vcomments {
+    background-color: #fff;
+  }
+
+  .v .vlist .vcard .vh {
+    padding-right: 20px;
+  }
+
+  .v .vlist .vcard {
+    padding-left: 10px;
+  }
+</style>
+
+ 
+     
+</article>
+
 </section>
       <footer class="footer">
   <div class="outer">
@@ -475,6 +458,23 @@
 <script src="/js/lazyload.min.js"></script>
 
 <!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
