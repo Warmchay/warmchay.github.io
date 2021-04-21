@@ -6,7 +6,7 @@
   <link href="https://warmchay.github.io/atom.xml" rel="self"/>
   
   <link href="https://warmchay.github.io/"/>
-  <updated>2021-04-21T03:56:28.347Z</updated>
+  <updated>2021-04-21T04:05:50.698Z</updated>
   <id>https://warmchay.github.io/</id>
   
   <author>
@@ -21,9 +21,9 @@
     <link href="https://warmchay.github.io/2021/04/21/Chapter-0/"/>
     <id>https://warmchay.github.io/2021/04/21/Chapter-0/</id>
     <published>2021-04-21T03:48:34.000Z</published>
-    <updated>2021-04-21T03:56:28.347Z</updated>
+    <updated>2021-04-21T04:05:50.698Z</updated>
     
-    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><h1 id="Chapter-0"><a href="#Chapter-0" class="headerlink" title="Chapter 0"></a>Chapter 0</h1><h2 id="0-1-操作系统接口"><a href="#0-1-操作系统接口" class="headerlink" title="0.1 操作系统接口"></a>0.1 操作系统接口</h2><p><strong>操作系统的工作：</strong></p><ul><li>资源共享</li><li>管理并抽象底层硬件，如，word不用关心自己使用的是哪种硬盘</li><li>多路复用硬件，使程序看起来是并行的</li><li>对程序提供受控的交互方式，使得程序之间可以共享数据、共同工作</li></ul><p>举个例子</p><p>![0.1 A kernel and two user processes](Chapter-0/0.1 A kernel and two user processes.png)</p><img src="/.io//0.1 A kernel and two user processes.png" alt="0.1 A kernel and two user processes" style="zoom:50%;">]]></content>
+    <content type="html"><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><h1 id="Chapter-0"><a href="#Chapter-0" class="headerlink" title="Chapter 0"></a>Chapter 0</h1><h2 id="0-1-操作系统接口"><a href="#0-1-操作系统接口" class="headerlink" title="0.1 操作系统接口"></a>0.1 操作系统接口</h2><p><strong>操作系统的工作：</strong></p><ul><li>资源共享</li><li>管理并抽象底层硬件，如，word不用关心自己使用的是哪种硬盘</li><li>多路复用硬件，使程序看起来是并行的</li><li>对程序提供受控的交互方式，使得程序之间可以共享数据、共同工作</li></ul><p>举个例子</p><p>![](Chapter-0/0.1 A kernel and two user processes.png)</p><img src="/2021/04/21/Chapter-0/0.1 A kernel and two user processes.png" alt="0.1 A kernel and two user processes" style="zoom:50%;"><p>![0.1 A kernel and two user processes](Chapter-0/0.1 A kernel and two user processes.png)</p><p>![0.1 A kernel and two user processes](Chapter-0/0.1 A kernel and two user processes.png)</p>]]></content>
     
     
       
