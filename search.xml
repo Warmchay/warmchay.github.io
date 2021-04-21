@@ -2,7 +2,7 @@
 <search>
   <entry>
     <title>Chapter 0</title>
-    <url>/2021/04/21/Chapter-0/</url>
+    <url>/2021/04/21/XV6-Core/Chapter-0/</url>
     <content><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><h1 id="Chapter-0"><a href="#Chapter-0" class="headerlink" title="Chapter 0"></a>Chapter 0</h1><h2 id="0-1-操作系统接口"><a href="#0-1-操作系统接口" class="headerlink" title="0.1 操作系统接口"></a>0.1 操作系统接口</h2><p><strong>操作系统的工作：</strong></p>
 <ul>
 <li>资源共享</li>
@@ -10,13 +10,137 @@
 <li>多路复用硬件，使程序看起来是并行的</li>
 <li>对程序提供受控的交互方式，使得程序之间可以共享数据、共同工作</li>
 </ul>
-<p>举个例子</p>
-<p>![](Chapter-0/0.1 A kernel and two user processes.png)</p>
-<img src="/2021/04/21/Chapter-0/0.1 A kernel and two user processes.png" alt="0.1 A kernel and two user processes" style="zoom:50%;">
+<img src="https://i.loli.net/2021/04/21/7b3NmXovpCMwEls.png" alt="0.1 A kernel and two user processes.png" style="zoom:33%;">
 
-<p>![0.1 A kernel and two user processes](Chapter-0/0.1 A kernel and two user processes.png)</p>
-<p>![0.1 A kernel and two user processes](Chapter-0/0.1 A kernel and two user processes.png)</p>
+<p>上图所示即传统的内核，<code>sys call</code>会进入内核，让内核执行服务然后返回，所以进程总是在用户空间和内核空间之间交替运行</p>
+<ul>
+<li><strong>进程（运行中的程序）</strong>都拥有包含<strong>指令、数据、栈</strong>的内存空间<ul>
+<li><strong>指令</strong>实现了程序的运算</li>
+<li><strong>数据</strong>是用于运算过程的变量</li>
+<li><strong>栈</strong>管理程序的过程调用</li>
+</ul>
+</li>
+<li><strong>shell</strong>为普通的程序，接受用户输入的命令并执行它们，也是传统UNIX系统中最基本的用户界面<ul>
+<li>shell是普通程序，不是内核的一部分</li>
+<li>这也说明了shell是可替代的</li>
+</ul>
+</li>
+</ul>
+<p>内核使用CPU的<strong>硬件保护机制</strong>来保证用户进程只能访问自己的内存空间，<strong>内核</strong>拥有实现保护机制所需要的硬件权限（Hardware Privileges），但是用户程序没有这些权限。</p>
+<p>当一个用户程序进行一次系统调用时，硬件会提升<strong>特权级</strong>并且开始执行一些内核中预定义的功能</p>
+<p>在这里，提供的用户程序可见的OS接口为：</p>
+<table>
+<thead>
+<tr>
+<th align="center">系统调用</th>
+<th align="center">功能描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">fork()</td>
+<td align="center">创建进程</td>
+</tr>
+<tr>
+<td align="center">Exit()</td>
+<td align="center">结束进程</td>
+</tr>
+<tr>
+<td align="center">Wait()</td>
+<td align="center">等待子进程结束</td>
+</tr>
+<tr>
+<td align="center">Kill(pid)</td>
+<td align="center">结束pid所指进程</td>
+</tr>
+<tr>
+<td align="center">Getpid()</td>
+<td align="center">获取当前pid所指进程</td>
+</tr>
+<tr>
+<td align="center">Sleep()</td>
+<td align="center">睡眠n秒</td>
+</tr>
+<tr>
+<td align="center">Exec(filename, *argv)</td>
+<td align="center">加载并执行一个文件</td>
+</tr>
+<tr>
+<td align="center">Sbrk(n)</td>
+<td align="center">为进程空间增加n个字节</td>
+</tr>
+<tr>
+<td align="center">Open(filename, flags)</td>
+<td align="center">打开文件，flags制定R/W模式</td>
+</tr>
+<tr>
+<td align="center">Read(fd, buf, n)</td>
+<td align="center">从文件fd中读取n个字节到buf中</td>
+</tr>
+<tr>
+<td align="center">Write(fd, buf, n)</td>
+<td align="center">从buf中写n个字节到文件</td>
+</tr>
+<tr>
+<td align="center">close(fd)</td>
+<td align="center">关闭打开的文件fd</td>
+</tr>
+<tr>
+<td align="center">Dup(fd)</td>
+<td align="center">复制文件fd</td>
+</tr>
+<tr>
+<td align="center">Pipe(p)</td>
+<td align="center">创建管道，把读和写的fd返回到p</td>
+</tr>
+<tr>
+<td align="center">Chdir(dirname)</td>
+<td align="center">改变当前目录</td>
+</tr>
+<tr>
+<td align="center">Mkdir(dirname)</td>
+<td align="center">创建新的目录</td>
+</tr>
+<tr>
+<td align="center">mknod(name, major, minor)</td>
+<td align="center">创建设备文件</td>
+</tr>
+<tr>
+<td align="center">fstat(fd)</td>
+<td align="center">返回文件信息</td>
+</tr>
+<tr>
+<td align="center">link(f1, f2)</td>
+<td align="center">给f1创建一个新名字f2</td>
+</tr>
+<tr>
+<td align="center">Unlink(filename)</td>
+<td align="center">删除文件</td>
+</tr>
+</tbody></table>
+<h2 id="0-2-进程和内存"><a href="#0-2-进程和内存" class="headerlink" title="0.2 进程和内存"></a>0.2 进程和内存</h2><p>xv6由两部分组成：用户内存空间（指令，数据，栈）&amp; 仅对内核可见的进程状态</p>
+<p>其也提供了<strong>分时</strong>特性，能在可用CPU之间不断切换，决定了哪一个等待中的进程被执行</p>
+<p>当进程不执行时，xv6保存它的CPU寄存器，当他们再次被执行时，会恢复这些寄存器的值，内核将每个进程和一个pid关联起来</p>
+<p>一个进程可以通过系统调用<code>fork</code>来创建一个新的进程，<code>fork</code>创建的新进程被称为子进程，子进程的内存内容同创建他的进程（父进程）一样</p>
+<p><code>fork</code>在父进程、子进程中都返回（一次调用两次返回），对于父进程它返回子进程的pid，子进程则返回0.</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> pid;</span><br><span class="line">pid = fork();</span><br><span class="line"><span class="keyword">if</span>(pid)&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;parent: child=%d\n&quot;</span>, pid);</span><br><span class="line">  pid = wait();</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;child %d id done&quot;</span>, pid);</span><br><span class="line">&#125;<span class="keyword">else</span> <span class="keyword">if</span>(pid == <span class="number">0</span>)&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;child: existing\n&quot;</span>);</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;fork error\n&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>系统调用<code>exit</code>会导致调用它的进程停止运行，并且释放如内存和打开文件在内的资源。系统调用<code>wait</code>会返回一个<strong>当前进程</strong>已退出的子进程，如果没有子进程退出，<code>wait</code>会等候直到有一个子进程退出</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">parent: child=<span class="number">1234</span>;</span><br><span class="line">child: existing</span><br></pre></td></tr></table></figure>
+
+<p>可能以任意顺序被打印，这种顺序由父进程或子进程谁先结束<code>printf</code>决定。当子进程退出时，父进程的<code>wait()</code>也就返回了，于是父进程打印</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">parent:child <span class="number">1234</span> is done</span><br></pre></td></tr></table></figure>
+
+<p>系统调用<code>exec</code>将从某个文件（通常是<strong>可执行文件</strong>）里读取内存镜像，并将其替换到调用它的<strong>进程的内存空间</strong>，这份文件必须符合特定的格式，规定文件的那一部分是<strong>指令</strong>，那一部分是<strong>数据</strong>，哪里是指令的开始等</p>
+<p>xv6使用ELF文件格式，当<code>exec</code>执行成功后，它并不返回到原来的调用进程，而是从ELF头中声明的入口开始，执行从文件中加载的指令</p>
+<blockquote>
+<p><code>exec(char *file, char *argc[])</code></p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">char</span> *argv[<span class="number">3</span>];</span><br><span class="line">argv[<span class="number">0</span>] = <span class="string">&quot;echo&quot;</span>;</span><br><span class="line">argv[<span class="number">1</span>] = <span class="string">&quot;hello&quot;</span>;</span><br><span class="line">argv[<span class="number">2</span>] = <span class="number">0</span>;</span><br><span class="line">exec(<span class="string">&quot;/bin/echo&quot;</span>, argv);</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;exec error\n&quot;</span>);</span><br></pre></td></tr></table></figure>
+
 ]]></content>
+      <tags>
+        <tag>xv6</tag>
+      </tags>
   </entry>
   <entry>
     <title></title>
