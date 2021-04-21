@@ -145,6 +145,519 @@
     
     
     <article
+  id="post-计算机系统基础--NJU/一 C语言程序举例"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/03/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80--NJU/%E4%B8%80%20C%E8%AF%AD%E8%A8%80%E7%A8%8B%E5%BA%8F%E4%B8%BE%E4%BE%8B/"
+    >计算机系统基础 1</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/16/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80--NJU/%E4%B8%80%20C%E8%AF%AD%E8%A8%80%E7%A8%8B%E5%BA%8F%E4%B8%BE%E4%BE%8B/" class="article-date">
+  <time datetime="2021-03-16T01:24:27.627Z" itemprop="datePublished">2021-03-16</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%E5%8E%9F%E7%90%86/">计算机基础原理</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="一-C语言程序举例"><a href="#一-C语言程序举例" class="headerlink" title="一 C语言程序举例"></a>一 C语言程序举例</h1><h2 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h2><blockquote>
+<p><strong>① ISO C90标准，32位系统的程序运行：</strong></p>
+<ul>
+<li>-2147483648 &lt; 2147483648  <strong>False</strong></li>
+<li>i = -2147483648; 2147483648 &gt; i; <strong>True</strong></li>
+<li>-2147483648-1 &lt; 2147483648 <strong>True</strong></li>
+</ul>
+<p><strong>Why?如何理解呢？</strong></p>
+<ul>
+<li><strong>编译器如何处理字面量</strong></li>
+<li>高级语言中的运算规则</li>
+<li>高级语言与指令之间的对应</li>
+<li>机器指令的执行过程</li>
+<li>机器级数据的表示和运算</li>
+<li>…</li>
+</ul>
+<p>*<em>② x, y都为int型，当x = 65535, y = x</em>x; y的值是多少？**</p>
+<ul>
+<li>y = -131071  <strong>WHY?</strong></li>
+</ul>
+<p><strong>③ x, y依旧为int型，对于(x&gt;y) == (-x &lt; -y)是否成立？</strong></p>
+<ul>
+<li><strong>False；</strong>当<code>x = -2147483648</code>时，y任意（除<code>-2147483648</code>）时都不成立  <strong>WHY？</strong></li>
+</ul>
+</blockquote>
+<p><strong>以上说明计算机的世界和现实世界是有一定差距滴~</strong></p>
+<h2 id="1-1-C举例"><a href="#1-1-C举例" class="headerlink" title="1.1 C举例"></a>1.1 C举例</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//----①----</span></span><br><span class="line"><span class="keyword">int</span> a = <span class="number">0x8000000</span>;</span><br><span class="line"><span class="keyword">int</span> b = a/<span class="number">-1</span>;</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;b = %d\n&quot;</span>, b);    </span><br><span class="line"><span class="comment">//运行结果：b = -2147483868</span></span><br><span class="line"><span class="comment">//----------------------</span></span><br><span class="line"><span class="comment">//----②----</span></span><br><span class="line"><span class="keyword">int</span> b = <span class="number">-1</span>;</span><br><span class="line"><span class="keyword">int</span> c = a/b;</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;c = %d\n&quot;</span>, c);</span><br><span class="line"><span class="comment">//报错 ---&gt; Floating Point Exception，CPU检测到了溢出异常</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Rea：</strong></p>
+<ul>
+<li><strong>关于①</strong>：由于$\frac{a}{-1}$中，<code>-1</code>为常数，在这个过程中程序得知除以<code>-1</code>，其被优化成<strong>取负指令<code>neg</code>**，因此没有发生</strong>除法溢出**【检测不到】【可以使用objdump反汇编编码来检测】</li>
+<li><strong>关于②</strong>：因为<code>a、b</code>都为变量，在进行运算时采用的是<strong>除法指令<code>IDIV</code>**实现，但它不生成</strong><code>OF</code>指令<strong>，那么是如何判断</strong>溢出异常**的呢？</li>
+</ul>
+<blockquote>
+<p>这个实际上是<strong>“除法错”异常#DE（类型0）</strong>，在Linux中，对#DE类型发<strong>SIGFPE**</strong>信号**</p>
+</blockquote>
+<h2 id="1-2-什么是计算机系统"><a href="#1-2-什么是计算机系统" class="headerlink" title="1.2 什么是计算机系统"></a>1.2 什么是计算机系统</h2><blockquote>
+<p>将计算机系统分为两个部分，四类对象进行了解</p>
+</blockquote>
+<ul>
+<li><p><strong>软件</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">使用方式</th>
+<th align="center">操作对象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">应用（问题）</td>
+<td align="center">最终用户</td>
+</tr>
+<tr>
+<td align="center">算法</td>
+<td align="center">程序员</td>
+</tr>
+<tr>
+<td align="center">编程语言【数据的机器级表示、运算，过程的机器级语句和调用】</td>
+<td align="center">程序员</td>
+</tr>
+<tr>
+<td align="center">操作系统/虚拟机【<strong>编译和链接</strong>的部分内容】</td>
+<td align="center">程序员</td>
+</tr>
+</tbody></table>
+</li>
+<li><p><strong>软硬结合</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">使用方式</th>
+<th align="center">操作对象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">指令集体系结构（ISA）和汇编层【<strong>指令系统、机器代码、汇编语言</strong>】</td>
+<td align="center">架构师</td>
+</tr>
+</tbody></table>
+</li>
+<li><p><strong>硬件</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">使用方式</th>
+<th align="center">操作对象</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">指令集体系结构（ISA）</td>
+<td align="center">架构师</td>
+</tr>
+<tr>
+<td align="center">微体系结构【CPU的通用结构及层次结构存储系统】</td>
+<td align="center">架构师</td>
+</tr>
+<tr>
+<td align="center">功能部件</td>
+<td align="center">架构师</td>
+</tr>
+<tr>
+<td align="center">电路</td>
+<td align="center">电子工程师</td>
+</tr>
+<tr>
+<td align="center">器件</td>
+<td align="center">电子工程师</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>程序的执行结果依赖于这些所有的使用方式，要解决问题需要把所有层次连接起来</p>
+</li>
+</ul>
+<h2 id="1-3-冯·诺依曼思想"><a href="#1-3-冯·诺依曼思想" class="headerlink" title="1.3 冯·诺依曼思想"></a>1.3 冯·诺依曼思想</h2><blockquote>
+<p>第一台计算机咋来的咧~第一台存储计算机【EDSAC】</p>
+</blockquote>
+<p><img src="https://i.loli.net/2020/11/29/KmrEvB8qpn4Mteb.jpg" alt="冯·诺伊曼计算机结构.jpg"></p>
+<p><strong>重要思想：存储程序（Stroed-program）</strong></p>
+<p><strong>工作方式：</strong>将计算机要完成的工作编写成<strong>程序</strong>，然后将程序和原始数据送入<strong>主存</strong>并启动执行。一旦程序被启动，计算机能在不需操作人员的干预下，自动完成逐条取出指令和实现指令的任务</p>
+<blockquote>
+<p>现在基本上所有的通用计算机大都采用冯·诺伊曼结构</p>
+</blockquote>
+<h3 id="1-3-1-结构思想"><a href="#1-3-1-结构思想" class="headerlink" title="1.3.1 结构思想"></a>1.3.1 结构思想</h3><p>总结，冯·诺伊曼结构为：</p>
+<ul>
+<li>有<strong>主存</strong>，用来存放程序和数据</li>
+<li>有<strong>自动逐条取出指令</strong>的部件</li>
+<li>有<strong>具体执行指令（即运算）</strong>的部件</li>
+<li><strong>程序</strong>由指令构成</li>
+<li>指令描述如何对<strong>数据</strong>进行<strong>处理</strong></li>
+<li><strong>输入</strong>计算机的部件应该有<strong>程序和原始数据</strong></li>
+<li>需要有将<strong>运算结果输出</strong>计算机的部件</li>
+</ul>
+<p><img src="https://i.loli.net/2020/11/29/Dnb1vEWYGPZcCUX.jpg" alt="冯·诺伊曼结构应该是怎样的.jpg"></p>
+<h3 id="1-3-2-结构主要思想"><a href="#1-3-2-结构主要思想" class="headerlink" title="1.3.2 结构主要思想"></a>1.3.2 结构主要思想</h3><ol>
+<li><p><strong>计算机组成部分</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">1</th>
+<th align="center">2</th>
+<th align="center">3</th>
+<th align="center">4</th>
+<th align="center">5</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">运算器</td>
+<td align="center">控制器</td>
+<td align="center">存储器</td>
+<td align="center">输入设备</td>
+<td align="center">输出设备</td>
+</tr>
+</tbody></table>
+</li>
+<li><p><strong>基础部件功能</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">部件</th>
+<th align="center">功能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><strong>存储器</strong></td>
+<td align="center">能存放<strong>数据</strong>和<strong>指令</strong>【形式上都为<code>0-1</code>序列】，且计算机能分辨出来</td>
+</tr>
+<tr>
+<td align="center"><strong>控制器</strong></td>
+<td align="center">能自动取出<strong>指令</strong>来执行</td>
+</tr>
+<tr>
+<td align="center"><strong>运算器</strong></td>
+<td align="center">应能进行四则运算，和一些逻辑运算及附加运算</td>
+</tr>
+<tr>
+<td align="center"><strong>输入、输出设备</strong></td>
+<td align="center">操作人员能通过<strong>输入、输出设备</strong>与<strong>主机</strong>通信</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>内部以<strong>二进制</strong>表示指令和数据</p>
+<p>每条指令码由<strong>操作码和地址码</strong>构成【<code>0-1</code>序列】。<strong>操作码</strong>指出操作类型，<strong>地址码</strong>指出操作数的地址。可以看出，程序由一串指令组成</p>
+</li>
+<li><p>采用“<strong>存储程序</strong>”的工作方式</p>
+</li>
+</ol>
+<h2 id="1-4-现代计算机结构模型"><a href="#1-4-现代计算机结构模型" class="headerlink" title="1.4 现代计算机结构模型"></a>1.4 现代计算机结构模型</h2><blockquote>
+<p>基本概念：</p>
+<p><strong>CPU：</strong>Computer Processing Unit【算术处理单元】</p>
+<p><strong>MAR：</strong>Memory Address Register【存储器地址寄存器】</p>
+<p><strong>MDR：</strong>Memory Data Register【存储器数据寄存器】</p>
+<p><strong>ALU：</strong>Arithmetic Logic Unit    【算术逻辑单元】</p>
+<p><strong>IR：</strong>Instructor Register            【指令寄存器】</p>
+<p><strong>PC：</strong>Program Counter             【程序计数器】【CPU中的寄存器】</p>
+</blockquote>
+<p><img src="https://i.loli.net/2020/11/29/vcoClrzT4maZ2Vx.jpg" alt="现代计算机结构.jpg"></p>
+<h3 id="1-4-1-现实举例"><a href="#1-4-1-现实举例" class="headerlink" title="1.4.1 现实举例"></a>1.4.1 现实举例</h3><p><strong>可以把这个比为现实的饭店/工厂</strong>。举个栗子：妈妈做菜</p>
+<p>关于这个过程，我们可以把各部分作为：</p>
+<table>
+<thead>
+<tr>
+<th align="center">做菜工具</th>
+<th align="center">计算机结构</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">厨房</td>
+<td align="center">CPU</td>
+</tr>
+<tr>
+<td align="center">妈妈</td>
+<td align="center">控制器【拿到菜单开始做菜】</td>
+</tr>
+<tr>
+<td align="center">盘子</td>
+<td align="center">GPRs【通用寄存器集群】</td>
+</tr>
+<tr>
+<td align="center">锅灶</td>
+<td align="center">ALU</td>
+</tr>
+<tr>
+<td align="center">架子</td>
+<td align="center">存储器</td>
+</tr>
+</tbody></table>
+<p><strong>那么计算机是如何工作的呢？</strong></p>
+<ul>
+<li><p><strong>做菜前</strong></p>
+<p>原材料【<strong>数据</strong>】和菜谱【<strong>指令</strong>】<strong>按序</strong>放在厨房外的架子上【<strong>存储器</strong>】，且每个架子上有编号【<strong>存储单元地址</strong>】；</p>
+<p>菜谱上的信息有：原料位置、做法、做好的菜放在那里等</p>
+<p>例如：将10、11号架子上的原料放在一起炒，并装入3号盘，然后，你告诉妈妈从第5个架子（<strong>起始PC=5</strong>）指定菜谱开始做</p>
+</li>
+<li><p><strong>开始做菜</strong></p>
+<ul>
+<li><strong>Step 1：</strong>从5号架上取菜谱【<strong>根据PC取指令</strong>】</li>
+<li><strong>Step 2：</strong>看菜谱【<strong>指令译码</strong>】</li>
+<li><strong>Step 3：</strong>从架子上或盘子上取原材料【<strong>取操作数</strong>】</li>
+<li><strong>Step 4：</strong>洗、切、炒等具体操作【<strong>指令执行</strong>】</li>
+<li><strong>Step 5：</strong>装盘或直接送到桌子上【<strong>回写结果</strong>】</li>
+<li><strong>Step 6：</strong>算出下一菜谱所在的架子<code>5+1=6</code>【<strong>修改PC的值</strong>】</li>
+</ul>
+</li>
+<li><p>按步继续执行指令【类似<strong>存储程序</strong>的方式】</p>
+</li>
+</ul>
+<h3 id="1-4-2-计算机工作方式"><a href="#1-4-2-计算机工作方式" class="headerlink" title="1.4.2 计算机工作方式"></a>1.4.2 计算机工作方式</h3><p><strong>由妈妈做菜，我们得到计算机的工作方式：</strong></p>
+<blockquote>
+<p>首先，明确程序是由指令构成的【菜单由菜谱构成】</p>
+</blockquote>
+<ul>
+<li><p><strong>程序在执行前</strong></p>
+<p><strong>数据</strong>和<strong>指令</strong>事先被放在<strong>存储器</strong>中，每条指令和每个数据都有地址，指令<strong>按序</strong>排放，指令由<strong>OP</strong>和<strong>ADDR字段</strong>组成，程序起始的位置置<strong>PC</strong></p>
+<blockquote>
+<p>原料和菜谱都放在了架子上，每个架子有编号。妈妈从5号架子上拿到制定菜谱开始做菜。</p>
+</blockquote>
+</li>
+<li><p><strong>开始执行程序</strong></p>
+<ul>
+<li><strong>Step 1：</strong>根据PC取指令【从5号架上拿菜谱】</li>
+<li><strong>Step 2：</strong>指令译码【看菜谱】</li>
+<li><strong>Step 3：</strong>取操作数【从架上或盘上取原材料】</li>
+<li><strong>Step 4：</strong>指令执行【洗、切、炒等具体操作】</li>
+<li><strong>Step 5：</strong>回写结果【装盘或直接送桌】</li>
+<li><strong>Step 6：</strong>修改PC的值【算出下一菜谱所在架子号<code>5+1=6</code>】</li>
+<li><strong>While(执行下一条指令)</strong></li>
+</ul>
+</li>
+</ul>
+<h3 id="1-4-3-指令和数据"><a href="#1-4-3-指令和数据" class="headerlink" title="1.4.3 指令和数据"></a>1.4.3 指令和数据</h3><ul>
+<li><strong>程序启动前：</strong>指令和数据都放在<strong>存储器</strong>中，形式上没有差别，都是<code>0-1</code>序列</li>
+<li>采用<strong>存储结构</strong>工作方式<ul>
+<li>程序由指令组成，程序被启动后，计算机能自动取出一条又一条的指令执行，而在执行的过程中无需他人干预。</li>
+</ul>
+</li>
+</ul>
+<p><strong>指令中需给出的信息：</strong></p>
+<ul>
+<li><strong>操作性质</strong>【操作码】</li>
+<li><strong>源操作数1</strong><code>或/和</code><strong>源操作数2</strong>（立即数、寄存器编号，<strong>存储地址</strong>）<ul>
+<li>单目1个操作数，双目2个操作数</li>
+</ul>
+</li>
+<li><strong>目的操作数地址</strong>【寄存器编号、存储地址】</li>
+<li>存储地址的描述与<strong>操作数的数据结构</strong>有关</li>
+</ul>
+<h2 id="1-5-机器语言到高级编程语言"><a href="#1-5-机器语言到高级编程语言" class="headerlink" title="1.5 机器语言到高级编程语言"></a>1.5 机器语言到高级编程语言</h2><h3 id="1-5-1-机器语言"><a href="#1-5-1-机器语言" class="headerlink" title="1.5.1 机器语言"></a>1.5.1 机器语言</h3><blockquote>
+<p><strong>用机器语言编写程序【0/1序列】</strong>，并记录在纸带或者卡片上</p>
+</blockquote>
+<p>一般为：【举例0010-jc】</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">0:0101 0110			//前面为操作数 后面为地址数</span><br><span class="line">1:0010 0100</span><br><span class="line">2:......</span><br><span class="line">3:......</span><br><span class="line">4:0110 0111</span><br><span class="line">5:......</span><br><span class="line">6:......</span><br></pre></td></tr></table></figure>
+
+<p><strong>问题：</strong></p>
+<p>​    如果在第4条指令前加入指令，则需要<strong>重新计算地址码</strong>【如jxx的目标地址】，然后重新打孔。十分不灵活，且阅读、书写困难。</p>
+<p>​    这样太麻烦了，怎么改进咧？</p>
+<h3 id="1-5-2-汇编语言"><a href="#1-5-2-汇编语言" class="headerlink" title="1.5.2 汇编语言"></a>1.5.2 汇编语言</h3><blockquote>
+<p>用<strong>符号</strong>表示跳转位置和变量位置</p>
+</blockquote>
+<p>举个栗子：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">add B</span><br><span class="line">jc L0</span><br><span class="line">......</span><br><span class="line">......</span><br><span class="line">L0:sub C</span><br><span class="line">B:......</span><br><span class="line">C:......</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，<strong>在第4条指令前加指令时不用改变<code>add</code>、<code>jxx</code>和<code>sub</code>指令中的地址码</strong></p>
+<p><strong>简单总结下汇编语言的特点：</strong></p>
+<ul>
+<li>用<strong>助记符</strong>来表示操作符：<code>add</code></li>
+<li>用<strong>标号</strong>表示位置：<code>B</code></li>
+<li>用助记符表示寄存器</li>
+<li>….</li>
+</ul>
+<p><strong>汇编语言体现的优点是：</strong></p>
+<ul>
+<li>不用因为增减指令而去修改其他指令</li>
+<li>不需要用记忆指令编码，编写方便</li>
+<li>可读性比机器语言强</li>
+</ul>
+<p>带来的新的问题：</p>
+<ul>
+<li>人容易理解，机器就不一定容易理解了~</li>
+</ul>
+<p>因此之后还需要用到汇编程序，<strong>将汇编语言转换为机器语言</strong></p>
+<h3 id="1-5-3-指令所描述的功能"><a href="#1-5-3-指令所描述的功能" class="headerlink" title="1.5.3 指令所描述的功能"></a>1.5.3 指令所描述的功能</h3><blockquote>
+<p>以“妈妈做菜”为例.</p>
+</blockquote>
+<ul>
+<li><pre><code class="bash">Ld M#,R# (将存储单元内容装入寄存器)【Ld == Lord  装入】
+St R#,M# (将寄存器内容装入存储单元)【St == Store 存储】
+Add R#,M#(类似的还有Sub、Mul等)
+Jxx M#   (若满足条件，转移到另一处执行)</code></pre>
+<p><img src="https://i.loli.net/2020/11/29/OloWyK5mt17CNQR.jpg" alt="指令描述的功能.jpg"></p>
+</li>
+<li><p>汇编语言（源）程序由<strong>汇编指令</strong>构成</p>
+</li>
+<li><p>一句话描述<strong>什么是汇编指令</strong></p>
+<ul>
+<li>用<strong>助记符</strong>和<strong>标号</strong>来表示的指令（与机器指令一一对应）</li>
+</ul>
+</li>
+<li><p><strong>指令</strong>又是什么呢</p>
+<ul>
+<li><p>包含<strong>操作数</strong>和操作数或其<strong>地址码</strong></p>
+<blockquote>
+<p><strong>机器指令</strong>用二进制表示，<strong>汇编指令</strong>用符号表示</p>
+</blockquote>
+</li>
+<li><p>只能描述：取（或存一个数）；两个数加（或减、乘、除、与、或等）；根据运算结果判断是否转移执行</p>
+</li>
+</ul>
+</li>
+<li><p>如果用<strong>汇编语言</strong>编写复杂程序是什么样的呢？【如实现<code>sort</code>或者矩阵相乘】</p>
+<ul>
+<li>需要描述的细节会十分多，程序会十分长，并且在<strong>不同结构</strong>的机器上不同的汇编编写的程序是不能运行的</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>因为<strong>机器语言</strong>和<strong>汇编语言</strong>都是面向机器结构的语言，故统称它们为<strong>机器级语言</strong></p>
+</blockquote>
+<p>​    </p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
+  id="post-汉诺塔，快排与数组内逆序"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/03/16/%E6%B1%89%E8%AF%BA%E5%A1%94%EF%BC%8C%E5%BF%AB%E6%8E%92%E4%B8%8E%E6%95%B0%E7%BB%84%E5%86%85%E9%80%86%E5%BA%8F/"
+    >学习记录--汉诺塔，快排与数组内逆序</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/16/%E6%B1%89%E8%AF%BA%E5%A1%94%EF%BC%8C%E5%BF%AB%E6%8E%92%E4%B8%8E%E6%95%B0%E7%BB%84%E5%86%85%E9%80%86%E5%BA%8F/" class="article-date">
+  <time datetime="2021-03-16T01:24:27.626Z" itemprop="datePublished">2021-03-16</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%E4%BB%AA/">学习记录仪</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="一-汉诺塔问题"><a href="#一-汉诺塔问题" class="headerlink" title="一 汉诺塔问题"></a>一 汉诺塔问题</h1><blockquote>
+<p>这里没有用指针，之后再更新指针部分      —11.15</p>
+</blockquote>
+<p>汉诺塔问题一直困扰了我比较久，总结的规律是，递归方式重点在于分为<strong>初始柱【A】、中转柱【B】及目标柱【C】</strong></p>
+<p>那么问题其实就在于它的这个过程要怎么转了，一般过程都是最上面的一个整体（以64个圆盘为例，则把最上方的63块看为整体）<code>A-&gt;C-&gt;B</code><strong>【此时中转柱为C】</strong>而后把最后一个大圆盘<code>A-&gt;C</code><strong>【这里不需要中转柱】</strong>，再接着，以A为中转柱，将B上的圆盘全部转移到C上，即<code>B-&gt;A-&gt;C</code></p>
+<blockquote>
+<p>注意：以上A、B、C柱子是时刻发生变化的，因为这中间圆盘是一个一个取得，则每次这三类柱子得顺序都会发生变化。但如果从宏观上来看，就是三根柱子得大变化。所以，考场上懵的话想想宏观就能很快敲出来了。</p>
+</blockquote>
+<p>核心算法为：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">move</span><span class="params">(<span class="keyword">int</span> n, <span class="keyword">char</span> a, <span class="keyword">char</span> b, <span class="keyword">char</span> c)</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(n == <span class="number">1</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%c --&gt; %c\n&quot;</span>, a, c);					<span class="comment">//若只剩下一个了，直接转移就行啦</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    move(n<span class="number">-1</span>, a, c, b);									<span class="comment">//此时初始柱为a（不一定是A）						</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%c --&gt; %c\n&quot;</span>, a, c);</span><br><span class="line">    move(n<span class="number">-1</span>, b, a, c);									<span class="comment">//此时初试柱为b（不一定是B）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>注意：</strong>在输出的时候，输出的是a，c柱，是当时得初始柱和目标柱，不是A和C柱嗷嗷</p>
+</blockquote>
+<h1 id="二-快速排序"><a href="#二-快速排序" class="headerlink" title="二 快速排序"></a>二 快速排序</h1><blockquote>
+<p>是一道关于分配牛奶得问题，其实用sort直接就出来了，但是因为一直不会快排，内心虚，就学习了下快排怎么写，发现这个分治法有点意思</p>
+</blockquote>
+<p>因为一开始看快排很容易懵，那么怎么理解会更快呢，把分治法称为<strong>“挖坑填数+分治”</strong>就快啦~</p>
+<h2 id="2-1-基本概念"><a href="#2-1-基本概念" class="headerlink" title="2.1 基本概念"></a>2.1 基本概念</h2><p>总的来说就是，先找到一个基准点<code>通常为最左边s[l],或者最右边s[r]</code>，如果选取最左边<code>s[l]</code>为基准点，那么最先比较的则是最右端<code>s[r]</code>，如果比<code>s[l]</code>大，则跳到下一个<code>s[--r]</code>，若比它小，则<code>s[r]</code>填补<code>s[l]</code>的坑位，然后<code>++i</code>，将右边的坑位与左边的坑位再进行比较；知道<code>i == j</code>为止</p>
+<h2 id="2-2-挖坑填数"><a href="#2-2-挖坑填数" class="headerlink" title="2.2 挖坑填数"></a>2.2 挖坑填数</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">change_loc</span><span class="params">(<span class="keyword">int</span> s[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(l &lt; r)&#123;</span><br><span class="line">        <span class="keyword">int</span> x = s[l], i = l, j = r;</span><br><span class="line">        <span class="comment">/*先右端*/</span></span><br><span class="line">        <span class="keyword">while</span>(i &lt; j &amp;&amp; s[j] &gt;= x)&#123;          <span class="comment">//注意这个i&lt;j，容易漏，如果减过头了就麻烦了</span></span><br><span class="line">            --j;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(i &lt; j)&#123;                          <span class="comment">//有可能i=j，所以还要加判断</span></span><br><span class="line">            s[i] = s[j];                    <span class="comment">//填数</span></span><br><span class="line">            ++i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">/*再左端*/</span></span><br><span class="line">        <span class="keyword">while</span>(i &lt; j &amp;&amp; s[i] &lt;= x)&#123;</span><br><span class="line">            ++i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(i &lt; j)&#123;</span><br><span class="line">            s[j] = s[i];</span><br><span class="line">            --j;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    s[i] = x;                               <span class="comment">//当i=j时，填补完毕，可以退出来了</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> i;                               <span class="comment">//返回此时中间点得位置，便于i的左端和右端继续排序</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-3-分治"><a href="#2-3-分治" class="headerlink" title="2.3 分治"></a>2.3 分治</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(<span class="keyword">int</span> s[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(l &lt; r)&#123;</span><br><span class="line">    	<span class="keyword">int</span> i = quick_sort(s, l, r);		<span class="comment">//找到中间点</span></span><br><span class="line">	    quick_sort(s, l, i<span class="number">-1</span>);				<span class="comment">//先左端</span></span><br><span class="line">    	quick_sort(s, i+<span class="number">1</span>, r);				<span class="comment">//再右端</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-4-总结"><a href="#2-4-总结" class="headerlink" title="2.4 总结"></a>2.4 总结</h2><blockquote>
+<p>如果分两个函数来写不够简洁，将<strong>挖坑填数与分治</strong>总结写成：</p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(<span class="keyword">int</span> s[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(l &lt; r)&#123;</span><br><span class="line">        <span class="keyword">int</span> x = s[l], i = l, j = r;</span><br><span class="line">        <span class="keyword">while</span>(i&lt;j)&#123;</span><br><span class="line">            <span class="comment">/*先让左边与右边比较*/</span></span><br><span class="line">            <span class="keyword">while</span>(i&lt;j &amp;&amp; s[j] &gt;= x)&#123;</span><br><span class="line">                --j;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(i &lt; j)&#123;</span><br><span class="line">                s[i++] = s[j];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">while</span>(i&lt;j &amp;&amp; s[i] &lt;= x)&#123;</span><br><span class="line">                ++i;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(i &lt; j)&#123;</span><br><span class="line">                s[j--] = s[i];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        s[i] = x;</span><br><span class="line">        quick_sort(s, l, i<span class="number">-1</span>);</span><br><span class="line">        quick_sort(s, i+<span class="number">1</span>, r);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-5-补充说明–结构体"><a href="#2-5-补充说明–结构体" class="headerlink" title="2.5 补充说明–结构体"></a>2.5 补充说明–结构体</h2><blockquote>
+<p>这里我是用来比较结构体的，但是遇到的问题就是怎么传结构体进去，后面发现了我的定性思维的问题</p>
+</blockquote>
+<p>我在定义结构体时是这么定义的：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">	<span class="keyword">int</span> price;</span><br><span class="line">    <span class="keyword">int</span> num;</span><br><span class="line">&#125;Cow[MAX];</span><br></pre></td></tr></table></figure>
+
+<p>这里问题出在我怎么把一个结构体数组传进去进行比较呢，但这样定义结构体没有普遍性，总的来说就是限制的太死了，换成这样定义就好多了</p>
+<p><strong>改进：</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">    <span class="keyword">int</span> price;</span><br><span class="line">    <span class="keyword">int</span> num;</span><br><span class="line">&#125;Cow;</span><br><span class="line">Cow cow[MAX];</span><br></pre></td></tr></table></figure>
+
+<p>而后在比较时我传值就可以这样</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(Cow c[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>在进行比较时，设置中间变量进行交换时，我就可以把x定义为<code>Cow x = c[l]</code>;这样就不会限制的那么死了。</p>
+<p>灵感来源于看别人进行sort排序时传进去的是</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sort(cow, cow+m, cmp);			<span class="comment">//其中cow为数组首地址，m为长度，cmp为比较函数</span></span><br></pre></td></tr></table></figure>
+
+<p>然后发现原版的sort可以传结构体数组的话，说明就是我的问题了，后面我就按照结构体来定义了，而不是结构体数组。</p>
+<h1 id="三-数组内逆序"><a href="#三-数组内逆序" class="headerlink" title="三 数组内逆序"></a>三 数组内逆序</h1><p>今天卡到的竟然是数组内逆序，我卡了20多分钟，然后用了一种我从没有用过的方法orz…</p>
+<p>具体是这样的，我还是定义为<code>l、r</code>，但是改为了</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*设数组定义为ElemType a[MAX]*/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">change_loc</span><span class="params">(ElemType a[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line"> 	<span class="keyword">if</span>(l&lt;r)&#123;									<span class="comment">/*这个判断容易忘记！*/</span></span><br><span class="line">    	<span class="keyword">while</span>(l&lt;r)&#123;</span><br><span class="line">			ElemType tmp = a[l];</span><br><span class="line">    		a[l] = a[r];</span><br><span class="line">    		a[r] = tmp;</span><br><span class="line">    		l++; r--;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>我觉得这样挺好orz..</p>
+</blockquote>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%8E%92%E5%BA%8F/" rel="tag">排序</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E9%80%92%E5%BD%92/" rel="tag">递归</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-比特币是什么"
   class="article article-type-post"
   itemscope

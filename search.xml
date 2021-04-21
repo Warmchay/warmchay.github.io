@@ -1,6 +1,258 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Chapter 0</title>
+    <url>/2021/04/21/Chapter-0/</url>
+    <content><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><h1 id="Chapter-0"><a href="#Chapter-0" class="headerlink" title="Chapter 0"></a>Chapter 0</h1><h2 id="0-1-操作系统接口"><a href="#0-1-操作系统接口" class="headerlink" title="0.1 操作系统接口"></a>0.1 操作系统接口</h2><p><strong>操作系统的工作：</strong></p>
+<ul>
+<li>资源共享</li>
+<li>管理并抽象底层硬件，如，word不用关心自己使用的是哪种硬盘</li>
+<li>多路复用硬件，使程序看起来是并行的</li>
+<li>对程序提供受控的交互方式，使得程序之间可以共享数据、共同工作</li>
+</ul>
+<p>举个例子</p>
+<p>![0.1 A kernel and two user processes](Chapter-0/0.1 A kernel and two user processes.png)</p>
+<img src="/.io//0.1 A kernel and two user processes.png" alt="0.1 A kernel and two user processes" style="zoom:50%;">]]></content>
+  </entry>
+  <entry>
+    <title></title>
+    <url>/2021/04/18/ROS%E5%85%A5%E9%97%A8%E7%AF%87/</url>
+    <content><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><h1 id="1-ROS中的核心概念"><a href="#1-ROS中的核心概念" class="headerlink" title="1 ROS中的核心概念"></a>1 ROS中的核心概念</h1><h2 id="1-1-通信机制"><a href="#1-1-通信机制" class="headerlink" title="1.1 通信机制"></a>1.1 通信机制</h2><p>分布式耦合系统</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418091052354.png" alt="image-20210418091052354" style="zoom:50%;">
+
+<h2 id="1-2-节点-amp-节点管理器"><a href="#1-2-节点-amp-节点管理器" class="headerlink" title="1.2 节点 &amp; 节点管理器"></a>1.2 节点 &amp; 节点管理器</h2><ul>
+<li><strong>节点</strong><ol>
+<li>执行具体任务的进程、独立运行的可执行文件</li>
+<li>不同节点可以使用不同的编程语言，可以分布式的运行在不同的主机</li>
+<li>节点在系统中的名称必须是唯一的</li>
+</ol>
+</li>
+<li><strong>节点管理器（ROS Master）</strong> – 控制中心<ol>
+<li>为节点提供命名和注册服务</li>
+<li>跟踪和记录话题/服务通信，<strong>辅助节点相互查找、建立连接</strong></li>
+<li>提供参数服务器（类似全局字典），节点使用此服务器存储和检索运行时的参数</li>
+</ol>
+</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418091359672.png" alt="image-20210418091359672" style="zoom:50%;">
+
+<blockquote>
+<p>远端的笔记本用来展示节点的工作</p>
+</blockquote>
+<h2 id="1-3-话题通信"><a href="#1-3-话题通信" class="headerlink" title="1.3 话题通信"></a>1.3 话题通信</h2><ul>
+<li><strong>话题（Topic）</strong> – 异步通信机制<ul>
+<li>节点间用来传输数据的重要总线</li>
+<li>使用<strong>发布/订阅</strong>模型，数据由发布者传输到订阅者，同一个话题的订阅者或发布者可以不唯一</li>
+</ul>
+</li>
+<li><strong>消息（Message）</strong> – 话题数据<ul>
+<li>具有一定的类型和数据结构，包括ROS提供的标准类型和用户自定义类型</li>
+<li>使用编程语言无关的.msg文件定义，编译过程中生成对应的代码文件</li>
+</ul>
+</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418091816163.png" alt="image-20210418091816163" style="zoom:50%;">
+
+<h2 id="1-4-服务通信"><a href="#1-4-服务通信" class="headerlink" title="1.4 服务通信"></a>1.4 服务通信</h2><ul>
+<li><strong>服务（Service）</strong> – 同步通信机制<ul>
+<li>使用<strong>客户端/服务端（C/S）</strong>模型，客户端发送b数据，服务器完成处理后返回<strong>应答</strong>数据</li>
+<li>使用编程语言无关的<code>.srv</code>文件定义请求和应答数据结构，编译过程中生成对应的代码文件</li>
+</ul>
+</li>
+</ul>
+<p>请求和应答为反馈类型</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418092154134.png" alt="image-20210418092154134" style="zoom:50%;">
+
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418092202705.png" alt="image-20210418092202705" style="zoom:50%;">
+
+<h2 id="1-5-话题-vs-服务"><a href="#1-5-话题-vs-服务" class="headerlink" title="1.5 话题 vs 服务"></a>1.5 话题 vs 服务</h2><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418092312321.png" alt="image-20210418092312321" style="zoom:50%;">
+
+<ul>
+<li>话题单向，无反馈</li>
+<li>服务请求一次，应答一次，有阻塞等待，但没有缓冲区</li>
+<li>话题多对多，意味着有多个publisher，多个subscriber。而服务只有一个server</li>
+</ul>
+<h2 id="1-6-参数"><a href="#1-6-参数" class="headerlink" title="1.6 参数"></a>1.6 参数</h2><ul>
+<li><p><strong>参数（Parameter）</strong> – 全局共享字典</p>
+<ul>
+<li>可以通过网络访问的共享、多变量字典</li>
+<li>节点使用此服务器来存储和检索<strong>运行时的参数</strong></li>
+<li>适合存储静态、非二进制的<strong>配置参数</strong>，不适合存储动态配置的数据</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418092759490.png" alt="image-20210418092759490" style="zoom:50%;">
+
+</li>
+</ul>
+<h2 id="1-7-文件系统"><a href="#1-7-文件系统" class="headerlink" title="1.7 文件系统"></a>1.7 文件系统</h2><ul>
+<li><strong>功能包（Package）</strong><ul>
+<li>ROS中的基本单元，包含节点源码、配置文件、数据定义等</li>
+</ul>
+</li>
+<li><strong>功能包清单（Package manifest）</strong><ul>
+<li>记录功能包的基本信息，包含作者信息、许可信息、依赖选项、编译标志等</li>
+</ul>
+</li>
+<li><strong>元功能包（Meta Package）</strong><ul>
+<li>组织多个同一目的的功能包</li>
+</ul>
+</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418093008778.png" alt="image-20210418093008778" style="zoom:50%;">
+
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418093020109.png" alt="image-20210418093020109" style="zoom:50%;">
+
+<h2 id="1-8-工作空间"><a href="#1-8-工作空间" class="headerlink" title="1.8 工作空间"></a>1.8 工作空间</h2><p>workspace是一个存放工程开发相关文件的文件夹</p>
+<ul>
+<li><strong>src：</strong> 代码空间（Source Space）</li>
+<li><strong>build：</strong> 编译空间（Build Space）</li>
+<li><strong>devel：</strong> 开发空间（Development Space）</li>
+<li><strong>install：</strong> 安装空间（Install Space）</li>
+</ul>
+<p>同一工作空间下，不允许存在同名功能包</p>
+<p>不同工作空间下，允许存在同名功能包</p>
+<h1 id="2-发布者Publisher的实现"><a href="#2-发布者Publisher的实现" class="headerlink" title="2 发布者Publisher的实现"></a>2 发布者Publisher的实现</h1><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418102336455.png" alt="image-20210418102336455" style="zoom:50%;">
+
+<ul>
+<li>初始化ROS节点</li>
+<li>向ROS Master注册节点信息，包括发布的话题名和话题中的消息类型</li>
+<li>创建消息数据</li>
+<li>按照一定频率循环发布消息</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 该例程将发布turtle1/cmd_vel话题，消息类型geometry_msgs::Twist</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> </span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;ros/ros.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;geometry_msgs/Twist.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// ROS节点初始化</span></span><br><span class="line">	ros::init(argc, argv, <span class="string">&quot;velocity_publisher&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 创建节点句柄</span></span><br><span class="line">	ros::NodeHandle n;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 创建一个Publisher，发布名为/turtle1/cmd_vel的topic，消息类型为geometry_msgs::Twist，队列长度10</span></span><br><span class="line">	ros::Publisher turtle_vel_pub = n.advertise&lt;geometry_msgs::Twist&gt;(<span class="string">&quot;/turtle1/cmd_vel&quot;</span>, <span class="number">10</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 设置循环的频率</span></span><br><span class="line">	<span class="function">ros::Rate <span class="title">loop_rate</span><span class="params">(<span class="number">10</span>)</span></span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">while</span> (ros::ok())</span><br><span class="line">	&#123;</span><br><span class="line">	    <span class="comment">// 初始化geometry_msgs::Twist类型的消息</span></span><br><span class="line">		geometry_msgs::Twist vel_msg;</span><br><span class="line">		vel_msg.linear.x = <span class="number">0.5</span>;</span><br><span class="line">		vel_msg.angular.z = <span class="number">0.2</span>;</span><br><span class="line"></span><br><span class="line">	    <span class="comment">// 发布消息</span></span><br><span class="line">		turtle_vel_pub.publish(vel_msg);</span><br><span class="line">		ROS_INFO(<span class="string">&quot;Publsh turtle velocity command[%0.2f m/s, %0.2f rad/s]&quot;</span>, </span><br><span class="line">				vel_msg.linear.x, vel_msg.angular.z);</span><br><span class="line"></span><br><span class="line">	    <span class="comment">// 按照循环频率延时</span></span><br><span class="line">	    loop_rate.sleep();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>配置CMakeLists.txt的编译规则</strong></p>
+<ul>
+<li>设置需要编译的代码和生成的可执行文件</li>
+<li>设置链接库</li>
+</ul>
+<p><strong>Python版本publisher</strong></p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="comment">########################################################################</span></span><br><span class="line"><span class="comment">####          Copyright 2020 GuYueHome (www.guyuehome.com).          ###</span></span><br><span class="line"><span class="comment">########################################################################</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 该例程将发布turtle1/cmd_vel话题，消息类型geometry_msgs::Twist</span></span><br><span class="line"></span><br><span class="line">import rospy</span><br><span class="line"><span class="keyword">from</span> geometry_msgs.msg import Twist</span><br><span class="line"></span><br><span class="line">def velocity_publisher():</span><br><span class="line">	<span class="comment"># ROS节点初始化</span></span><br><span class="line">    rospy.init_node(<span class="string">&#x27;velocity_publisher&#x27;</span>, anonymous=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment"># 创建一个Publisher，发布名为/turtle1/cmd_vel的topic，消息类型为geometry_msgs::Twist，队列长度10</span></span><br><span class="line">    turtle_vel_pub = rospy.Publisher(<span class="string">&#x27;/turtle1/cmd_vel&#x27;</span>, Twist, queue_size=<span class="number">10</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">#设置循环的频率</span></span><br><span class="line">    rate = rospy.Rate(<span class="number">10</span>) </span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> not rospy.is_shutdown():</span><br><span class="line">		<span class="comment"># 初始化geometry_msgs::Twist类型的消息</span></span><br><span class="line">        vel_msg = Twist()</span><br><span class="line">        vel_msg.linear.x = <span class="number">0.5</span></span><br><span class="line">        vel_msg.angular.z = <span class="number">0.2</span></span><br><span class="line"></span><br><span class="line">		<span class="comment"># 发布消息</span></span><br><span class="line">        turtle_vel_pub.publish(vel_msg)</span><br><span class="line">    	rospy.loginfo(<span class="string">&quot;Publsh turtle velocity command[%0.2f m/s, %0.2f rad/s]&quot;</span>, </span><br><span class="line">				vel_msg.linear.x, vel_msg.angular.z)</span><br><span class="line"></span><br><span class="line">		<span class="comment"># 按照循环频率延时</span></span><br><span class="line">        rate.sleep()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        velocity_publisher()</span><br><span class="line">    except rospy.ROSInterruptException:</span><br><span class="line">        pass</span><br></pre></td></tr></table></figure>
+
+<h1 id="3-订阅者Subscriber的实现"><a href="#3-订阅者Subscriber的实现" class="headerlink" title="3 订阅者Subscriber的实现"></a>3 订阅者Subscriber的实现</h1><ul>
+<li>初始化ROS节点</li>
+<li>订阅需要的话题</li>
+<li>循环等待话题信息，接收到消息后进入回调函数</li>
+<li>在回调函数中完成消息处理</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">*	订阅/turtle/pose话题，消息类型为turtlesim::Pose</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;ros/ros.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;turtlesim/Pose.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//接收到订阅的消息后，进入消息回调函数</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">poseCallback</span><span class="params">(<span class="keyword">const</span> turtlesim::Pose::ConstPtr&amp; msg)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">// 打印接收到的信息</span></span><br><span class="line">  ROS_INFO(<span class="string">&quot;Turtle pose: x:%0.6f, y:%0.6f&quot;</span>, msg-&gt;x, msg-&gt;y);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">//初始化ROS节点</span></span><br><span class="line">  ros::init(argc, argv, <span class="string">&quot;pose_subscriber&quot;</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">//创建节点句柄</span></span><br><span class="line">  ros::NodeHandle n;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">//创建一个Subscriber，订阅名为/turtle1/pose的topic，注册回调函数poseCallback</span></span><br><span class="line">  ros::Subscriber pose_hub = n.subscibe(<span class="string">&quot;turtle/pose&quot;</span>, <span class="number">10</span>, poseCallback);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">//循环等待回调函数</span></span><br><span class="line">  ros::spin();</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="4-话题消息的定义与使用"><a href="#4-话题消息的定义与使用" class="headerlink" title="4 话题消息的定义与使用"></a>4 话题消息的定义与使用</h1><h2 id="4-1-自定义话题消息"><a href="#4-1-自定义话题消息" class="headerlink" title="4.1 自定义话题消息"></a>4.1 自定义话题消息</h2><ul>
+<li>Person.msg</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">string name</span><br><span class="line">uint8 sex</span><br><span class="line">uint8 age</span><br><span class="line"></span><br><span class="line">uint8 unknown &#x3D; 0</span><br><span class="line">uint8 male &#x3D; 1</span><br><span class="line">uint8 female &#x3D; 2</span><br></pre></td></tr></table></figure>
+
+<h1 id="5-客户端Client实现"><a href="#5-客户端Client实现" class="headerlink" title="5 客户端Client实现"></a>5 客户端Client实现</h1><ul>
+<li>初始化ROS节点</li>
+<li>创建一个Client实例</li>
+<li>发布服务请求数据</li>
+<li>等待Server处理之后的应答结果</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;ros/ros.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;turtlesim/Spawn.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argc)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">// 初始化节点</span></span><br><span class="line">  ros::init(argc, argc, <span class="string">&quot;turtle_spawn&quot;</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 创建节点句柄</span></span><br><span class="line">  ros::NodeHandler node;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 发现/spawn服务后，创建一个服务客户端，连接名为/spawn的service</span></span><br><span class="line">  ros::service::waitForService(<span class="string">&quot;/spawn&quot;</span>);</span><br><span class="line">  ros::serviceClient add_turtle = node.serviceClient&lt;turtlesim::Spawn&gt;(<span class="string">&quot;/spawn&quot;</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 初始化turtlesim::Spawn 的请求数据</span></span><br><span class="line">  turtlesim::Spawn srv;</span><br><span class="line">  srv.request.x = <span class="number">2.0</span>;</span><br><span class="line">  srv.request.y = <span class="number">2.0</span>;</span><br><span class="line">  srv.request.name = <span class="string">&quot;turtle2&quot;</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 请求服务调用</span></span><br><span class="line">  ROS_INFO(<span class="string">&quot;Call service to spawn turtle[x:%0.6f, y:%0.6f, name:%s]&quot;</span>, srv.request.x, srv.request.y, srv.response.name.c_str());</span><br><span class="line">	add_turtle.call(srv);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 显示服务调用结果</span></span><br><span class="line">  ROS_INFO(<span class="string">&quot;Spwan turtle successfully [name:%s]&quot;</span>, srv.response.name.c_str());</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="6-服务端server的编程实现"><a href="#6-服务端server的编程实现" class="headerlink" title="6 服务端server的编程实现"></a>6 服务端server的编程实现</h1><ul>
+<li>初始化ROS节点</li>
+<li>创建Server实例</li>
+<li>循环等待服务请求，进入回调函数</li>
+<li>在回调函数中完成服务功能的处理，并反馈应答数据</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 该例程将执行/turtle_command服务，服务数据类型std_srvs/Trigger</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> </span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;ros/ros.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;geometry_msgs/Twist.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;std_srvs/Trigger.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">ros::Publisher turtle_vel_pub;</span><br><span class="line"><span class="keyword">bool</span> pubCommand = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// service回调函数，输入参数req，输出参数res</span></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">commandCallback</span><span class="params">(std_srvs::Trigger::Request  &amp;req,</span></span></span><br><span class="line"><span class="function"><span class="params">         			std_srvs::Trigger::Response &amp;res)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	pubCommand = !pubCommand;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 显示请求数据</span></span><br><span class="line">    ROS_INFO(<span class="string">&quot;Publish turtle velocity command [%s]&quot;</span>, pubCommand==<span class="literal">true</span>?<span class="string">&quot;Yes&quot;</span>:<span class="string">&quot;No&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 设置反馈数据</span></span><br><span class="line">	res.success = <span class="literal">true</span>;</span><br><span class="line">	res.message = <span class="string">&quot;Change turtle command state!&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// ROS节点初始化</span></span><br><span class="line">    ros::init(argc, argv, <span class="string">&quot;turtle_command_server&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建节点句柄</span></span><br><span class="line">    ros::NodeHandle n;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建一个名为/turtle_command的server，注册回调函数commandCallback</span></span><br><span class="line">    ros::ServiceServer command_service = n.advertiseService(<span class="string">&quot;/turtle_command&quot;</span>, commandCallback);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 创建一个Publisher，发布名为/turtle1/cmd_vel的topic，消息类型为geometry_msgs::Twist，队列长度10</span></span><br><span class="line">	turtle_vel_pub = n.advertise&lt;geometry_msgs::Twist&gt;(<span class="string">&quot;/turtle1/cmd_vel&quot;</span>, <span class="number">10</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 循环等待回调函数</span></span><br><span class="line">    ROS_INFO(<span class="string">&quot;Ready to receive turtle command.&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 设置循环的频率</span></span><br><span class="line">	<span class="function">ros::Rate <span class="title">loop_rate</span><span class="params">(<span class="number">10</span>)</span></span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span>(ros::ok())</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">// 查看一次回调函数队列</span></span><br><span class="line">    	ros::spinOnce();</span><br><span class="line">		</span><br><span class="line">		<span class="comment">// 如果标志为true，则发布速度指令</span></span><br><span class="line">		<span class="keyword">if</span>(pubCommand)</span><br><span class="line">		&#123;</span><br><span class="line">			geometry_msgs::Twist vel_msg;</span><br><span class="line">			vel_msg.linear.x = <span class="number">0.5</span>;</span><br><span class="line">			vel_msg.angular.z = <span class="number">0.2</span>;</span><br><span class="line">			turtle_vel_pub.publish(vel_msg);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">//按照循环频率延时</span></span><br><span class="line">	    loop_rate.sleep();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="7-服务数据的定义和使用"><a href="#7-服务数据的定义和使用" class="headerlink" title="7 服务数据的定义和使用"></a>7 服务数据的定义和使用</h1><ol>
+<li>定义srv文件</li>
+<li>在package.xml中添加功能包依赖</li>
+<li>在CmakeLists.txt</li>
+</ol>
+<h1 id="8-参数的使用与编程方法"><a href="#8-参数的使用与编程方法" class="headerlink" title="8 参数的使用与编程方法"></a>8 参数的使用与编程方法</h1><p>ROS Master中有个参数模型（全局字典）</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418165001465.png" alt="image-20210418165001465" style="zoom:50%;">
+
+<p><strong>参数命令行使用</strong></p>
+<ul>
+<li><strong>YAML参数文件</strong></li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">background_b:255</span></span><br><span class="line"><span class="string">background_g:86</span></span><br><span class="line"><span class="string">background_r:69</span></span><br><span class="line"><span class="string">rosdistro:&#x27;neotic&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>rosparam</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="variable">$rosparam</span> list 											// 列出当前多有参数</span><br><span class="line"><span class="variable">$rosparam</span> get param_key 						// 显示某个参数值</span><br><span class="line"><span class="variable">$rosparam</span> <span class="built_in">set</span> param_key param_value // 设置某个参数值</span><br><span class="line"><span class="variable">$rosparam</span> dump file_name 						// 设置参数到文件</span><br><span class="line"><span class="variable">$rosparam</span> load file_name 						// 从文件读取参数</span><br><span class="line"><span class="variable">$rosparam</span> delete param_key					// 删除参数</span><br></pre></td></tr></table></figure>
+
+<h1 id="9-ROS中的坐标系管理系统"><a href="#9-ROS中的坐标系管理系统" class="headerlink" title="9 ROS中的坐标系管理系统"></a>9 ROS中的坐标系管理系统</h1><ul>
+<li>TF坐标变换如何实现<ul>
+<li>广播TF变换</li>
+<li>监听TF变换</li>
+</ul>
+</li>
+</ul>
+<h1 id="10-tf坐标系广播与监听的实现"><a href="#10-tf坐标系广播与监听的实现" class="headerlink" title="10 tf坐标系广播与监听的实现"></a>10 tf坐标系广播与监听的实现</h1><p><strong>坐标系广播实现</strong></p>
+<ul>
+<li>定义TF广播器（TransformBroadcaster）</li>
+<li>创建坐标变换值</li>
+<li>发布坐标变换（sendTransform）</li>
+</ul>
+<p><strong>坐标系监听实现</strong></p>
+<h1 id="11-Launch-启动文件"><a href="#11-Launch-启动文件" class="headerlink" title="11 Launch 启动文件"></a>11 Launch 启动文件</h1><p>Launch文件：通过XML文件实现多节点的配置和启动（可以自动启动ROS Master）</p>
+<h2 id="11-1-Launch文件语法"><a href="#11-1-Launch文件语法" class="headerlink" title="11.1 Launch文件语法"></a>11.1 Launch文件语法</h2><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">launch</span>&gt;</span></span><br><span class="line">  	<span class="tag">&lt;<span class="name">node</span> <span class="attr">pkg</span>=<span class="string">&quot;turtlesim&quot;</span> <span class="attr">name</span>=<span class="string">&quot;sim1&quot;</span> <span class="attr">type</span>=<span class="string">&quot;turtlesim_node&quot;</span>/&gt;</span></span><br><span class="line">  	<span class="tag">&lt;<span class="name">node</span> <span class="attr">pkg</span>=<span class="string">&quot;turtlesim&quot;</span> <span class="attr">name</span>=<span class="string">&quot;sim2&quot;</span> <span class="attr">type</span>=<span class="string">&quot;turtlesim_node&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">launch</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>&lt;launch&gt;</code></li>
+</ul>
+<blockquote>
+<p>launch文件中的根元素采用<code>&lt;launch&gt;</code>标签定义</p>
+</blockquote>
+<ul>
+<li><p><code>&lt;node&gt;</code></p>
+<ol>
+<li>启动节点：</li>
+</ol>
+<blockquote>
+<p><code>&lt;node pkg=&quot;package-name&quot; type=&quot;executable-name&quot; name=&quot;node-name&quot;/&gt;</code></p>
+</blockquote>
+<ol start="2">
+<li><code>pkg</code>:节点所在的功能包名称</li>
+<li><code>type:</code> 节点的可执行文件名称</li>
+<li><code>name:</code> 节点运行时的名称[可以用来取代初始化的名字]</li>
+<li><code>output, respawn, required, ns, args</code></li>
+</ol>
+</li>
+<li><p><code>&lt;param&gt;/&lt;rosparam&gt;</code></p>
+<p>设置ROS系统运行中的参数，<strong>存储在参数服务器中</strong></p>
+<p><code>&lt;param name=&quot;output_frame&quot; value=&quot;odom&quot;/&gt;</code></p>
+<ul>
+<li><code>name:</code> 参数名</li>
+<li><code>value:</code> 参数值</li>
+</ul>
+<p>加载参数文件中的多个参数</p>
+<p><code>&lt;rosparam file=&quot;params.yaml&quot; command=&quot;load&quot; ns=&quot;params&quot;/&gt;</code></p>
+</li>
+<li><p><code>&lt;arg&gt;</code></p>
+<p>launch文件内部的局部变量，<strong>仅限于launch文件使用</strong></p>
+<p><code>&lt;arg name=&quot;arg-name&quot; default=&quot;arg-value&quot;/&gt;</code></p>
+<ul>
+<li><code>name:</code> 参数名</li>
+<li><code>value:</code> 参数值</li>
+</ul>
+<p>调用：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">param</span> <span class="attr">name</span>=<span class="string">&quot;foo&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$(arg arg-name)&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">node</span> <span class="attr">name</span>=<span class="string">&quot;node&quot;</span> <span class="attr">pkg</span>=<span class="string">&quot;package&quot;</span> <span class="attr">type</span>=<span class="string">&quot;type&quot;</span> <span class="attr">args</span>=<span class="string">&quot;$(arg arg-name)&quot;</span>&gt;</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重映射<code>&lt;remap&gt;</code></p>
+<p>重映射ROS计算图资源的重命名</p>
+<p><code>&lt;remap from=&quot;/turtlebot/cmd_vel&quot;to=&quot;/cmd_vel&quot;/&gt;</code></p>
+<ul>
+<li><code>from:</code> 原命名</li>
+<li><code>to:</code> 映射之后的命名</li>
+</ul>
+</li>
+<li><p>嵌套<code>&lt;include&gt;</code></p>
+<p>包含其他launch文件，类似C语言中的头文件包含</p>
+<p><code>&lt;include file=&quot;$(dirname)/other.launch&quot;/&gt;</code></p>
+<ul>
+<li><code>file:</code> 包含的其他launch文件路径</li>
+</ul>
+</li>
+</ul>
+]]></content>
+  </entry>
+  <entry>
     <title></title>
     <url>/2021/04/11/uCore/Lab%202%20%E7%89%A9%E7%90%86%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</url>
     <content><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><h1 id="Lab-2-物理内存管理"><a href="#Lab-2-物理内存管理" class="headerlink" title="Lab 2 物理内存管理"></a>Lab 2 物理内存管理</h1><blockquote>
@@ -340,11 +592,62 @@
 <ul>
 <li>比较复杂的类模板，用bar来实例化</li>
 </ul>
-<h2 id="4-9-成员函数模板"><a href="#4-9-成员函数模板" class="headerlink" title="4.9 成员函数模板"></a>4.9 成员函数模板</h2><h3 id="lt-1-gt-模板1-1"><a href="#lt-1-gt-模板1-1" class="headerlink" title="&lt;1&gt; 模板1"></a>&lt;1&gt; 模板1</h3><p><strong>普通类的成员函数，</strong> 也可以定义为函数模板，如：</p>
+<h2 id="4-9-成员函数模板"><a href="#4-9-成员函数模板" class="headerlink" title="4.9 成员函数模板"></a>4.9 成员函数模板</h2><h3 id="lt-1-gt-模板1-1"><a href="#lt-1-gt-模板1-1" class="headerlink" title="&lt;1&gt;  模板1"></a>&lt;1&gt;  模板1</h3><p><strong>普通类的成员函数，</strong> 也可以定义为函数模板，如：</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">normal_class</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="keyword">int</span> value;</span><br><span class="line">  <span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keyword">void</span> <span class="title">set</span><span class="params">(T <span class="keyword">const</span>&amp;v)</span></span>&#123;</span><br><span class="line">    value=<span class="keyword">int</span>(v);</span><br><span class="line">  &#125;<span class="comment">//在类内定义</span></span><br><span class="line">  <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;<span class="function">T <span class="title">get</span><span class="params">()</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;<span class="function">T <span class="title">normal_class::get</span><span class="params">()</span></span>&#123;<span class="keyword">return</span> T(value);&#125;<span class="comment">//在类外定义</span></span><br></pre></td></tr></table></figure>
 
-<h3 id="lt-2-gt-模板2-1"><a href="#lt-2-gt-模板2-1" class="headerlink" title="&lt;2&gt; 模板2"></a>&lt;2&gt; 模板2</h3><p><strong>类模板的成员函数，</strong> 也可以有<strong>额外</strong>的模板参数，如：</p>
+<h3 id="lt-2-gt-模板2-1"><a href="#lt-2-gt-模板2-1" class="headerlink" title="&lt;2&gt;  模板2"></a>&lt;2&gt;  模板2</h3><p><strong>类模板的成员函数，</strong> 也可以有<strong>额外</strong>的模板参数，如：</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> To&gt; <span class="class"><span class="keyword">class</span> <span class="title">A</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  To value;</span><br><span class="line">  <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T1&gt;<span class="function"><span class="keyword">void</span> <span class="title">set</span><span class="params">(T1 <span class="keyword">const</span>&amp;v)</span></span>&#123;value=To(v);&#125;<span class="comment">//类内定义</span></span><br><span class="line">  <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T1&gt;<span class="function">T1 <span class="title">get</span><span class="params">()</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> To&gt; <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T1&gt; T1 <span class="title">A::get</span><span class="params">()</span></span>&#123;<span class="keyword">return</span> T1(value);&#125;<span class="comment">///类外定义</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-10-模板转换"><a href="#4-10-模板转换" class="headerlink" title="4.10 模板转换"></a>4.10 模板转换</h2><h3 id="4-10-1-模板参数的具体化-特殊化"><a href="#4-10-1-模板参数的具体化-特殊化" class="headerlink" title="4.10.1 模板参数的具体化/特殊化"></a>4.10.1 模板参数的具体化/特殊化</h3><ul>
+<li><p>有时类型并不适用，需要对模板进行特殊化处理，称为“模板特化”</p>
+</li>
+<li><p>对函数模板，如果有多个模板参数，则特化时必须提供所有参数的特例类型，<strong>不能部分</strong>特化</p>
+</li>
+<li><p>如：<code>char* sum(char *, char *);</code></p>
+<ul>
+<li><p>在函数名后用<code>&lt;&gt;</code>括号括起具体类型</p>
+<p><code>template&lt;&gt;</code></p>
+<p><code>char* sum&lt;char*&gt;(char* a, char* b)&#123;...&#125;</code></p>
+</li>
+<li><p>由编译器推导出具体类型，函数名为普通类型</p>
+</li>
+</ul>
+<p><code>template&lt;&gt;</code></p>
+<p><code>char* sum(char* a, char* b)&#123;...&#125;</code></p>
+</li>
+</ul>
+<h3 id="4-10-2-类模板的部分转化（偏特化）"><a href="#4-10-2-类模板的部分转化（偏特化）" class="headerlink" title="4.10.2 类模板的部分转化（偏特化）"></a>4.10.2 类模板的部分转化（偏特化）</h3><ul>
+<li>对于类模版，允许部分特化，即<strong>部分限制模板的通用性</strong>，如：</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">//通用模板类</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">T1</span>, <span class="keyword">class</span> <span class="title">Tw</span>&gt;</span> <span class="class"><span class="keyword">class</span> <span class="title">A</span>&#123;</span>...&#125;;</span><br><span class="line"><span class="comment">//部分特化的模板类：第2个类型参数指定为int</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">T1</span>&gt;</span> <span class="class"><span class="keyword">class</span> <span class="title">A</span>&lt;</span>T1,<span class="keyword">int</span>&gt;&#123;...&#125;;</span><br><span class="line"><span class="comment">//若指定所有类型，则&lt;&gt;内将为空</span></span><br><span class="line"><span class="keyword">template</span>&lt;&gt; <span class="class"><span class="keyword">class</span> <span class="title">A</span>&lt;</span><span class="keyword">int</span>, <span class="keyword">int</span>&gt;&#123;...&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="4-11-C-模板"><a href="#4-11-C-模板" class="headerlink" title="4.11 C++模板"></a>4.11 C++模板</h2><blockquote>
+<p>如果上面的模板理解起来有点懵，来看看这个吧～</p>
+</blockquote>
+<p>模板是泛型编程的基础，泛型编程以一种独立于任何特定类型的方式编写代码。</p>
+<p>模板用于创建泛型类或函数，库容器如迭代器和算法，都是泛型编程的例子，都使用了模版的概念</p>
+<p>每个容器都有一个单一的定义，比如<strong>向量</strong>，我们可以定义许多不同类型的向量，比如<code>vector&lt;int&gt; | vector&lt;string&gt;</code></p>
+<h3 id="4-11-1-函数模板"><a href="#4-11-1-函数模板" class="headerlink" title="4.11.1 函数模板"></a>4.11.1 函数模板</h3><p><strong>定义：</strong></p>
+<p><code>template&lt;class 形参名1, class 形参名2, ...&gt;返回类型 函数名(参数列表)&#123;函数体&#125;</code></p>
+<p><strong>举个例子：</strong></p>
+<p><code>template&lt;class T&gt; void swap(T&amp; a, T&amp; b)&#123;&#125;</code></p>
+<p>当调用这样的模板函数时，类型T会被调用时的类型所代替，如果<code>swap(a,b)</code>中a，b都是int类型，那么模板函数swap中的形参T就会被int所代替，模板函数swap中的形参T就会被double所代替，模板函数就会变成<code>swap(double &amp;a, double &amp;b)</code>，这样我们的程序中交换变量就不再受限于类型了</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keyword">inline</span> T <span class="keyword">const</span>&amp; <span class="title">Max</span><span class="params">(T <span class="keyword">const</span>&amp; a, T <span class="keyword">const</span>&amp; b)</span></span>&#123;<span class="keyword">return</span> a&lt;b?b:a;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i=<span class="number">1</span>, j =<span class="number">4</span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; Max(i, j) &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">double</span> tmp=<span class="number">3.14</span>, tmp1 = <span class="number">3.33</span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; Max(tmp, tmp1) &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 4</span></span><br><span class="line"><span class="comment">* 3.33</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-11-2-类模板"><a href="#4-11-2-类模板" class="headerlink" title="4.11.2 类模板"></a>4.11.2 类模板</h3><p>如同我们定义函数模板一样，我们也可以定义类模板，泛型类声明的一般形式如：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> 形参名, <span class="keyword">class</span> 形参名, ...&gt;</span> <span class="class"><span class="keyword">class</span> 类名 &#123;</span>...&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>举个例子：</strong> </p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span> <span class="class"><span class="keyword">class</span> <span class="title">A</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  T a;</span><br><span class="line">  T b;</span><br><span class="line">	<span class="function">T <span class="title">hy</span><span class="params">(T c, T &amp;d)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>类A中声明了两个类型为T的成员变量a和b，还声明了一个返回类型为T带两个参数类型为T的函数hy</p>
+<p><strong>举个例子：</strong></p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span> <span class="class"><span class="keyword">class</span> <span class="title">A</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function">T <span class="title">g</span><span class="params">(T a, T b)</span></span>;</span><br><span class="line">  A();</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;TemplateDemo.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span> A&lt;T&gt;::A()&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span> T A&lt;T&gt;::g(T a, T b)&#123;</span><br><span class="line">	<span class="keyword">return</span> a+b;</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">  A&lt;<span class="keyword">int</span>&gt; a;</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; a.g(<span class="number">2</span>,<span class="number">3.2</span>) &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
 
 
 

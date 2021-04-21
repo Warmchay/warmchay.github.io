@@ -75,7 +75,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">4.3k</span>
+            <span class="post-count">5.1k</span>
         </span>
     </span>
 
@@ -84,7 +84,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">17 分钟</span>
+            <span class="post-count">21 分钟</span>
         </span>
     </span>
 </div>
@@ -299,11 +299,62 @@
 <ul>
 <li>比较复杂的类模板，用bar来实例化</li>
 </ul>
-<h2 id="4-9-成员函数模板"><a href="#4-9-成员函数模板" class="headerlink" title="4.9 成员函数模板"></a>4.9 成员函数模板</h2><h3 id="lt-1-gt-模板1-1"><a href="#lt-1-gt-模板1-1" class="headerlink" title="&lt;1&gt; 模板1"></a>&lt;1&gt; 模板1</h3><p><strong>普通类的成员函数，</strong> 也可以定义为函数模板，如：</p>
+<h2 id="4-9-成员函数模板"><a href="#4-9-成员函数模板" class="headerlink" title="4.9 成员函数模板"></a>4.9 成员函数模板</h2><h3 id="lt-1-gt-模板1-1"><a href="#lt-1-gt-模板1-1" class="headerlink" title="&lt;1&gt;  模板1"></a>&lt;1&gt;  模板1</h3><p><strong>普通类的成员函数，</strong> 也可以定义为函数模板，如：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">normal_class</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="keyword">int</span> value;</span><br><span class="line">  <span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keyword">void</span> <span class="title">set</span><span class="params">(T <span class="keyword">const</span>&amp;v)</span></span>&#123;</span><br><span class="line">    value=<span class="keyword">int</span>(v);</span><br><span class="line">  &#125;<span class="comment">//在类内定义</span></span><br><span class="line">  <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;<span class="function">T <span class="title">get</span><span class="params">()</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;<span class="function">T <span class="title">normal_class::get</span><span class="params">()</span></span>&#123;<span class="keyword">return</span> T(value);&#125;<span class="comment">//在类外定义</span></span><br></pre></td></tr></table></figure>
 
-<h3 id="lt-2-gt-模板2-1"><a href="#lt-2-gt-模板2-1" class="headerlink" title="&lt;2&gt; 模板2"></a>&lt;2&gt; 模板2</h3><p><strong>类模板的成员函数，</strong> 也可以有<strong>额外</strong>的模板参数，如：</p>
+<h3 id="lt-2-gt-模板2-1"><a href="#lt-2-gt-模板2-1" class="headerlink" title="&lt;2&gt;  模板2"></a>&lt;2&gt;  模板2</h3><p><strong>类模板的成员函数，</strong> 也可以有<strong>额外</strong>的模板参数，如：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> To&gt; <span class="class"><span class="keyword">class</span> <span class="title">A</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  To value;</span><br><span class="line">  <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T1&gt;<span class="function"><span class="keyword">void</span> <span class="title">set</span><span class="params">(T1 <span class="keyword">const</span>&amp;v)</span></span>&#123;value=To(v);&#125;<span class="comment">//类内定义</span></span><br><span class="line">  <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T1&gt;<span class="function">T1 <span class="title">get</span><span class="params">()</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> To&gt; <span class="keyword">template</span>&lt;<span class="keyword">typename</span> T1&gt; T1 <span class="title">A::get</span><span class="params">()</span></span>&#123;<span class="keyword">return</span> T1(value);&#125;<span class="comment">///类外定义</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-10-模板转换"><a href="#4-10-模板转换" class="headerlink" title="4.10 模板转换"></a>4.10 模板转换</h2><h3 id="4-10-1-模板参数的具体化-特殊化"><a href="#4-10-1-模板参数的具体化-特殊化" class="headerlink" title="4.10.1 模板参数的具体化/特殊化"></a>4.10.1 模板参数的具体化/特殊化</h3><ul>
+<li><p>有时类型并不适用，需要对模板进行特殊化处理，称为“模板特化”</p>
+</li>
+<li><p>对函数模板，如果有多个模板参数，则特化时必须提供所有参数的特例类型，<strong>不能部分</strong>特化</p>
+</li>
+<li><p>如：<code>char* sum(char *, char *);</code></p>
+<ul>
+<li><p>在函数名后用<code>&lt;&gt;</code>括号括起具体类型</p>
+<p><code>template&lt;&gt;</code></p>
+<p><code>char* sum&lt;char*&gt;(char* a, char* b)&#123;...&#125;</code></p>
+</li>
+<li><p>由编译器推导出具体类型，函数名为普通类型</p>
+</li>
+</ul>
+<p><code>template&lt;&gt;</code></p>
+<p><code>char* sum(char* a, char* b)&#123;...&#125;</code></p>
+</li>
+</ul>
+<h3 id="4-10-2-类模板的部分转化（偏特化）"><a href="#4-10-2-类模板的部分转化（偏特化）" class="headerlink" title="4.10.2 类模板的部分转化（偏特化）"></a>4.10.2 类模板的部分转化（偏特化）</h3><ul>
+<li>对于类模版，允许部分特化，即<strong>部分限制模板的通用性</strong>，如：</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//通用模板类</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">T1</span>, <span class="keyword">class</span> <span class="title">Tw</span>&gt;</span> <span class="class"><span class="keyword">class</span> <span class="title">A</span>&#123;</span>...&#125;;</span><br><span class="line"><span class="comment">//部分特化的模板类：第2个类型参数指定为int</span></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">T1</span>&gt;</span> <span class="class"><span class="keyword">class</span> <span class="title">A</span>&lt;</span>T1,<span class="keyword">int</span>&gt;&#123;...&#125;;</span><br><span class="line"><span class="comment">//若指定所有类型，则&lt;&gt;内将为空</span></span><br><span class="line"><span class="keyword">template</span>&lt;&gt; <span class="class"><span class="keyword">class</span> <span class="title">A</span>&lt;</span><span class="keyword">int</span>, <span class="keyword">int</span>&gt;&#123;...&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="4-11-C-模板"><a href="#4-11-C-模板" class="headerlink" title="4.11 C++模板"></a>4.11 C++模板</h2><blockquote>
+<p>如果上面的模板理解起来有点懵，来看看这个吧～</p>
+</blockquote>
+<p>模板是泛型编程的基础，泛型编程以一种独立于任何特定类型的方式编写代码。</p>
+<p>模板用于创建泛型类或函数，库容器如迭代器和算法，都是泛型编程的例子，都使用了模版的概念</p>
+<p>每个容器都有一个单一的定义，比如<strong>向量</strong>，我们可以定义许多不同类型的向量，比如<code>vector&lt;int&gt; | vector&lt;string&gt;</code></p>
+<h3 id="4-11-1-函数模板"><a href="#4-11-1-函数模板" class="headerlink" title="4.11.1 函数模板"></a>4.11.1 函数模板</h3><p><strong>定义：</strong></p>
+<p><code>template&lt;class 形参名1, class 形参名2, ...&gt;返回类型 函数名(参数列表)&#123;函数体&#125;</code></p>
+<p><strong>举个例子：</strong></p>
+<p><code>template&lt;class T&gt; void swap(T&amp; a, T&amp; b)&#123;&#125;</code></p>
+<p>当调用这样的模板函数时，类型T会被调用时的类型所代替，如果<code>swap(a,b)</code>中a，b都是int类型，那么模板函数swap中的形参T就会被int所代替，模板函数swap中的形参T就会被double所代替，模板函数就会变成<code>swap(double &amp;a, double &amp;b)</code>，这样我们的程序中交换变量就不再受限于类型了</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt; <span class="keyword">inline</span> T <span class="keyword">const</span>&amp; <span class="title">Max</span><span class="params">(T <span class="keyword">const</span>&amp; a, T <span class="keyword">const</span>&amp; b)</span></span>&#123;<span class="keyword">return</span> a&lt;b?b:a;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i=<span class="number">1</span>, j =<span class="number">4</span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; Max(i, j) &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">double</span> tmp=<span class="number">3.14</span>, tmp1 = <span class="number">3.33</span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; Max(tmp, tmp1) &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 4</span></span><br><span class="line"><span class="comment">* 3.33</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-11-2-类模板"><a href="#4-11-2-类模板" class="headerlink" title="4.11.2 类模板"></a>4.11.2 类模板</h3><p>如同我们定义函数模板一样，我们也可以定义类模板，泛型类声明的一般形式如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> 形参名, <span class="keyword">class</span> 形参名, ...&gt;</span> <span class="class"><span class="keyword">class</span> 类名 &#123;</span>...&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>举个例子：</strong> </p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span> &lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span> <span class="class"><span class="keyword">class</span> <span class="title">A</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  T a;</span><br><span class="line">  T b;</span><br><span class="line">	<span class="function">T <span class="title">hy</span><span class="params">(T c, T &amp;d)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>类A中声明了两个类型为T的成员变量a和b，还声明了一个返回类型为T带两个参数类型为T的函数hy</p>
+<p><strong>举个例子：</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span> <span class="class"><span class="keyword">class</span> <span class="title">A</span>&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function">T <span class="title">g</span><span class="params">(T a, T b)</span></span>;</span><br><span class="line">  A();</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;iostream.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;TemplateDemo.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span> A&lt;T&gt;::A()&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="class"><span class="keyword">class</span> <span class="title">T</span>&gt;</span> T A&lt;T&gt;::g(T a, T b)&#123;</span><br><span class="line">	<span class="keyword">return</span> a+b;</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">  A&lt;<span class="keyword">int</span>&gt; a;</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; a.g(<span class="number">2</span>,<span class="number">3.2</span>) &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
 
 
 
