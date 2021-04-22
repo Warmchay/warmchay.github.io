@@ -494,8 +494,128 @@
 <p>一个进程在需要额外内存时可以通过调用<code>sbrk(n)</code>来增加<code>n</code>字节的数据内存，由<code>sbrk</code>返回新的内存的地址</p>
 <p><strong>xv6中没有用户的概念，因此没有设置不同用户间的保护隔离措施，即所有xv6进程都以root用户执行</strong></p>
 <h2 id="0-3-I-O-和-文件描述符"><a href="#0-3-I-O-和-文件描述符" class="headerlink" title="0.3 I/O 和 文件描述符"></a>0.3 I/O 和 文件描述符</h2><p><strong>文件描述符</strong>为一个整数，它代表了一个进程可以读写的被内核管理的对象。</p>
-<p>进程可以通过多种方式获得一个文件描述符，如打开文件、目录、设备或者创建一个<a href>管道（pipe）</a>，或者复制已经存在的文件描述符。</p>
-<p></p>
+<p>进程可以通过多种方式获得一个文件描述符，如打开文件、目录、设备或者创建一个<a href="https://warmchay.github.io/2021/04/21/OS/Operating%20System%20--%20Pipeline/">管道(pipe)</a>，或者复制已经存在的文件描述符。</p>
+<p>简单描述，我们常常把文件描述符指向的对象称为“文件”，文件描述符的接口是对文件、管道、设备等的抽象，这类抽象使得他们看上去就是字节流</p>
+<p>每个进程都有一张表，而xv6内核就以文件描述符作为这张表的索引，所以每个进程都有一个从0开始的文件描述符空间。</p>
+<p>按照惯例，进程从文件描述符0读入（标准输入），从文件描述符1输出（标准输出），从文件描述符2输出错误（标准错误输出）；</p>
+<p>我们会看到shell利用了这种惯例来实现I/O重定向，shell保证了在任何时候都有3个打开的文件描述符<code>fd[3]</code>（8007），为console的默认文件描述符；</p>
+<p>系统调用<code>read</code>和<code>write</code>从文件描述符所指的文件中读或者写n个字节</p>
+<ul>
+<li><code>read(fd, buf, n)</code></li>
+</ul>
+<p>read表示从fd读最多n个字节，将它们拷贝到<code>buf</code>中，然后返回读出的字节数。</p>
+<p>每一个指向文件的文件描述符和一个偏移关联，<code>read</code>从当前文件偏移处读取数据，然后把偏移增加读出字节数。之后read会从新的起点开始读数据，当没有数据可读时，read返回0表示文件读取结束。</p>
+<ul>
+<li><code>write(fd, buf, n)</code></li>
+</ul>
+<p>write表示写buf中的n个字节到fd，并且返回实际写出的字节数。如果返回值小于n说明可能发生了错误。</p>
+<p>与read相同，write也从当前文件的偏移处开始写，在写的过程中增加这个偏移。</p>
+<hr>
+<p>如下面这段程序（为cat的本质实现），表示将数据从标准输入复制到标准输出</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> buf[<span class="number">512</span>];</span><br><span class="line"><span class="keyword">int</span> n;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span>(;;)&#123;</span><br><span class="line">    n = read(<span class="number">0</span>, buf, <span class="keyword">sizeof</span> buf);</span><br><span class="line">    <span class="keyword">if</span>(n == <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">if</span>(n &lt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="number">2</span>, <span class="string">&quot;read error\n&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(write(<span class="number">1</span>, buf, n) != n)&#123;</span><br><span class="line">        <span class="built_in">fprintf</span>(<span class="number">2</span>, <span class="string">&quot;write error\n&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>系统调用close会释放一个文件描述符，使得它未来可以被open，pipe，dup等调用重用。一个新分配的文件描述符永远都是当前进程的最小的未被使用的文件描述符</p>
+<p>文件描述符和fork的交叉使用使得I/O重定向能够轻易实现，<code>fork</code>会复制父进程的文件描述符和内存，因此子进程与父进程的文件描述符一样.<code>exec</code>会替换调用它的进程的内存但是会保留它的文件描述符表。</p>
+<p>这种行为使得shell可以这样实现重定向：fork一个进程，重新打开指定文件的文件描述符，然后执行新的程序，下面是一个简化版的shell执行<code>cat&lt;input.txt</code>的代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> *argv[<span class="number">2</span>];</span><br><span class="line">argv[<span class="number">0</span>] = <span class="string">&quot;cat&quot;</span>;</span><br><span class="line"><span class="keyword">if</span>(fork() == <span class="number">0</span>)&#123;</span><br><span class="line">  close(<span class="number">0</span>);</span><br><span class="line">  open(<span class="string">&quot;input.txt&quot;</span>, O_RDONLY);</span><br><span class="line">  exec(<span class="string">&quot;cat&quot;</span>, argv);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>子进程关闭文件描述符0后，可以保证open会使用0作为新打开的文件<code>input.txt</code>的文件描述符（因为0是open执行时的最小可用文件描述符）。之后cat就会在标准输入指向<code>input.txt</code>的情况下运行。</p>
+<p>在（7930）中shell的代码中，此时fork出了子进程，在子进程中<code>runcmd</code>会调用<code>exec</code>加载新的程序。这体现了为何<code>fork</code>和<code>exec</code>是单独的两种系统调用，这种区分使得shell可以在子进程执行指定程序之前对子进程进行修改。</p>
+<p>虽然<code>fork</code>复制了文件描述符，但每一个文件当前的<strong>偏移</strong>仍然是在父子进程之间共享的</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(fork() == <span class="number">0</span>) &#123;</span><br><span class="line">    write(<span class="number">1</span>, <span class="string">&quot;hello &quot;</span>, <span class="number">6</span>);</span><br><span class="line">    <span class="built_in">exit</span>();</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    wait();</span><br><span class="line">    write(<span class="number">1</span>, <span class="string">&quot;world\n&quot;</span>, <span class="number">6</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述代码表示，父进程的write会在子进程write结束的地方继续写（因为<code>wait</code>）</p>
+<p>这种行为有利于顺序执行的shell命令的顺序输出，如:<code>(echo hello;echo world)&gt;output.txt</code></p>
+<p><code>dup</code>复制一个已有的文件描述符，返回一个指向同一个输入/输出对象的新描述符，这两个描述符共享一个文件偏移，正如被fork复制的文件描述符一样。这里有另一种打印“hello world”的方法：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">fd = dup(<span class="number">1</span>);</span><br><span class="line">write(<span class="number">1</span>, <span class="string">&quot;hello&quot;</span>, <span class="number">6</span>);</span><br><span class="line">write(fd, <span class="string">&quot;world/n&quot;</span>, <span class="number">6</span>);</span><br></pre></td></tr></table></figure>
+
+<p>这个过程中，通过一系列fork和dup调用产生的文件描述符都共享同一个文件偏移，而其他情况下产生的文件描述符就不是这样了</p>
+<p>即使它们打开的都是同一份文件，dup允许shell像这样实现命令：<code>ls existing-file non-exsiting-file&gt;tmp1 2&gt;&amp;1</code>, <code>2&gt;&amp;1</code>告诉shell这条命令一个复制描述符1的描述符2，这样<code>existing-file</code>和<code>non-exsiting-file</code>的错误输出都将出现在他tmp1中，</p>
+<blockquote>
+<p><strong>这一块我有点懵，为什么复制了描述符后能显示错误输出呢</strong></p>
+</blockquote>
+<h2 id="0-4-管道"><a href="#0-4-管道" class="headerlink" title="0.4 管道"></a>0.4 管道</h2><p>管道作为小的内核缓冲区，以文件描述符对的形式提供给进程，一个用于写操作，一个用于读操作，管道提供了一种进程间交互的方式。</p>
+<p>结下来的代码运行了程序<code>wc</code>（word count），其标准输出绑定到了一个管道的读端口</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> p[<span class="number">2</span>];</span><br><span class="line"><span class="keyword">char</span> *argv[<span class="number">2</span>];</span><br><span class="line">argv[<span class="number">0</span>] = <span class="string">&quot;wc&quot;</span>;</span><br><span class="line">argv[<span class="number">1</span>] = <span class="number">0</span>;</span><br><span class="line">pipe(p);</span><br><span class="line"><span class="keyword">if</span>(fork() == <span class="number">0</span>) &#123;</span><br><span class="line">    close(<span class="number">0</span>);</span><br><span class="line">    dup(p[<span class="number">0</span>]);</span><br><span class="line">    close(p[<span class="number">0</span>]);</span><br><span class="line">    close(p[<span class="number">1</span>]);</span><br><span class="line">    exec(<span class="string">&quot;/bin/wc&quot;</span>, argv);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    write(p[<span class="number">1</span>], <span class="string">&quot;hello world\n&quot;</span>, <span class="number">12</span>);</span><br><span class="line">    close(p[<span class="number">0</span>]);</span><br><span class="line">    close(p[<span class="number">1</span>]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段程序调用<code>pipe</code>，创建一个新的管道并且将读写描述符记录在数组<code>p</code>中。</p>
+<p>在fork之后，父进程和子进程都有了指向管道的文件描述符，子进程将<strong>管道的读端口拷贝在描述符0上</strong>，关闭p中的描述符，然后执行<code>wc</code>，当<code>wc</code>从标准输入读取时，它实际上是从管道读取的。父进程向管道的写端口写入然后关闭它的两个文件描述符。</p>
+<p>如果数据没有准备好，那么对管道执行的<code>read</code>会一直等待，直到有数据了或者其他绑定在这个管道写端口的描述符都已经关闭了。</p>
+<p>在后一种情况中，read会返回0，就像是一份文件读到了最后，读操作会一直阻塞直到不可能再有新数据到来，这就是为什么我们在执行<code>wc</code>之前要关闭子进程的写端口。</p>
+<p>如果wc指向了一个管道的写端口，那么wc永远也看不到EOF了。</p>
+<p>Xv6 shell对管道的实现（如<code>fork sh.c | wc -l</code> )（7950）与上面的描述类似，子进程创建一个管道连接管道左右两端，为管道左右两端都调用<code>runcmd</code>，然后通过两个<code>wait</code>等待左右两端结束，管道右端可能也是一个带有管道的指令，如<code>a|b|c</code>，它<code>fork</code>两个新的子进程（一个<code>b</code>一个<code>c</code>），因此shell可能创建出一个进程树。</p>
+<p>树的叶子节点是命令，中间节点是进程，他们会等待左子树和右子树执行结束。</p>
+<blockquote>
+<p>理论上，可以让中间节点都运行在管道的左端都运行在管道的左端，但做的这么精确会使得实现变得复杂。</p>
+</blockquote>
+<p>pipe可能看上去和临时文件没有什么两样：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> hello world | wc</span><br></pre></td></tr></table></figure>
+
+<p>也可以用无管道的方式实现：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> hello world&gt;/tmp/xyz; wc &lt; /tmp/xyz</span><br></pre></td></tr></table></figure>
+
+<p>管道和临时文件有三个关键的不同点：</p>
+<ul>
+<li>管道会进行自我清扫，如果是shell重定向的话，我们必须要在任务完成后删除<code>/tmp/xyz</code></li>
+<li>管道可以传输任意长度的数据</li>
+<li>管道允许<strong>同步</strong>，两个进程可以使用一个管道来进行二者之间的信息传递，每一个读操作都阻塞调用进程，直到另一个进程用write完成数据的发送</li>
+</ul>
+<h2 id="0-5-文件系统"><a href="#0-5-文件系统" class="headerlink" title="0.5 文件系统"></a>0.5 文件系统</h2><p>xv6文件系统提供文件和目录，文件就是一个简单的字节数组，而目录包含指向文件和其他目录的引用。</p>
+<p>xv6把目录实现为一种特殊的文件，目录是一棵树，根节点是一个特殊的目录<code>root</code>。</p>
+<p>不从<code>/</code>开始的目录表示的是相对调用进程当前目录的目录，调用进程的当前目录可以通过<code>chdir</code>这个系统调用进行改变，如下面的代码都能打开同一个文件<code>/a/b/c</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chdir</span>(<span class="string">&quot;/a&quot;</span>);</span><br><span class="line"><span class="built_in">chdir</span>(<span class="string">&quot;b&quot;</span>);</span><br><span class="line">open(<span class="string">&quot;c&quot;</span>, O_RDONLY);</span><br><span class="line"></span><br><span class="line">open(<span class="string">&quot;/a/b/c&quot;</span>, O_RDONLY);</span><br></pre></td></tr></table></figure>
+
+<table>
+<thead>
+<tr>
+<th align="center">O_RDONLY</th>
+<th align="center">READ ONLY</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">O_WRONLY</td>
+<td align="center">WRITE ONLY</td>
+</tr>
+<tr>
+<td align="center">O_RDWR</td>
+<td align="center">READ &amp; WRITE ONLY</td>
+</tr>
+<tr>
+<td align="center">O_TRUNC</td>
+<td align="center">若文件存在则长度被截为0</td>
+</tr>
+<tr>
+<td align="center">O_CREATE</td>
+<td align="center">文件不存在则建立新的文件</td>
+</tr>
+<tr>
+<td align="center">O_EXCL</td>
+<td align="center">废弃</td>
+</tr>
+</tbody></table>
+<p>mknod在文件系统中创建一个文件，但是这个文件没有任何内容。相反，这个文件的元信息标识它是一个设备文件，记录了主设备号和辅设备号（<code>mknod</code>的两个参数），这<strong>两个设备号</strong>唯一确定一个内核设备，当一个进程之后打开这个文件的时候，内核将<strong>读、写的系统调用转发到内核设备</strong>的实现上，而不是传递给<strong>文件系统</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">fstat</span><span class="params">(<span class="keyword">int</span> fd, struct stat *st)</span></span>; <span class="comment">//返回文件信息</span></span><br></pre></td></tr></table></figure>
+
+<p><code>fstat</code>可以获取一个文件描述符指向的文件的信息，它填充一个名为<code>stat</code>的结构体，它在<code>stat.h</code>中定义为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> T_DIR 1 <span class="comment">// directory</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> T_FILE 2 <span class="comment">// file</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> T_DEV 3 <span class="comment">// device</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">stat</span>&#123;</span></span><br><span class="line">  <span class="keyword">short</span> type;   <span class="comment">// Type of file</span></span><br><span class="line">  <span class="keyword">int</span> dev;      <span class="comment">// File systems&#x27;s disk device</span></span><br><span class="line">  uint ino;     <span class="comment">// Inode number</span></span><br><span class="line">  <span class="keyword">short</span> nlink;  <span class="comment">// Number of links to file</span></span><br><span class="line">  uint size;    <span class="comment">// Size of file in bytes</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>文件名和这个文件本身有很大的区别，同一个文件（称为<code>inode</code>）可能有多个名字，称为<strong>连接（links）</strong>.</p>
+<p>系统调用link创建另一个文件系统的名称，它指向同一个<code>inode</code>.下面的代码创建了一个既叫做a又叫做b的新文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">open(<span class="string">&quot;a&quot;</span>, O_CREATE|O_WRONGLY);</span><br><span class="line">link(<span class="string">&quot;a&quot;</span>, <span class="string">&quot;b&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>读写a相当于读写b，每一个<code>inode</code>都由唯一的<code>inode</code>号直接确定，在上面的代码中，可以通过<code>fstat</code>知道a和b都指向同样的内容：</p>
+<blockquote>
+<p><code>a</code> 和 <code>b</code>都会返回同样的inode号（<code>ino</code>），并且<code>nlink</code>数会设置为2</p>
+</blockquote>
+<p>系统调用unlink从文件系统移除<strong>一个文件名，一个文件的inode和磁盘空间</strong></p>
+<p>一个文件的inode和磁盘空间只有当它的链接数变为0的时候才会被清空，也就是没有一个文件再指向它，因此在上面创建了a后，如果要删除：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">unlink(<span class="string">&quot;a&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>我们同样可以通过<code>b</code>来访问到它。</p>
+<hr>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">fd = open(<span class="string">&quot;/tmp/xyz&quot;</span>, O_CREATE|O_RDWR);</span><br><span class="line">unlink(<span class="string">&quot;/tmp/xyz&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>如上，也是创建一个临时inode的最佳方式，这个inode会在进程关闭fd或者推出的时候被清空。</p>
  
       <!-- reward -->
       
