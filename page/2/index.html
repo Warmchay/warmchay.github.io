@@ -145,6 +145,139 @@
     
     
     <article
+  id="post-uCore/Lab 0"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/04/04/uCore/Lab%200/"
+    >uCore Lab 0</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/04/04/uCore/Lab%200/" class="article-date">
+  <time datetime="2021-04-04T04:18:50.260Z" itemprop="datePublished">2021-04-04</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/uCore/">uCore</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="Lab-0"><a href="#Lab-0" class="headerlink" title="Lab 0"></a>Lab 0</h1><h2 id="0-1-Intel-80386-处理器硬件"><a href="#0-1-Intel-80386-处理器硬件" class="headerlink" title="0.1 Intel 80386 处理器硬件"></a>0.1 Intel 80386 处理器硬件</h2><h3 id="0-1-1-80386-运行模式"><a href="#0-1-1-80386-运行模式" class="headerlink" title="0.1.1 80386 运行模式"></a>0.1.1 80386 运行模式</h3><p>80386四种模式：实模式、保护模式、SMM模式和虚拟8086模式</p>
+<p>ucore中涉及的是前两种：实模式和保护模式</p>
+<ul>
+<li><strong>实模式</strong></li>
+</ul>
+<p>实模式将整个物理内存堪称分段的区域，程序代码和数据位于不同区域，os和用户程序没有区别对待，并且每一个指针都是指向实际的物理地址。</p>
+<p>这样，当用户程序的一个指针如果指向了os区域或其他用户程序区域，后果是灾难性的</p>
+<ul>
+<li><strong>保护模式</strong></li>
+</ul>
+<p><strong>主要目的</strong>是确保应用程序无法对操作系统进行破坏。</p>
+<p>实际上， 80386通过在实模式下初始化控制寄存器以及页表，后通过设置CR0寄存器将其中的<strong>保护模式的使能位置位</strong>，从而进入到80386的保护模式。当80386工作在保护模式下的时候，其所有的32根地址线都可供寻址，物理寻址空间高达4GB。</p>
+<p>在保护模式下，支持内存分页机制，并且支持优先级机制，不同的程序可以运行在不同的特权级上，特权级一共分0～3四个级别，os运行在最高的<strong>特权级0</strong>上</p>
+<h3 id="0-1-2-80386内存架构"><a href="#0-1-2-80386内存架构" class="headerlink" title="0.1.2 80386内存架构"></a>0.1.2 80386内存架构</h3><p>80386时32位处理器，可以寻址的物理内存地址空间为$2^{32} = 4G$字节，在ucore中，需要用到三个地址空间的概念：物理地址、线性地址和逻辑地址</p>
+<p><strong>物理内存地址空间</strong>： 为处理器提交到总线上用于访问计算机系统中的内存和外设的最终地址，一个计算机系统中只有一个物理地址空间</p>
+<p><strong>线性地址空间：</strong> 为80386处理器通过段（Segment）机制控制下形成的地址空间，在os的管理下，每个运行的应用程序都有相对独立的一个或多个内存空间段，每个段有各自的起始地址和长度属性，大小不固定，这样能让多个运行的应用程序之间相互隔离，实现对地址空间的保护</p>
+<p>在os完成对80386处理器段机制的<strong>初始化和配置</strong>（需要os通过<strong>特定的指令和操作间里全局描述符表，完成虚拟地址与线性地址的映射关系</strong>）后，80386处理器的段管理功能单元把虚拟地址转换成线性地址。</p>
+<p>相对而言，段机制对<strong>大量应用程序分散地使用大内存</strong>的支持能力较弱，所以intel公司又加入了页机制，每个页的大小是固定的（一般是4KB），也可以完成对内存单元的安全保护、隔离，能够有效<strong>支持大量应用程序分散地使用大内存</strong>的情况</p>
+<p>在os完成对80386处理器页机制的初始化和配置后，应用程序看到的逻辑地址先被处理器中的段管理功能单元转换为线性地址，然后再通过80386处理器中的页管理功能单元把线性地址转换成物理地址</p>
+<blockquote>
+<p>页机制和段机制有一定程度的功能重复，intel为了向下兼容等目标，使得这两者一直共存</p>
+</blockquote>
+<p>上述三种地址的关系为：</p>
+<ul>
+<li><strong>分段机制启动、分页机制未启动</strong>：逻辑地址–&gt;段机制处理–&gt;线性地址=物理地址</li>
+<li><strong>分段机制和分页机制都启动：</strong> 逻辑地址–&gt;<strong>段机制处理</strong>–&gt;线性地址–&gt;页机制处理–&gt;物理地址</li>
+</ul>
+<h3 id="0-1-3-Intel-80386寄存器"><a href="#0-1-3-Intel-80386寄存器" class="headerlink" title="0.1.3 Intel 80386寄存器"></a>0.1.3 Intel 80386寄存器</h3><p>寄存器有8组，我们一般看到的是四组：通用寄存器【General Register】、段寄存器【Segment Register】、指令指针寄存器【Instruction Pointer】、标志寄存器【Flag Register】</p>
+<hr>
+<h2 id="0-2-ucore编程方法"><a href="#0-2-ucore编程方法" class="headerlink" title="0.2 ucore编程方法"></a>0.2 ucore编程方法</h2><h3 id="0-2-1-面向对象编程方法"><a href="#0-2-1-面向对象编程方法" class="headerlink" title="0.2.1 面向对象编程方法"></a>0.2.1 面向对象编程方法</h3><p>采用类似C++的接口概念，接口在C语言中，<strong>表现为一组函数指针的集合</strong>，放在C++中，为<strong>虚表</strong>。接口设计的<strong>难点</strong>是如果找出各种<strong>内核子系统的共性访问/操作模式</strong>，从而可以根据访问模式提取出函数指针列表：</p>
+<ul>
+<li>init：初始化</li>
+<li>init_memmap：分析空闲物理内存并初始化管理</li>
+<li>alloc_pages: 分配物理页</li>
+<li>free_pages：释放物理页</li>
+</ul>
+<p>其他内存子系统需要与物理内存管理子系统交互时，只需要调用<strong>特定物理内存管理子系统</strong>所采用的pmm_manager数据结构变量中的<strong>函数指针</strong>即可</p>
+<h3 id="0-2-2-双向循环链表"><a href="#0-2-2-双向循环链表" class="headerlink" title="0.2.2 双向循环链表"></a>0.2.2 双向循环链表</h3><p>ucore内核中使用了大量的双向循环链表结构来组织数据，包括空闲内存块列表、内存页链表、进程列表、设备链表、文件系统列表等数据组织（在<code>labX/libs/list.h</code>实现），ucore的双向链表结构定义为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">list_entry</span> &#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">list_entry</span> *<span class="title">prev</span>, *<span class="title">next</span>;</span>	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意：list_entry中没有包含data数据与，而是在具体的数据结构中包含链表节点，以lab2的空闲内存块列表为例：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">		<span class="keyword">list_entry_t</span> free_list;</span><br><span class="line">  	<span class="keyword">unsigned</span> <span class="keyword">int</span> nr_free;					</span><br><span class="line">&#125; <span class="keyword">free_area_t</span>;</span><br></pre></td></tr></table></figure>
+
+<p>有关链表操作函数定义如下：</p>
+<ol>
+<li>初始化</li>
+</ol>
+<p>ucore只定义了链表节点，没有专门定义链表头，那么如何建立一个双向循环链表呢？来看list_init这个内联函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">list_init</span><span class="params">(<span class="keyword">list_entry_t</span> *elm)</span></span>&#123;</span><br><span class="line">	elm-&gt;prev = elm-&gt;next = elm;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>初始化的表头使next、prev指针都指向自己，这样就有了一个表示空闲内存块链的空链表。并且我们能够用头指针的next是否指向自己来判断此链表是否为空，这就是内联函数list_empty的实现</p>
+<ol start="2">
+<li>插入</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">__list_add(<span class="keyword">list_entry_t</span> *elm, <span class="keyword">list_entry_t</span> *prev, <span class="keyword">list_enry_t</span> *next)&#123;</span><br><span class="line">	prev-&gt;next = next-&gt;prev = elm;</span><br><span class="line">  elm-&gt;next = next;</span><br><span class="line">  elm-&gt;prev = prev;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>删除</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> <span class="title">list_del</span><span class="params">(<span class="keyword">list_entry_t</span> *listelm)</span> </span>&#123;</span><br><span class="line">	__list_del(listelm-&gt;prev, listelm-&gt;next);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> __list_del(<span class="keyword">list_enrty_t</span> *prev, list_entry)&#123;</span><br><span class="line">	prev-&gt;next = next;</span><br><span class="line">	next-&gt;prev = prev;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果要确保被删除的节点listelm不再指向链表中的其他节点，可以通过调用list_init函数把listelm的prev、next指针分别指向自身，将节点置为空链状态</p>
+<ol start="4">
+<li>访问链表节点所在的宿主数据结构</li>
+</ol>
+<p>list_entry_t通过双向循环链表中仅保存了某特定数据结构中链表节点成员变量的地址，如何通过这个链表节点成员变量访问到它的所有者（即某特定数据结构的变量），Linux提供了针对数据机构XXX的le2XXX的<strong>宏</strong>，其中le，为list entry的简称，是指向数据结构XXX中list_entry_t成员变量的指针，即存储在双向循环链表中的节点地址值，member则是XXX数据类型中包含的链表节点的成员变量。</p>
+<p>如：我们要遍历访问空闲块链表中所有节点所在的基于PAGE数据结构的变量，可以采用如下编程方式：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//free_area为空闲块管理结构，free_area.free_list是空闲块链表头</span></span><br><span class="line"><span class="keyword">free_area_t</span> free_area;</span><br><span class="line"><span class="keyword">list_entry_t</span> *le = &amp;free_area.free_list;	<span class="comment">//le是空闲块链表头指针</span></span><br><span class="line"><span class="keyword">while</span>((le=list_next(le)) != &amp;free_area.free_list) &#123;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">Page</span> *<span class="title">p</span> =</span> le2page(le, page_link);	<span class="comment">//获取节点所在基于Page数据结构的变量</span></span><br><span class="line">  .....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>le2page宏的使用为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> le2page(le, number) to_struct((le), struct Page, member)</span></span><br></pre></td></tr></table></figure>
+
+<p>相比之下，实现用到的to_struct宏和offset_of宏有一些复杂：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Return the offset of &#x27;member&#x27; relative to the beginning of a struct type */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> offsetof(type, member) ((size_t)(&amp;((tyoe*)0)-&gt;number))</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">**/</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> to_struct(ptr, type, number) ((type *)((char *)(ptr) - offsetof((type, member)))</span></span><br></pre></td></tr></table></figure>
+
+<p>这里才用了一个利用gcc编译器技术的技巧，即现求得数据结构的成员变量在本宿主数据结构中的偏移量，然后根据成员变量的地址反过来得出属主数据结构变量的地址</p>
+<p>首先来看offsetof宏，size_t最终定义与CPU体系结构相关，本实验都采用Intelx86-32 CPU，因此size_t等价于unsigned int。</p>
+<p><code>((type *0)-&gt;member)</code>的设计目的：为了求得数据结构的成员变量在本宿主数据结构中的偏移量，为了达到这个目标，首先将0地址强制“转换”为type数据结构（比如struct Page）的指针，再访问到type数据结构中的member成员（比如Page_link）的地址，即是type数据结构中member成员相对于数据结构变量的偏移量。</p>
+<p>在offsetof宏中，这个member成员的地址(即”&amp;((type *)0 -&gt; member)”)实际上为type数据结构中member成员相对于数据结构变量的偏移量。</p>
+<p>对于给定一个结构，offsetof(type, number)是一个常量，to_struct宏正是利用这个不变的偏移量来求得链表数据项的变量地址。</p>
+<p>再分析一下to_struct宏，可以发现to_struct宏中用到的ptr变量是链表节点的地址，把它减去offsetof宏所获得的<strong>数据结构内偏移量</strong>，即得到了包含链表节点的<strong>属主数据结构变量</strong>的地址</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/uCore/" rel="tag">uCore</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-OS/十 信号量「Semephore」"
   class="article article-type-post"
   itemscope
@@ -2131,182 +2264,6 @@ $$
 <h3 id="3-3-3-碎片整理"><a href="#3-3-3-碎片整理" class="headerlink" title="3.3.3 碎片整理"></a>3.3.3 碎片整理</h3><h4 id="lt-1-gt-Compaction-–-压实"><a href="#lt-1-gt-Compaction-–-压实" class="headerlink" title="&lt;1&gt; Compaction – 压实"></a>&lt;1&gt; Compaction – 压实</h4><img src="https://i.loli.net/2021/03/23/5X4CI1nBOPJGmD8.png" alt="image-20210319194015415.png" style="zoom:33%;">
 
 <h4 id="lt-2-gt-Swapping-in-out-–-换入换出"><a href="#lt-2-gt-Swapping-in-out-–-换入换出" class="headerlink" title="&lt;2&gt; Swapping in/out – 换入换出"></a>&lt;2&gt; Swapping in/out – 换入换出</h4><p>当运行中的<strong>程序1</strong>需要更多的内存时，抢占内存中等待的<strong>程序2</strong>，回收它们的内存于<code>Disk</code>中，后把<strong>程序1</strong>放入主存中运行</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-OS/二 操作系统基础操作"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/03/19/OS/%E4%BA%8C%20%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C/"
-    >Operating System 2 -- 基础操作</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/03/19/OS/%E4%BA%8C%20%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%9F%BA%E7%A1%80%E6%93%8D%E4%BD%9C/" class="article-date">
-  <time datetime="2021-03-19T11:46:00.742Z" itemprop="datePublished">2021-03-19</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <script src="/assets/js/APlayer.min.js"> </script><h1 id="2-操作系统基础操作"><a href="#2-操作系统基础操作" class="headerlink" title="2 操作系统基础操作"></a>2 操作系统基础操作</h1><img src="https://i.loli.net/2021/03/23/STmQ34s5DPFoIcL.png" alt="image-20210319115425183.png" style="zoom:35%;">
-
-<blockquote>
-<p>CPU，I/O与内存通过总线连接</p>
-</blockquote>
-<h2 id="2-1-操作系统的启动"><a href="#2-1-操作系统的启动" class="headerlink" title="2.1 操作系统的启动"></a>2.1 操作系统的启动</h2><img src="https://i.loli.net/2021/03/23/d7kRQjFPgoclyE2.png" alt="image-20210319115815465.png" style="zoom:33%;">
-
-<p><strong>内存映射：</strong></p>
-<p><strong>DISK:</strong> 存放OS</p>
-<p><strong>BIOS:</strong> Basic I/O system，基本I/O处理系统，加载OS到内存当中</p>
-<p>电脑通电后，段寄存器CS和指令寄存器IP会确定一个内存地址，如<code>CS:IP = 0xf000:fff0</code></p>
-<p><strong>POST(加电自检)**， 寻找显卡和执行</strong>BIOS**[检查显示器、键盘等是否正常]</p>
-<p><strong>步骤：</strong></p>
-<ol>
-<li><strong>BIOS:</strong> 将Bootloader从磁盘的磁盘引导扇区（512字节）加载到<code>0x7c00</code>；跳转到<code>CS:IP=0000:7C00</code>的内存区域</li>
-<li><strong>Bootloader:</strong> 将操作系统的代码和数据从硬盘加载到内存中，跳转到操作系统的起始地址</li>
-</ol>
-<p><strong>系统调用：</strong> （来源于应用程序）应用程序主动向操作系统发出服务请求</p>
-<p><strong>异常：</strong> （来源于不良的应用程序）非法指令或者其它不好的处理状态（e.g. 内存出错）</p>
-<p><strong>中断：</strong> （来源于外设）来自不同硬件设备的计时器和网络的中断</p>
-<hr>
-<h3 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q &amp; A"></a>Q &amp; A</h3><ol>
-<li><strong>为什么应用程序不能直接访问硬件而是通过操作系统呢？</strong></li>
-</ol>
-<ul>
-<li>计算机运行时，内核是被信任的第三方</li>
-<li>只有内核能够执行特权指令</li>
-<li>为了方便应用程序</li>
-</ul>
-<ol start="2">
-<li><strong>操作系统如何设计和实现中断/异常和系统调用，他们三者的区别和特点</strong></li>
-</ol>
-<p><strong>&lt;如何产生？&gt;</strong></p>
-<ul>
-<li><strong>系统调用</strong>主动向操作系统发服务请求</li>
-<li><strong>中断</strong>为不同硬件设备的计时器和网络的中断</li>
-<li><strong>异常</strong>为不良的应用程序产生的<strong>非法指令</strong>或<strong>其他不好的处理状态</strong>的问题</li>
-</ul>
-<p><strong>&lt;产生的源头&gt;</strong></p>
-<ul>
-<li><strong>中断：</strong> 外设（键盘/鼠标/网卡/声卡/显卡，可以产生各种事件）</li>
-<li><strong>异常：</strong> 应用程序意想不到的行为（e.g. 异常，恶意服务，应用程序需要的资源未得到满足）</li>
-<li><strong>系统调用（sys call）：</strong> 应用程序请求操作服务（打开/关闭/读写文件，发送网络包）</li>
-</ul>
-<p><strong>&lt;处理时间&gt;</strong></p>
-<ul>
-<li><strong>中断：</strong> 异步</li>
-</ul>
-<blockquote>
-<p>事件产生时，应用程序并不知道他什么时候会产生，只有当他产生了才去处理</p>
-</blockquote>
-<ul>
-<li><strong>异常：</strong> 同步</li>
-</ul>
-<blockquote>
-<p>一定是执行到某一条特定指令时一定会产生</p>
-</blockquote>
-<ul>
-<li><strong>系统调用：</strong> 异步或同步</li>
-</ul>
-<blockquote>
-<p>同步：执行到某一条特定指令时一定会产生</p>
-<p>异步：从系统调用的返回时间来看，如果应用程序发出系统调用请求后一直在等待则为同步，如果应用程序去做别的事则为异步</p>
-</blockquote>
-<p><strong>&lt;响应&gt;</strong></p>
-<ul>
-<li><strong>中断：</strong> 持续、对用户应用程序时为透明</li>
-<li><strong>异常：</strong> 杀死或者重新执行意想不到的应用程序指令</li>
-<li><strong>系统调用：</strong> 等待和持续</li>
-</ul>
-<hr>
-<h2 id="2-2-中断-异常和系统调用"><a href="#2-2-中断-异常和系统调用" class="headerlink" title="2.2 中断/异常和系统调用"></a>2.2 中断/异常和系统调用</h2><ol>
-<li>中断/异常的<strong>处理机制</strong></li>
-</ol>
-<p>中断是外设的事件，异常是cpu的事件</p>
-<ol start="2">
-<li><strong>中断处理机制</strong><ul>
-<li><strong>硬件：</strong> 设置中断标记<strong>（CPU初始化）</strong><ul>
-<li>将内部/外部事件设置中断标记</li>
-<li>中断事件的ID（程序访问的中断向量的地址）</li>
-</ul>
-</li>
-<li><strong>软件：</strong> 操作系统<ul>
-<li>保存当前处理状态</li>
-<li>中断服务程序处理</li>
-<li>清除中断标记</li>
-<li>恢复之前保存的处理状态</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><strong>异常处理机制</strong><ul>
-<li><strong>异常：异常编号</strong><ul>
-<li>保存现场</li>
-<li>异常处理：杀死产生异常的程序，重新执行异常指令</li>
-<li>恢复现场</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><strong>系统调用</strong><ul>
-<li>一条指令会触发一个系统调用</li>
-<li>程序访问主要是通过高层次的API接口而不是直接进行系统调用</li>
-<li>通常情况下，存在于每个系统调用相关的序号，系统调用接口根据这些序号来维护表的索引</li>
-<li>系统调用接口调用内核态中预期的系统调用，并返回系统调用的状态和其他返回值</li>
-<li>用户不需要知道系统调用是如何实现的，只需要获取API和了解操作新系统讲什么作为返回结果。操作系统<strong>接口的细节大部分都隐藏在AP</strong>I中，并通过运行程序支持的库来管理</li>
-<li><strong>用户态：</strong> 应用程序在执行的过程中，cpu执行的特权级的<strong>状态很低，不能访问特殊机器指令和IO</strong></li>
-<li><strong>内核态：</strong> 应用程序在执行的过程中，cpu执行的特权级的<strong>状态高，操作系统可以执行cpu任何一条指令</strong></li>
-<li>系统调用时涉及到<strong>特权级从用户态到内核态</strong>的转换，<strong>应用程序和操作系统有各自的堆栈</strong>，这两个变化比函数调用的开销更大，但更安全和可靠</li>
-</ul>
-</li>
-<li><strong>跨越操作系统边界的开销</strong><ul>
-<li>在执行时间上超过程序调用</li>
-<li><strong>开销包括：</strong><ol>
-<li>建立<strong>中断/异常/系统调用</strong>和与<strong>对应服务例程映射关系</strong>的初始化开销</li>
-<li>建立内核堆栈（操作系统和应用程序的堆栈不一样）</li>
-<li>验证参数（操作系统会检查数据）</li>
-<li>内核态映射到用户态的地址空间，更新页面映射权限（内存拷贝开销）</li>
-<li>内核态独立地址空间TLB</li>
-</ol>
-</li>
-</ul>
-</li>
-</ol>
  
       <!-- reward -->
       

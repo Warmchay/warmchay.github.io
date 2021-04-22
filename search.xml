@@ -1,6 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Chapter 1</title>
+    <url>/2021/04/22/XV6-Core/Chapter%201/</url>
+    <content><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><h1 id="Chapter-1"><a href="#Chapter-1" class="headerlink" title="Chapter 1"></a>Chapter 1</h1><h2 id="1-1进程概览"><a href="#1-1进程概览" class="headerlink" title="1.1进程概览"></a>1.1进程概览</h2><p><a href="https://zhuanlan.zhihu.com/p/41123650">https://zhuanlan.zhihu.com/p/41123650</a></p>
+<p>进程让一个程序可以假设它独占一台机器，进程让程序提供“看上去”私有的，其他进程无法读写的内存系统（或地址空间），以及一颗“看上去”仅执行该程序的CPU</p>
+<p>xv6使用页表（由硬件实现）来为每个进程提供其独有的地址空间，页表将虚拟地址映射为物理地址（cpu向主存发送的地址）</p>
+<img src="https://i.loli.net/2021/04/22/oXduOTlEhMbJHKs.png" alt="1.1 Layout of a virtual address space.png" style="zoom:40%;">
+
+<p>如图所示，一片地址空间包含了从虚拟地址0开始的用户内存，它的地址最低处放置进程的指令，接下来则是<strong>全局变量，栈区</strong>，以及一个用户可按需拓展的“堆”区（malloc用）</p>
+<p>和上面提到的用户内存一样，内核的<strong>指令和数据</strong>也会被进程映射到每个进程的地址空间中，当进程使用系统调用时，系统调用实际上会在进程地址空间中的内核区域执行。</p>
+<p>这种设计使得内核的系统调用代码可以直接指向用户内存，为了给用户留下足够的内存空间，xv6将内核映射到了地址空间的高地址处，即从<code>0x80100000</code>开始</p>
+<p>xv6使用结构体<code>struct proc</code>来维护一个进程的状态，其中最为重要的状态是进程的页表，内核栈，当前运行状态。我们接下来会用<code>p-&gt;xxx</code>来指代<code>proc</code>结构中的元素。</p>
+<p>每个进程都有一个运行线程，来执行进程的指令。线程可以被暂时挂起，稍后再恢复运行，系统在进程之间切换实际上就是挂起当前运行的线程，恢复另一个进程的线程，线程的大多数状态（局部变量 &amp; 函数调用的返回地址）都保存在线程的栈上。</p>
+<p>每个进程都有<strong>用户栈和内存栈</strong>（<code>p-&gt;kstack</code>），当进程运行用户指令时，只有其用户栈被使用，其内核栈则是空的，然而当进程（通过系统调用或中断）进入内核时，内核代码就在进程的内核栈中执行。</p>
+<p>进程处于内核中时，其用户栈仍然保存着数据，只是暂时处于不活跃状态，进程的线程交替地使用着用户栈和内核栈。</p>
+<p>需要注意内核栈是用户代码无法使用的，这样即使一个进程破坏了自己的用户栈，内核也能保持运行。</p>
+<ul>
+<li><p>当进程使用<strong>系统调用</strong>时，处理器转入<strong>内核栈</strong>中，提升硬件的特权级，然后运行系统调用对应的内核代码。</p>
+</li>
+<li><p>当<strong>系统调用完成</strong>时，又从内核空间回到用户空间，降低硬件特权级，转入用户栈，恢复执行系统调用指令后面的用户指令。线程可以在内核中“阻塞”等待I/O，在I/O结束后再恢复运行</p>
+</li>
+</ul>
+<p><code>p-&gt;state</code>表示了进程的状态：新建、准备运行、运行、等待I/O或退出状态中</p>
+<p><code>p-&gt;pgdir</code>以x86硬件要求的格式保存了进程的页表，xv6让分页硬件在进程运行时使用<code>p-&gt;pgdir</code>，进程的页表还记录了保存进程内存的物理页地址</p>
+<h2 id="1-2-代码：第一个地址空间"><a href="#1-2-代码：第一个地址空间" class="headerlink" title="1.2 代码：第一个地址空间"></a>1.2 代码：第一个地址空间</h2><img src="https://i.loli.net/2021/04/22/Ym2Q53MkuACeWR4.png" alt="1.2 Layout of a virtual address space2.png" style="zoom:33%;">
+
+<p>PC开机时，它会初始化自己然后从磁盘中载入bootloader到内存并运行，然后bootloader把xv6内核从磁盘中载入并从entry(1040)开始运行。x86分页硬件此时还没有开始工作，因此此时虚拟地址是直接映射到物理地址上的。</p>
+<p>bootloader把xv6内核装载到物理地址<code>0x100000</code>处，之所以没有装载到内核指令和内核数据应该出现在的<code>0x80100000</code>处，是因为小型机器上很可能没有这么大的物理内存。而没有装载到<code>0x0</code>是因为地址<code>0xa0000</code>到<code>0x100000</code>是属于<code>I/O</code>设备的。</p>
+<p>为了让内核的剩余部分能够运行，<code>entry</code>的代码设置了页表，将<code>0x80000000</code>（定义为<code>KERNBASE</code>(0207)）开始的虚拟地址映射到物理地址<code>0x0</code>处。</p>
+<blockquote>
+<p>⚠️ 页表经常把两段不同的虚拟内存映射到相同的一段内存</p>
+</blockquote>
+<p><code>entry</code>中的页表定义在<code>main.c</code>(1311)处，这里简单说明一下，页表项0将虚拟地址<code>0:0x400000</code>映射到物理地址<code>0:0x400000</code>。</p>
+<p>只要<code>entry</code>的代码还运行在内存的低地址处，我们就必须这样设置，但最后这个页表项是会被移除的。</p>
+<p>页表项512将虚拟地址的<code>KERNBASE:KERNBASE+0x40000</code>映射到物理地址<code>0:0x400000</code>。这个页表项将在<code>entry</code>的代码结束后被使用；它将内核指令和内核数据出现的<strong>高虚拟地址处映射到了bootloader实际将它们载入的低物理地址</strong>，这个映射限制内核的指令+代码必须在<code>4MB</code>内</p>
+<p>回到<code>entry</code>继续页表的设置工作，它将<code>entrypgdir</code>的物理地址载入到<code>%cr3</code>中，分页硬件必须知道<code>entrypgdir</code>的物理地址，因为此时它还不知道如何翻译虚拟地址，它也没有页表，<code>entrypgdir</code>这个符号指向内存的高地址处，但只要用宏<code>V2P_WO</code>(0220)减去<code>KERNBASE</code>便可以找到其物理地址，为了让分页硬件运行起来，xv6会设置控制寄存器<code>%cr0</code>中的标志位<code>CR0_PG</code>。</p>
+<p>现在<code>entry</code>就要跳转到内核的C代码，并在内存的高地址中执行它了，首先它将栈指针<code>%esp</code>指向被用作栈的一段内存（1054），所有的符号包括<code>stack</code>都在高地址，所以当低地址的映射被移除时，栈仍然是可用的。</p>
+<p>最后<code>entry</code>跳转到高地址的<code>main</code>代码中，我们必须使用间接跳转，否则汇编器会生成PC相关的直接跳转（PC-relative-direct-jump），而跳转会运行在内存低地址处的main，main不会返回，因为栈上并没有返回PC值。</p>
+<h2 id="1-3-代码：创建第一个进程"><a href="#1-3-代码：创建第一个进程" class="headerlink" title="1.3 代码：创建第一个进程"></a>1.3 代码：创建第一个进程</h2><p>在<code>main</code>初始化了一些设备和子系统后，它通过调用<code>userinit(1239)</code>建立了第一个进程。<code>userinit</code>首先调用<code>allocproc</code>，<code>allocproc</code>（2205）的工作是在页表中分配一个槽（即结构体<code>struct proc</code>）并初始化进程的状态，为其内核线程的运行做准备。</p>
+<p><strong>注意：</strong> <code>userinit</code>仅仅在创建第一个进程时被调用，而<code>allocproc</code>创建每个进程时都会被调用，<code>allocproc</code>会在<code>proc</code>的表中找到一个标记为<code>UNUSED(2211-2213)</code>的槽位。</p>
+<p>当它找到这样一个未使用的槽位后，<code>allocproc</code>将其状态设置为<code>EMBRYO</code>，使其被标记为被使用的并给这个进程一个独有的<code>pid</code>（2201-2219）。</p>
+<p>接下来，它尝试为进程的内核线程分配内核栈，如果分配失败，<code>allocproc</code>会把这个槽位状态恢复为<code>UNUSED</code>并返回0来标记失败。</p>
+<img src="https://i.loli.net/2021/04/22/T24aUySbhzsBqVW.png" alt="1.3 A new kernel stack.png" style="zoom:50%;">
+
+<p>现在<code>allocproc</code>必须设置新进程的内核栈，<code>allocproc</code>以巧妙的方式，使其既能在创建第一个进程时被使用，又能在<code>fork</code>操作时被使用。</p>
+<p><code>allocproc</code>为新进程设置好一个特别准备的内核栈和一系列内核寄存器，使得进程第一次运行时会“返回”到用户空间。</p>
+<p>准备好的内核栈<strong>如上图</strong>所示，<code>allocproc</code>通过设置返回程序计数器的值，使得新进程的内核线程首先运行在<code>forkret</code>的代码中，然后返回到<code>trapnet</code>(2236-2241)中运行。</p>
+<p>内核线程会从<code>p-&gt;context</code>中拷贝的内容开始运行，所以我们可以通过将<code>p-&gt;context-&gt;eip</code>指向<code>forkret</code>（2533）开头开始运行，这个函数会返回到那个时刻栈底的地址。<code>context swtch(2708)</code>的代码把栈指针指向<code>p-&gt;context</code>结尾，<code>allocproc</code>又将<code>p-&gt;context</code>放在栈上，并在其上方放一个指向<code>trapnet</code>的指针，这样运行完的<code>forknet</code>就会返回到<code>trapret</code>中，<code>trapret</code>接着从栈顶恢复用户寄存器然后跳转到<code>process(3027)</code>的代码【trapret】</p>
+<blockquote>
+<p>以上分析都需要结合源码和上图进行</p>
+</blockquote>
+<p>这样的设置对于普通的fork和建立第一个进程都是使用的，虽然后一种情况会从用户空间的地址0处开始执行而不是从<code>fork</code>返回；</p>
+<p>而降控制权从用户转到内核是通过中断机制实现的，具体地说是系统调用、中断和异常。每当进程运行中要将控制权交给内核是，硬件和xv6的trap entry代码就会在进程的内核栈上保存用户寄存器。</p>
+<p><code>userinit</code>把值写在新建的栈的顶部，使之就像进程是通过中断进入内核的一样（2264-2270），所以用于从内核返回到用户代码区的通用代码也适用于第一个进程。</p>
+<p>这些保存的值就构成了一个结构体<code>struct trapframe</code>，其中保存的事用户寄存器，如上图所示，这样进程的内核就已经完全准备好了。</p>
+<hr>
+<ol>
+<li>第一个进程会先运行一个小程序（<code>initcode.S</code>(7700)）,进程需要找到物理内存来报春这段程序，程序不仅需要被拷贝到内存中，还需要页表来指向那段内存</li>
+<li>userinit调用setupkvm（1713）来为进程创建一个（最初）只映射内核区的页表，概括地说，<code>setupkvm &amp; userinit</code>创建了1-1的所示的地址空间</li>
+</ol>
+<blockquote>
+<p>setupkvm主要是对内核部分的进程地址空间进行映射</p>
+</blockquote>
+<p>第一个进程内存中的初始内容由<code>initcode.S</code>汇编得到，作为建立内核进程的一部分，链接器将这段二进制代码嵌入内核中并定义两个特殊的符号<code>_binary_initcode_start &amp; _binary_initcode_size</code>，表示了这段二进制码的位置和大小，并把二进制码拷贝到那一页中（1803）；</p>
+<p>接下来userinit把trapframe(0602)设置为初始的用户模式状态：<code>%cs</code>寄存器保存着一个段选择器，指向段<code>SET_UCODE</code>并处于特权级<code>DPL_USER</code>。<code>%eflags</code>的<code>FL_IF</code>位被设置为允许硬件中断。</p>
+<p>栈指针<code>%esp</code>被设为了进程的最大有效虚拟内存，即<code>p-&gt;sz</code>，指令指针则指向初始化代码的入口点，即地址0。函数<code>userinit</code>把<code>p-&gt;name</code>设置为了<code>initcode</code>，这主要是为了方便调试，还将<code>p-&gt;cwd</code>设置为进程当前的工作目录</p>
+<blockquote>
+<p>sz: size of process memory</p>
+<p>tf: trap fram for current syscall</p>
+<p>context: swtch() here to run process</p>
+<p>cwd: current directory</p>
+<p>kstack: bottom of kernel stack for this process</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>XV6-Core</category>
+      </categories>
+      <tags>
+        <tag>操作系统</tag>
+        <tag>xv6</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Operating System -- Pipeline</title>
     <url>/2021/04/21/OS/Operating%20System%20--%20Pipeline/</url>
     <content><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><h1 id="Operating-System-–-Pipeline"><a href="#Operating-System-–-Pipeline" class="headerlink" title="Operating System – Pipeline"></a>Operating System – Pipeline</h1><p>解决问题：</p>
@@ -408,7 +490,11 @@
 
 <p>如上，也是创建一个临时inode的最佳方式，这个inode会在进程关闭fd或者推出的时候被清空。</p>
 ]]></content>
+      <categories>
+        <category>XV6-Core</category>
+      </categories>
       <tags>
+        <tag>操作系统</tag>
         <tag>xv6</tag>
       </tags>
   </entry>
