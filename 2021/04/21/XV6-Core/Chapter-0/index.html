@@ -71,7 +71,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1.2k</span>
+            <span class="post-count">1.5k</span>
         </span>
     </span>
 
@@ -80,7 +80,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">4 分钟</span>
+            <span class="post-count">5 分钟</span>
         </span>
     </span>
 </div>
@@ -229,6 +229,26 @@
 </blockquote>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> *argv[<span class="number">3</span>];</span><br><span class="line">argv[<span class="number">0</span>] = <span class="string">&quot;echo&quot;</span>;</span><br><span class="line">argv[<span class="number">1</span>] = <span class="string">&quot;hello&quot;</span>;</span><br><span class="line">argv[<span class="number">2</span>] = <span class="number">0</span>;</span><br><span class="line">exec(<span class="string">&quot;/bin/echo&quot;</span>, argv);</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;exec error\n&quot;</span>);</span><br></pre></td></tr></table></figure>
 
+<p>这里将调用程序<code>/bin/echo</code>，参数列表为<code>echo hello</code>，大部分的程序都忽略第一个参数，这个参数管理上为程序的名字（此例是<code>echo</code>）</p>
+<p>以（8001）<code>main</code>为例</p>
+<blockquote>
+<p>Sheet 80 中的第8001行</p>
+</blockquote>
+<p>主循环通过<code>getcmd</code>读取命令行的输入，调用<code>fork</code>生成一个shell进程的副本。父shell调用<code>wait</code>，子进程执行用户命令</p>
+<p>如当在cmd中输入<code>echo hello</code>，<code>runcmd</code>将调用<code>exec</code>。</p>
+<p>如果<code>exec</code>被成功调用，子进程会转而去执行<code>echo</code>程序里的指令</p>
+<p>在某个时刻<code>echo</code>会调用<code>exit</code>，此时父进程将从<code>wait</code>返回</p>
+<blockquote>
+<p>插个眼：为什么fork和exec没有被合并成一个调用呢？</p>
+</blockquote>
+<p>xv6隐式分配用户的内存空间</p>
+<p><code>fork</code>在子进程需要装入父进程的内存拷贝时分配空间</p>
+<p><code>exec</code>在需要装入可执行文件时分配空间</p>
+<p>一个进程在需要额外内存时可以通过调用<code>sbrk(n)</code>来增加<code>n</code>字节的数据内存，由<code>sbrk</code>返回新的内存的地址</p>
+<p><strong>xv6中没有用户的概念，因此没有设置不同用户间的保护隔离措施，即所有xv6进程都以root用户执行</strong></p>
+<h2 id="0-3-I-O-和-文件描述符"><a href="#0-3-I-O-和-文件描述符" class="headerlink" title="0.3 I/O 和 文件描述符"></a>0.3 I/O 和 文件描述符</h2><p><strong>文件描述符</strong>为一个整数，它代表了一个进程可以读写的被内核管理的对象。</p>
+<p>进程可以通过多种方式获得一个文件描述符，如打开文件、目录、设备或者创建一个<a href>管道（pipe）</a>，或者复制已经存在的文件描述符。</p>
+<p></p>
  
       <!-- reward -->
       
@@ -311,6 +331,15 @@
 
    
   <nav class="article-nav">
+    
+      <a href="/2021/04/21/OS/Operating%20System%20--%20Pipeline/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Operating System -- Pipeline
+          
+        </div>
+      </a>
     
     
       <a href="/2021/04/18/ROS%E5%85%A5%E9%97%A8%E7%AF%87/" class="article-nav-link">
