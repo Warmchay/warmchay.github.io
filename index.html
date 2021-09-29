@@ -145,6 +145,137 @@
     
     
     <article
+  id="post-OOP/C++ 新知识"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/05/09/OOP/C++%20%E6%96%B0%E7%9F%A5%E8%AF%86/"
+    >C++ 新知识</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/05/09/OOP/C++%20%E6%96%B0%E7%9F%A5%E8%AF%86/" class="article-date">
+  <time datetime="2021-05-09T05:11:58.704Z" itemprop="datePublished">2021-05-09</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/OOP/">OOP</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="C-新知识"><a href="#C-新知识" class="headerlink" title="C++ 新知识"></a>C++ 新知识</h1><h2 id="1-main-int-argc-char-argv"><a href="#1-main-int-argc-char-argv" class="headerlink" title="1 main(int argc, char** argv)"></a>1 main(int argc, char** argv)</h2><p>这个表示在可执行文件中，传入的参数有多少，以argc表示</p>
+<p>传入参数（字符串）用<code>*argv</code>来存储</p>
+<p>举个例子：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*cmdFile.cpp*/</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span></span>&#123;</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;argc; ++i)&#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Hello,&quot;</span> &lt;&lt; argv[i] &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>生成可执行文件<code>cmdFile</code>后</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./cmdFile daniel zoris</span><br><span class="line">Hello,daniel</span><br><span class="line">Hello,zoris</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-C库宏-va-arg"><a href="#2-C库宏-va-arg" class="headerlink" title="2 C库宏 va_arg()"></a>2 C库宏 va_arg()</h2><p>C库宏<code>type va_arg(va_list ap, type)</code>检索函数参数列表中类型为type的下一个参数，它无法判断检索到的参数是否是传给函数的最后一个参数</p>
+<p><strong>为什么选择它？</strong></p>
+<ul>
+<li>可以在函数中加入省略号作为缺省参数</li>
+</ul>
+<h3 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h3><p>用来实现与<code>printf</code>相似的功能，如printf的声明和调用方法为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">printf</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* fromat, [,argument]...)</span></span>;  <span class="comment">//官方声明</span></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;My name is %s, age %d, &quot;</span>AnnieKim<span class="string">&quot;, 24&quot;</span>);  <span class="comment">//调用</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="1）通用的工作原理"><a href="#1）通用的工作原理" class="headerlink" title="1）通用的工作原理"></a>1）通用的工作原理</h4><p>大多数带有变长参数的函数都利用<strong>显示声明</strong>的参数中的一些信息，来获取调用中提供的其他可选实参的类型和数目。</p>
+<p>比如printf函数，就是根据第一个参数推到可选实参：</p>
+<ul>
+<li>如果有一个<code>%</code>后有一个<code>s</code>，说明后面还有第二个类型为字符串的参数；如果还有第二个<code>%</code>，后面跟着d，说明还需要第三个类型为整数的参数。</li>
+</ul>
+<p><font color="red"><b>所以说，通常情况下，第一个参数是必不可少的</b></font></p>
+<h4 id="2）如何获取变长参数"><a href="#2）如何获取变长参数" class="headerlink" title="2）如何获取变长参数"></a>2）如何获取变长参数</h4><p>为了解决变长参数问题，需要用到以下几个宏，并且使用这几个宏时<strong>必须至少提供一个</strong>显式的参数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">type va_arg&#123;</span><br><span class="line">  va_list arg_ptr, type</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">void</span> va_end&#123;</span><br><span class="line">  va_list arg_ptr;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">void</span> va_start&#123;</span><br><span class="line">  va_list arg_ptr, prev_param</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>其中，type指要获取的参数的类型，比如int，char*等，<code>arg_ptr</code>是指向参数列表的指针（<code>va_list</code>类型），<code>prev_param</code>是指向最后一个显示声明的参数，以用来获取第一个变长参数的位置。</p>
+<p><strong>使用步骤：</strong></p>
+<ol>
+<li>定义一个va_list类型的变量，变量是指向参数的指针</li>
+<li><code>va_start</code>初始化刚定义的变量，第二个参数是最后一个显示声明的参数</li>
+<li><code>va_arg</code>返回变长参数的值，第二个参数是该变长参数的类型</li>
+<li><code>va_end</code>将第一步定义的变量重置为NULL</li>
+</ol>
+<p><strong>注意事项⚠️</strong></p>
+<ol>
+<li>变长参数的<strong>类型和数目不能通过宏来获取</strong>，只能通过自己写程序控制</li>
+<li>编译器对变长参数函数的原型检查不够严格，会影响代码质量</li>
+</ol>
+<h3 id="2-1-声明"><a href="#2-1-声明" class="headerlink" title="2.1 声明"></a>2.1 声明</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">type <span class="title">va_arg</span><span class="params">(va_list ap, type)</span></span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-参数"><a href="#2-2-参数" class="headerlink" title="2.2 参数"></a>2.2 参数</h3><p>$$<br>(d+2<em>m+3</em>(m+1)/5+y+y/4-y/100+y/400+1)%7<br>$$</p>
+<ul>
+<li><code>ap</code> - 这是一个<code>va_list</code>类型的对象，存储了有关额外参数和检索状态的信息，这个对象应该在第一次调用<code>va_arg</code>之前通过调用<code>va_start</code>进行初始化</li>
+<li><code>type</code> - 这是一个类型名称，这个类型名称是作为扩展自该宏的表达式的类型来使用的</li>
+</ul>
+<h3 id="2-3-返回值"><a href="#2-3-返回值" class="headerlink" title="2.3 返回值"></a>2.3 返回值</h3><p>这个宏返回下一个额外的参数。类型为type</p>
+<h3 id="2-4-va-list用法"><a href="#2-4-va-list用法" class="headerlink" title="2.4 va_list用法"></a>2.4 va_list用法</h3><p>回顾一下printf函数的声明：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">printf</span><span class="params">(<span class="keyword">char</span> *fromat, ...)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>第一个<code>char* format</code>是常写的带<code>%d, %f</code>这样转换单元的格式字符串，第二个参数是<code>...</code>，这个是变参函数定义时的奥秘：</p>
+<ol>
+<li>变参处的定义或声明，用<code>...</code>代替参数类型</li>
+<li>变参<code>...</code>只能放在参数列表最末尾</li>
+</ol>
+<p>对于一个结构体函数：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">  <span class="keyword">double</span> x, y;</span><br><span class="line">&#125;point;</span><br><span class="line"></span><br><span class="line"><span class="function">struct point <span class="title">barycenter</span><span class="params">(<span class="keyword">int</span> n, ...)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">point</span> <span class="title">t</span>;</span></span><br><span class="line">  strucy point sum=&#123;<span class="number">0</span>&#125;;</span><br><span class="line">  va_list listPointer;</span><br><span class="line">  va_start(listPointer, n);</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;n; ++i)&#123;</span><br><span class="line">    t = va_arg(listPointer,struct point);</span><br><span class="line">    sum.x += t.x;</span><br><span class="line">    sum.y += t.y;</span><br><span class="line">  &#125;</span><br><span class="line">  sum.x /= n;</span><br><span class="line">  sum.y /= n;</span><br><span class="line">  va_end(listPointer);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>以上用到的宏：</strong></p>
+<ul>
+<li><p><code>va_list</code>: 用来定义一个变量列表的指针类型</p>
+</li>
+<li><p><code>va_start(listPointer, n)</code>将listPointer这个指针绑定到有n个变量的传入参数列表上</p>
+</li>
+<li><p><code>va_arg(listPointer, type)</code>从参数列表中逐个取出数据，取出数据的类型由type决定，它返回这个type类型的值，我们可以马上把它赋值给另一个变量</p>
+</li>
+<li><p>当函数调用结束的时候，需要使用<code>va_end</code>来清除<code>listPointer</code>指向的空间，否则会发生内存泄漏问题</p>
+<p><strong>可能存在的疑问：</strong></p>
+</li>
+</ul>
+<ol>
+<li>必须知道传入参数的个数吗？</li>
+</ol>
+<p>对，如果没有参数个数，va_start的时候就无法绑定</p>
+<ol start="2">
+<li>所有的可变参数必须都是同一个类型吗</li>
+</ol>
+<p>不是的，对比一下printf函数，printf通过<code>char* format</code>格式字符串，不仅确定了参数个数，还确定了每个参数的类型（通过%d这样的转换单元），这样只要在va_arg的时候采用适当的type类型就能够读出各种类型的参数。</p>
+<h3 id="2-4-举个例子"><a href="#2-4-举个例子" class="headerlink" title="2.4 举个例子"></a>2.4 举个例子</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdarg.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum</span><span class="params">(<span class="keyword">int</span>, ...)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;15和56的和 = %d\n&quot;</span>, sum(<span class="number">2</span>, <span class="number">15</span>, <span class="number">56</span>));</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum</span><span class="params">(<span class="keyword">int</span> num_args, ...)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> val = <span class="number">0</span>;</span><br><span class="line">  va_list ap;</span><br><span class="line">  <span class="keyword">int</span> i;</span><br><span class="line">  </span><br><span class="line">  va_start(ap, num_args);</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>; u &lt; num_args; ++i)</span><br><span class="line">  &#123;</span><br><span class="line">    val += va_args(ap, <span class="keyword">int</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  va_end(ap);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> val;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/" rel="tag">C++</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-XV6-Core/Chapter 1"
   class="article article-type-post"
   itemscope
@@ -261,11 +392,113 @@
 <p>接下来<code>forkret</code>返回，由于<code>allocproc</code>的设计，目前栈上在<code>p-&gt;context</code>之后即将被弹出的是<code>trapret</code>。因而接下来会运行<code>trapret</code>，此时<code>%esp</code>保存着<code>p-&gt;tf</code>，<code>trapret(3027)</code>用弹出指令从<code>trap frame(0602)</code>中恢复寄存器，就像<code>swtch</code>对内核上下文的操作一样：<code>popal</code>恢复通用寄存器，<code>popl</code>恢复<code>%gs, %fs, %es, %ds</code>.<code>addl</code>跳过<code>trapno</code>和<code>errnode</code>两个数据，最后<code>iret</code>弹出<code>%cs, %eip, %flags, %esp, %ss</code>。trap frame的内容已经转移到CPU状态中，所以处理器会从<code>trap frame</code>中<code>%eip</code>的值继续执行，对于<code>initproc</code>来说，这个值就是虚拟地址0，即<code>initcoude.S</code>的第一个指令。</p>
 <p>这时<code>%eip</code>和<code>%esp</code>的值为0和4096，这时进程地址空间中的虚拟地址，处理器的分页硬件会把它们翻译为物理地址，<code>allocuvm</code>为进程建立了页表，所以现在虚拟地址0会指向为该进程分配的物理地址处。</p>
 <p><code>allocuvm</code>还会设置<code>PTE_U</code>来让分页硬件允许用户代码访问内存，<code>userinit</code>设置了<code>%cs</code>的低位，使得进程的用户代码运行在<code>CPL = 3</code>的情况下，这意味着用户代码只能使用带有<code>PTE_U</code>设置的页，并且无法修改像<code>%cr3</code>这样的敏感硬件寄存器，这样，处理器就受限只能使用自己的内存了。</p>
-<h2 id="1-5-第一个系统调用-file-Users-zoriswang-Virtual-20Machines-localized-Ubuntu-2064-20-E4-BD-8D-vmwarevm"><a href="#1-5-第一个系统调用-file-Users-zoriswang-Virtual-20Machines-localized-Ubuntu-2064-20-E4-BD-8D-vmwarevm" class="headerlink" title="1.5 第一个系统调用 file:///Users/zoriswang/Virtual%20Machines.localized/Ubuntu%2064%20%E4%BD%8D.vmwarevm/"></a>1.5 第一个系统调用 file:///Users/zoriswang/Virtual%20Machines.localized/Ubuntu%2064%20%E4%BD%8D.vmwarevm/</h2><p><code>initcode.S</code>做的第一件事为出触发<code>exec</code>系统调用，如在第0章看到的一样，<code>exec</code>用一个新的程序来代替当前进程的内存和寄存器，但是其文件描述符、进程id和父进程都是不变的。</p>
+<h2 id="1-5-第一个系统调用"><a href="#1-5-第一个系统调用" class="headerlink" title="1.5 第一个系统调用"></a>1.5 第一个系统调用</h2><p><code>initcode.S</code>做的第一件事为出触发<code>exec</code>系统调用，如在第0章看到的一样，<code>exec</code>用一个新的程序来代替当前进程的内存和寄存器，但是其文件描述符、进程id和父进程都是不变的。</p>
 <p><code>initcode.S(7708)</code>刚开始会将<code>$argv, $init, $0</code>三个值推入栈中，接下来把<code>%eax</code>设置为<code>SYS_exec</code>然后执行<code>int T_SYSCALL</code>:这样做是告诉内核运行<code>exec</code>这个系统调用，如果运行正常的话，<code>exec</code>不会返回：它会运行名为<code>$init</code>的程序，<code>$init</code>是一个以空字符结尾的字符串，即<code>/init(7721-7723)</code>。如果<code>exec</code>失败并且返回了，<code>initcode</code>会不断调用一个不会返回的系统调用<code>exit</code></p>
 <p>系统调用<code>exec</code>的参数是<code>$init\$argv</code>。最后的0让这个手动创建的系统调用看起来就像普通的系统调用一样。</p>
 <p>这样做是xv6努力避免为第一个进程的运行单独写一段代码，而是尽量使用通用于普通操作的代码。</p>
 <p>对于exec的具体实现，概括地讲，它会用从文件系统中获取的<code>/init</code>的二进制代码代替<code>initcode</code>的代码，现在<code>initcode</code>已经执行完了，进程将要运行<code>/init</code>。<code>/init(7810)</code>会在需要的情况下创建一个新的控制台设备文件，然后把它作为描述符0，1，2打开。接下来它将不断循环，开启的控制台shell，处理没有父进程的僵尸进程，直到shell退出，然后再反复，系统就这样建立起来了。</p>
+<h2 id="Homework-答疑点"><a href="#Homework-答疑点" class="headerlink" title="Homework 答疑点"></a>Homework 答疑点</h2><ul>
+<li>什么是EFLF二进制文件？</li>
+</ul>
+<p>当把<code>.c</code>文件转换为一个对象<code>.o</code>文件时，这个文件为汇编语言指令，链接器会讲所有已编译的目标文件组合成单个二进制映像，如<code>obj/kern/kernel</code>，此时的<code>ELF</code>为可执行和可链接格式。其中比较重要的程序部分是：</p>
+<ol>
+<li><code>.text:</code> 程序的可执行指令</li>
+<li><code>.rodate:</code> 只读数据，如C编译器生成的ASCII字符串常量</li>
+<li><code>.data:</code> 数据部分保存程序的<strong>初始化数据</strong>,如用<code>int x=5</code>等初始化程序声明的全局变量</li>
+<li><code>VMA链接地址：</code> 该节期望从中执行的内存地址</li>
+<li><code>LMA加载地址</code></li>
+</ol>
+<p>C要求“未初始化的”全局变量以零值开头，不需要在ELF文件中存储<code>.bss</code>的内容，链接器仅记录<code>.bss</code>节的地址和大小，加载程序或程序本身必须将<code>.bss</code>节清零。</p>
+<p>BIOS将引导扇区从地址<code>0x7c00</code>开始加载到内存中，这是引导扇区的加载地址，这也是从中执行引导扇区的位置，因此这也是其链接地址，通过将<code>-Ttext 0x7c00</code>传递给<code>boot/Makefrag</code>中的链接器来设置链接地址，因此链接器将在生成的代码中生成正确的内存地址。</p>
+<p><strong>查看内核可执行文件中所有部分的名称、大小和链接地址的完整列表：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">objdump -h obj/kern/kernel</span><br><span class="line">-h: 显示目标文件各个section的头部摘要信息</span><br></pre></td></tr></table></figure>
+
+<p><strong>检查程序头</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">objdump -x obj/kern/kernel</span><br><span class="line">-x: 显示可用的头信息</span><br></pre></td></tr></table></figure>
+
+<p>之后程度头会在objdump的输出中的“程序头”下列出，ELF对象需要加载到内存中的区域是标记为“LOAD”的区域，会给出每个程序头的信息：</p>
+<table>
+<thead>
+<tr>
+<th align="center">vaddr</th>
+<th align="center">paddr</th>
+<th align="center">memsz</th>
+<th align="center">filesz</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">虚拟地址</td>
+<td align="center">物理地址</td>
+<td align="center">内存大小</td>
+<td align="center">文件大小</td>
+</tr>
+</tbody></table>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看内核可执行文件中所有部分的名称，大小和链接地址的完整列表</span></span><br><span class="line"><span class="variable">$objdump</span> -h obj/kern/kernel</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看引导加载程序的.text部分</span></span><br><span class="line"><span class="variable">$objdump</span> -h obj/boot/boot.out</span><br><span class="line"></span><br><span class="line"><span class="comment"># 检查程序头,ELF对象需要加载到内存中区域标记为“LOAD”的区域</span></span><br><span class="line"><span class="variable">$objdump</span> -x obj/kern/kernel</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看内核程序的入口点</span></span><br><span class="line"><span class="variable">$objdump</span> -f obj/kern/kernel</span><br></pre></td></tr></table></figure>
+
+<h3 id="Exercise-5"><a href="#Exercise-5" class="headerlink" title="Exercise 5"></a>Exercise 5</h3><p>问：再一次追踪boot loader的指令，找出第一条会中断或以其他方式执行错误操作的指令。然后将boot/Makefrag中的链接地址<strong>更改为错误的地址</strong>，运行make clean，后进行重新编译make，然后再次跟踪到引导加载程序来查看发生了什么，注意每一次都需要使用make clean一次又一次地<strong>更改链接地址</strong></p>
+<h4 id="解答"><a href="#解答" class="headerlink" title="解答"></a><strong>解答</strong></h4><p>这里引入了两个概念，一个是链接地址，一个是加载地址。</p>
+<p><strong>链接地址</strong>可以理解为通过编译器链接器处理形成的可执行程序中指令的地址，即<strong>逻辑地址</strong></p>
+<p><strong>加载地址</strong>则是可执行文件真正被装入内存后运行的地址，即<strong>物理地址</strong></p>
+<p>在bootloader中，由于在bootloader运行时还没有任何的分段处理机制，或分页处理机制，所以bootloader可执行程序中的链接地址就应该等于加载地址，在lab中作者说，BIOS默认把bootloader加载到0x7C00内存地址处，因此要求bootloader的链接地址也要在0x7c00处。</p>
+<p>而bootloader的地址设定在<code>boot/Makefrag</code>中完成的，根据题目要求，我们需要改动这个文件的值。</p>
+<p>首先根据题目要求，在lab目录下输入make clean，清除掉之前编译出来的内核可执行文件，在清楚之前可以先把<code>obj/boot/boot.asm</code>文件拷贝出来，之后可以用来比较，然后打开这个<code>boot/Makefrag</code>文件，会发现下列语句：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$(OBJDIR)/boot/boot : $(BOOT_OBJS)</span><br><span class="line">	@<span class="built_in">echo</span> + ld boot/boot</span><br><span class="line">	$(V)$(LD) $(LDFLAGS) -N -3 start -Ttext 0x7C00 -o <span class="variable">$@</span>.out $^</span><br><span class="line">	$(V)$(OBJDUMP) -S <span class="variable">$@</span>.out&gt;<span class="variable">$@</span>.asm</span><br><span class="line">	$(V)$(OBJCOPY) -S -O binary -j .text <span class="variable">$@</span>.out <span class="variable">$@</span></span><br><span class="line">	$(V)perl boot/sign.pl $(OBJDIR)/boot/boot</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>-Ttext 0x7C00</code>，为指定链接地址</li>
+<li><code>obj/boot/boot.asm</code>，和之前的文件做比较</li>
+</ul>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>这个联系想让我们了解链接地址出错会产生的影响，正常的bootloader的链接地址为<code>0x7C00</code>，如果修改成<code>0x7E00</code>，则会导致<code>lgdt gdtdesc</code>和<code>ljmp $PROT_MODE_CSEG, $protcseg</code>两句指令出错，<font color="red"><b>两者都需要计算地址，计算方法为链接地址加上偏移，因此将链接地址修改成加载地址不一样后，会导致地址计算失败。</b></font></p>
+<p>现在，将映射前4MB的物理内存，足以使我们</p>
+<h3 id="Exercise-7"><a href="#Exercise-7" class="headerlink" title="Exercise 7"></a>Exercise 7</h3><p><strong>问题：</strong>使用了QEMU和GDB跟踪到JOS内核并处停止<code>movl %eax, %cr0</code>，检查<code>0x00100000</code>和<code>0xf0100000</code>，现在使用stepiGDB命令单步执行该指令，同样检查内存为<code>0x00100000</code>和<code>0xf0100000</code></p>
+<p>What is the first instruction after the new mapping is established that would fail to work properly if the mapping weren’t in place? Comment out the <code>movl %eax, %cr0</code> in <code>kern/entry.S</code>, trace into it, and see if you were right.</p>
+<h4 id="解答-1"><a href="#解答-1" class="headerlink" title="解答"></a>解答</h4><p>题目包括两个部分</p>
+<ul>
+<li>一是观察内存地址映射瞬间的状态</li>
+<li>二是分析内存地址映射失败的影响</li>
+</ul>
+<h5 id="观察内存地址映射瞬间的状态"><a href="#观察内存地址映射瞬间的状态" class="headerlink" title="观察内存地址映射瞬间的状态"></a>观察内存地址映射瞬间的状态</h5><p>题目要求观察执行命令<code>movl %eax, %cr0</code>前后<code>0x00100000</code>和<code>0xf0100000</code>两个地址的内容，在执行前地址映射尚未完成，因此两个位置的内容不同，执行后地址映射完成，两个位置的内容将会相同</p>
+<ol>
+<li>启动qemu和gdb，在<code>mov %eax %cr0</code>所在的地址<code>0x100025</code>处加断点，运行至此，使用<code>x/16xw</code>查看两个地址往后16个word的内容</li>
+</ol>
+<blockquote>
+<p>会发现此时<code>0xf0100000</code>还没有得到映射，此时<code>0x00100000</code></p>
+</blockquote>
+<ol start="2">
+<li>继续往下执行，再次查看会发现此时已经映射成功</li>
+</ol>
+<h5 id="分析地址映射失败的影响"><a href="#分析地址映射失败的影响" class="headerlink" title="分析地址映射失败的影响"></a>分析地址映射失败的影响</h5><p>这里要判断内存地址失败后哪些指令会运行失败，判断为<code>mov $relocated, %eax</code>和<code>jmp %eax</code>会失败。因为<code>relocated</code>这个地址是由段地址加上偏移地址得到的，段地址是<code>0xf0100008</code>，如果地址映射失败，那么<code>jmp %eax</code>就会跳到<code>0xf0100008</code>加上偏移量的物理地址，导致出错</p>
+<p>将<code>kern/entry.S</code>的<code>movl %eax, %cr0</code>注释掉，重新启动qemu和gdb，在<code>jmp %eax</code>加断点，使用c命令运行到这里，使用<code>x/16xw</code>查看两个地址往后16word的内容，会发现两者不同，后者依然是全0，说明地址映射却是失败了</p>
+<p>继续往下执行，发现<code>gdb</code>报错，因为<code>0xf010002c</code>地址后面的数据全为0，导致把空指针赋值给寄存器而报错</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">(gdb) si</span><br><span class="line">=&gt; 0xf010002c &lt;relocated&gt;:  add    %al,(%eax)</span><br><span class="line">relocated () at kern/entry.S:74</span><br><span class="line">74      movl    <span class="variable">$0x0</span>,%ebp           <span class="comment"># nuke frame pointer</span></span><br><span class="line">(gdb) </span><br><span class="line">Remote connection closed</span><br></pre></td></tr></table></figure>
+
+<p>此时qemu也会打印一堆错误信息而终止运行。</p>
+<h3 id="Exercise-8"><a href="#Exercise-8" class="headerlink" title="Exercise 8"></a>Exercise 8</h3><h4 id="1-补全打印八进制整数"><a href="#1-补全打印八进制整数" class="headerlink" title="1 补全打印八进制整数"></a>1 补全打印八进制整数</h4><blockquote>
+<p>在kern/console.c 中补全</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> <span class="string">&#x27;o&#x27;</span>:</span><br><span class="line">  num = getuint(&amp;ap, lflag);</span><br><span class="line">  base = <span class="number">8</span>;</span><br><span class="line">  <span class="keyword">goto</span> number;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-解释console-c的部分代码"><a href="#2-解释console-c的部分代码" class="headerlink" title="2. 解释console.c的部分代码"></a>2. 解释console.c的部分代码</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(crt_pos &gt;= CRT_SIZE)&#123;</span><br><span class="line">  <span class="keyword">int</span> i;</span><br><span class="line">  memmove(crt_buf, crt_buf + CRT_TOLS, (CRT_SIZE-CRT_COLS)*<span class="keyword">sizeof</span>(<span class="keyword">uint16_t</span>));</span><br><span class="line">  <span class="keyword">for</span>(i = CRT_SIZE - CRT_COLS; i&lt;CRT_SIZE; ++i)&#123;</span><br><span class="line">    crt_buf[i] = <span class="number">0x0700</span>|<span class="string">&#x27; &#x27;</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  crt_pos -= CRT_COLS;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先，<code>CRT(cathode raytube)</code>为阴极射线显示器，根据<code>console.h</code>中的定义，<code>CRL_COLS</code>为显示器每行的字长（1个字占2个字节），取值为80；</p>
+<p><code>CRT_ROWS</code>为显示器的行数，取值为25；</p>
+<p>而<code>#define CRT_SIZE(CRT_ROWS*CRT_COLS)</code>是显示器屏幕能够容纳的字数，即2000。</p>
+<p>当<code>CRT_POS &gt;= CRT_SIZE</code>时，说明显示器屏幕已经写满，因此将屏幕的内容上移一行，即将第2行到最后1行（即第25行）的内容覆盖第1行至倒数第2行(即第24行)，接下来将最后1行的内容用黑色的空格填满。</p>
+<p>用空格字符、0x0700进行或操作的目的是让空格的颜色为黑色。最后更新<code>crt_pos</code>的值，总的来说，这段代码的作用是当屏幕写满内容时将其上移1行，并将最后一行用黑色空格塞满。</p>
+<h4 id="3-跟踪以下代码并回答问题"><a href="#3-跟踪以下代码并回答问题" class="headerlink" title="3. 跟踪以下代码并回答问题"></a>3. 跟踪以下代码并回答问题</h4><ul>
+<li>In the call to cprintf(), to what does fmt point.To what does ap point?</li>
+<li>List each call to <code>cons_putc</code>, va_arg, and vcprintf.For cons_putc, list its argument as well. For va_arg, list what ap points to before and after the call. For vcprintf list the values of its two arguments</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> x=<span class="number">1</span>, y=<span class="number">3</span>, z=<span class="number">4</span>;</span><br><span class="line">cprintf(<span class="string">&quot;x %d, y %x, z %d\n&quot;</span>, x, y, z);</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>fmt 指向格式化字符串<code>x %d, y %x, z %d\n</code>的内存地址，ap指向第一个要打印的参数的内存地址，即x的地址</li>
+<li>列出每次调用<code>cons_putc</code>, <code>va_arg</code>, 和<code>vcprintf</code>的状态：</li>
+</ol>
+<ul>
+<li>cprintf首先调用vcprintf，调用时传入的第一个参数fmt的值为格式化字符串<code>&quot;x %d, y %x, z %d\n&quot;</code>的地址，第2个参数ap指向x的地址</li>
+<li>vcprintf调用vprintfmt，vprintfmt函数中多次调用va_arg和putch, putch调用cputchar，而cputchar调用cons_putc， putch的第一个参数最终会传到cons_putc， 接下来按代码执行顺序列出每次调用这些函数的状态</li>
+</ul>
  
       <!-- reward -->
       
@@ -785,275 +1018,6 @@
 
     
     <article
-  id="post-ROS入门篇"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-     
-    <div class="article-meta">
-      <a href="/2021/04/18/ROS%E5%85%A5%E9%97%A8%E7%AF%87/" class="article-date">
-  <time datetime="2021-04-18T04:57:40.033Z" itemprop="datePublished">2021-04-18</time>
-</a>    
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <script src="/assets/js/APlayer.min.js"> </script><h1 id="1-ROS中的核心概念"><a href="#1-ROS中的核心概念" class="headerlink" title="1 ROS中的核心概念"></a>1 ROS中的核心概念</h1><h2 id="1-1-通信机制"><a href="#1-1-通信机制" class="headerlink" title="1.1 通信机制"></a>1.1 通信机制</h2><p>分布式耦合系统</p>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418091052354.png" alt="image-20210418091052354" style="zoom:50%;">
-
-<h2 id="1-2-节点-amp-节点管理器"><a href="#1-2-节点-amp-节点管理器" class="headerlink" title="1.2 节点 &amp; 节点管理器"></a>1.2 节点 &amp; 节点管理器</h2><ul>
-<li><strong>节点</strong><ol>
-<li>执行具体任务的进程、独立运行的可执行文件</li>
-<li>不同节点可以使用不同的编程语言，可以分布式的运行在不同的主机</li>
-<li>节点在系统中的名称必须是唯一的</li>
-</ol>
-</li>
-<li><strong>节点管理器（ROS Master）</strong> – 控制中心<ol>
-<li>为节点提供命名和注册服务</li>
-<li>跟踪和记录话题/服务通信，<strong>辅助节点相互查找、建立连接</strong></li>
-<li>提供参数服务器（类似全局字典），节点使用此服务器存储和检索运行时的参数</li>
-</ol>
-</li>
-</ul>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418091359672.png" alt="image-20210418091359672" style="zoom:50%;">
-
-<blockquote>
-<p>远端的笔记本用来展示节点的工作</p>
-</blockquote>
-<h2 id="1-3-话题通信"><a href="#1-3-话题通信" class="headerlink" title="1.3 话题通信"></a>1.3 话题通信</h2><ul>
-<li><strong>话题（Topic）</strong> – 异步通信机制<ul>
-<li>节点间用来传输数据的重要总线</li>
-<li>使用<strong>发布/订阅</strong>模型，数据由发布者传输到订阅者，同一个话题的订阅者或发布者可以不唯一</li>
-</ul>
-</li>
-<li><strong>消息（Message）</strong> – 话题数据<ul>
-<li>具有一定的类型和数据结构，包括ROS提供的标准类型和用户自定义类型</li>
-<li>使用编程语言无关的.msg文件定义，编译过程中生成对应的代码文件</li>
-</ul>
-</li>
-</ul>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418091816163.png" alt="image-20210418091816163" style="zoom:50%;">
-
-<h2 id="1-4-服务通信"><a href="#1-4-服务通信" class="headerlink" title="1.4 服务通信"></a>1.4 服务通信</h2><ul>
-<li><strong>服务（Service）</strong> – 同步通信机制<ul>
-<li>使用<strong>客户端/服务端（C/S）</strong>模型，客户端发送b数据，服务器完成处理后返回<strong>应答</strong>数据</li>
-<li>使用编程语言无关的<code>.srv</code>文件定义请求和应答数据结构，编译过程中生成对应的代码文件</li>
-</ul>
-</li>
-</ul>
-<p>请求和应答为反馈类型</p>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418092154134.png" alt="image-20210418092154134" style="zoom:50%;">
-
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418092202705.png" alt="image-20210418092202705" style="zoom:50%;">
-
-<h2 id="1-5-话题-vs-服务"><a href="#1-5-话题-vs-服务" class="headerlink" title="1.5 话题 vs 服务"></a>1.5 话题 vs 服务</h2><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418092312321.png" alt="image-20210418092312321" style="zoom:50%;">
-
-<ul>
-<li>话题单向，无反馈</li>
-<li>服务请求一次，应答一次，有阻塞等待，但没有缓冲区</li>
-<li>话题多对多，意味着有多个publisher，多个subscriber。而服务只有一个server</li>
-</ul>
-<h2 id="1-6-参数"><a href="#1-6-参数" class="headerlink" title="1.6 参数"></a>1.6 参数</h2><ul>
-<li><p><strong>参数（Parameter）</strong> – 全局共享字典</p>
-<ul>
-<li>可以通过网络访问的共享、多变量字典</li>
-<li>节点使用此服务器来存储和检索<strong>运行时的参数</strong></li>
-<li>适合存储静态、非二进制的<strong>配置参数</strong>，不适合存储动态配置的数据</li>
-</ul>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418092759490.png" alt="image-20210418092759490" style="zoom:50%;">
-
-</li>
-</ul>
-<h2 id="1-7-文件系统"><a href="#1-7-文件系统" class="headerlink" title="1.7 文件系统"></a>1.7 文件系统</h2><ul>
-<li><strong>功能包（Package）</strong><ul>
-<li>ROS中的基本单元，包含节点源码、配置文件、数据定义等</li>
-</ul>
-</li>
-<li><strong>功能包清单（Package manifest）</strong><ul>
-<li>记录功能包的基本信息，包含作者信息、许可信息、依赖选项、编译标志等</li>
-</ul>
-</li>
-<li><strong>元功能包（Meta Package）</strong><ul>
-<li>组织多个同一目的的功能包</li>
-</ul>
-</li>
-</ul>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418093008778.png" alt="image-20210418093008778" style="zoom:50%;">
-
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418093020109.png" alt="image-20210418093020109" style="zoom:50%;">
-
-<h2 id="1-8-工作空间"><a href="#1-8-工作空间" class="headerlink" title="1.8 工作空间"></a>1.8 工作空间</h2><p>workspace是一个存放工程开发相关文件的文件夹</p>
-<ul>
-<li><strong>src：</strong> 代码空间（Source Space）</li>
-<li><strong>build：</strong> 编译空间（Build Space）</li>
-<li><strong>devel：</strong> 开发空间（Development Space）</li>
-<li><strong>install：</strong> 安装空间（Install Space）</li>
-</ul>
-<p>同一工作空间下，不允许存在同名功能包</p>
-<p>不同工作空间下，允许存在同名功能包</p>
-<h1 id="2-发布者Publisher的实现"><a href="#2-发布者Publisher的实现" class="headerlink" title="2 发布者Publisher的实现"></a>2 发布者Publisher的实现</h1><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418102336455.png" alt="image-20210418102336455" style="zoom:50%;">
-
-<ul>
-<li>初始化ROS节点</li>
-<li>向ROS Master注册节点信息，包括发布的话题名和话题中的消息类型</li>
-<li>创建消息数据</li>
-<li>按照一定频率循环发布消息</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 该例程将发布turtle1/cmd_vel话题，消息类型geometry_msgs::Twist</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> </span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;ros/ros.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;geometry_msgs/Twist.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// ROS节点初始化</span></span><br><span class="line">	ros::init(argc, argv, <span class="string">&quot;velocity_publisher&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 创建节点句柄</span></span><br><span class="line">	ros::NodeHandle n;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 创建一个Publisher，发布名为/turtle1/cmd_vel的topic，消息类型为geometry_msgs::Twist，队列长度10</span></span><br><span class="line">	ros::Publisher turtle_vel_pub = n.advertise&lt;geometry_msgs::Twist&gt;(<span class="string">&quot;/turtle1/cmd_vel&quot;</span>, <span class="number">10</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 设置循环的频率</span></span><br><span class="line">	<span class="function">ros::Rate <span class="title">loop_rate</span><span class="params">(<span class="number">10</span>)</span></span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">while</span> (ros::ok())</span><br><span class="line">	&#123;</span><br><span class="line">	    <span class="comment">// 初始化geometry_msgs::Twist类型的消息</span></span><br><span class="line">		geometry_msgs::Twist vel_msg;</span><br><span class="line">		vel_msg.linear.x = <span class="number">0.5</span>;</span><br><span class="line">		vel_msg.angular.z = <span class="number">0.2</span>;</span><br><span class="line"></span><br><span class="line">	    <span class="comment">// 发布消息</span></span><br><span class="line">		turtle_vel_pub.publish(vel_msg);</span><br><span class="line">		ROS_INFO(<span class="string">&quot;Publsh turtle velocity command[%0.2f m/s, %0.2f rad/s]&quot;</span>, </span><br><span class="line">				vel_msg.linear.x, vel_msg.angular.z);</span><br><span class="line"></span><br><span class="line">	    <span class="comment">// 按照循环频率延时</span></span><br><span class="line">	    loop_rate.sleep();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>配置CMakeLists.txt的编译规则</strong></p>
-<ul>
-<li>设置需要编译的代码和生成的可执行文件</li>
-<li>设置链接库</li>
-</ul>
-<p><strong>Python版本publisher</strong></p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="comment">########################################################################</span></span><br><span class="line"><span class="comment">####          Copyright 2020 GuYueHome (www.guyuehome.com).          ###</span></span><br><span class="line"><span class="comment">########################################################################</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 该例程将发布turtle1/cmd_vel话题，消息类型geometry_msgs::Twist</span></span><br><span class="line"></span><br><span class="line">import rospy</span><br><span class="line"><span class="keyword">from</span> geometry_msgs.msg import Twist</span><br><span class="line"></span><br><span class="line">def velocity_publisher():</span><br><span class="line">	<span class="comment"># ROS节点初始化</span></span><br><span class="line">    rospy.init_node(<span class="string">&#x27;velocity_publisher&#x27;</span>, anonymous=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment"># 创建一个Publisher，发布名为/turtle1/cmd_vel的topic，消息类型为geometry_msgs::Twist，队列长度10</span></span><br><span class="line">    turtle_vel_pub = rospy.Publisher(<span class="string">&#x27;/turtle1/cmd_vel&#x27;</span>, Twist, queue_size=<span class="number">10</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">#设置循环的频率</span></span><br><span class="line">    rate = rospy.Rate(<span class="number">10</span>) </span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> not rospy.is_shutdown():</span><br><span class="line">		<span class="comment"># 初始化geometry_msgs::Twist类型的消息</span></span><br><span class="line">        vel_msg = Twist()</span><br><span class="line">        vel_msg.linear.x = <span class="number">0.5</span></span><br><span class="line">        vel_msg.angular.z = <span class="number">0.2</span></span><br><span class="line"></span><br><span class="line">		<span class="comment"># 发布消息</span></span><br><span class="line">        turtle_vel_pub.publish(vel_msg)</span><br><span class="line">    	rospy.loginfo(<span class="string">&quot;Publsh turtle velocity command[%0.2f m/s, %0.2f rad/s]&quot;</span>, </span><br><span class="line">				vel_msg.linear.x, vel_msg.angular.z)</span><br><span class="line"></span><br><span class="line">		<span class="comment"># 按照循环频率延时</span></span><br><span class="line">        rate.sleep()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        velocity_publisher()</span><br><span class="line">    except rospy.ROSInterruptException:</span><br><span class="line">        pass</span><br></pre></td></tr></table></figure>
-
-<h1 id="3-订阅者Subscriber的实现"><a href="#3-订阅者Subscriber的实现" class="headerlink" title="3 订阅者Subscriber的实现"></a>3 订阅者Subscriber的实现</h1><ul>
-<li>初始化ROS节点</li>
-<li>订阅需要的话题</li>
-<li>循环等待话题信息，接收到消息后进入回调函数</li>
-<li>在回调函数中完成消息处理</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">*	订阅/turtle/pose话题，消息类型为turtlesim::Pose</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;ros/ros.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;turtlesim/Pose.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//接收到订阅的消息后，进入消息回调函数</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">poseCallback</span><span class="params">(<span class="keyword">const</span> turtlesim::Pose::ConstPtr&amp; msg)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">// 打印接收到的信息</span></span><br><span class="line">  ROS_INFO(<span class="string">&quot;Turtle pose: x:%0.6f, y:%0.6f&quot;</span>, msg-&gt;x, msg-&gt;y);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">//初始化ROS节点</span></span><br><span class="line">  ros::init(argc, argv, <span class="string">&quot;pose_subscriber&quot;</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">//创建节点句柄</span></span><br><span class="line">  ros::NodeHandle n;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">//创建一个Subscriber，订阅名为/turtle1/pose的topic，注册回调函数poseCallback</span></span><br><span class="line">  ros::Subscriber pose_hub = n.subscibe(<span class="string">&quot;turtle/pose&quot;</span>, <span class="number">10</span>, poseCallback);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">//循环等待回调函数</span></span><br><span class="line">  ros::spin();</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="4-话题消息的定义与使用"><a href="#4-话题消息的定义与使用" class="headerlink" title="4 话题消息的定义与使用"></a>4 话题消息的定义与使用</h1><h2 id="4-1-自定义话题消息"><a href="#4-1-自定义话题消息" class="headerlink" title="4.1 自定义话题消息"></a>4.1 自定义话题消息</h2><ul>
-<li>Person.msg</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">string name</span><br><span class="line">uint8 sex</span><br><span class="line">uint8 age</span><br><span class="line"></span><br><span class="line">uint8 unknown &#x3D; 0</span><br><span class="line">uint8 male &#x3D; 1</span><br><span class="line">uint8 female &#x3D; 2</span><br></pre></td></tr></table></figure>
-
-<h1 id="5-客户端Client实现"><a href="#5-客户端Client实现" class="headerlink" title="5 客户端Client实现"></a>5 客户端Client实现</h1><ul>
-<li>初始化ROS节点</li>
-<li>创建一个Client实例</li>
-<li>发布服务请求数据</li>
-<li>等待Server处理之后的应答结果</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;ros/ros.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;turtlesim/Spawn.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argc)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="comment">// 初始化节点</span></span><br><span class="line">  ros::init(argc, argc, <span class="string">&quot;turtle_spawn&quot;</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 创建节点句柄</span></span><br><span class="line">  ros::NodeHandler node;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 发现/spawn服务后，创建一个服务客户端，连接名为/spawn的service</span></span><br><span class="line">  ros::service::waitForService(<span class="string">&quot;/spawn&quot;</span>);</span><br><span class="line">  ros::serviceClient add_turtle = node.serviceClient&lt;turtlesim::Spawn&gt;(<span class="string">&quot;/spawn&quot;</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 初始化turtlesim::Spawn 的请求数据</span></span><br><span class="line">  turtlesim::Spawn srv;</span><br><span class="line">  srv.request.x = <span class="number">2.0</span>;</span><br><span class="line">  srv.request.y = <span class="number">2.0</span>;</span><br><span class="line">  srv.request.name = <span class="string">&quot;turtle2&quot;</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 请求服务调用</span></span><br><span class="line">  ROS_INFO(<span class="string">&quot;Call service to spawn turtle[x:%0.6f, y:%0.6f, name:%s]&quot;</span>, srv.request.x, srv.request.y, srv.response.name.c_str());</span><br><span class="line">	add_turtle.call(srv);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 显示服务调用结果</span></span><br><span class="line">  ROS_INFO(<span class="string">&quot;Spwan turtle successfully [name:%s]&quot;</span>, srv.response.name.c_str());</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="6-服务端server的编程实现"><a href="#6-服务端server的编程实现" class="headerlink" title="6 服务端server的编程实现"></a>6 服务端server的编程实现</h1><ul>
-<li>初始化ROS节点</li>
-<li>创建Server实例</li>
-<li>循环等待服务请求，进入回调函数</li>
-<li>在回调函数中完成服务功能的处理，并反馈应答数据</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 该例程将执行/turtle_command服务，服务数据类型std_srvs/Trigger</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"> </span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;ros/ros.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;geometry_msgs/Twist.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;std_srvs/Trigger.h&gt;</span></span></span><br><span class="line"></span><br><span class="line">ros::Publisher turtle_vel_pub;</span><br><span class="line"><span class="keyword">bool</span> pubCommand = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// service回调函数，输入参数req，输出参数res</span></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">commandCallback</span><span class="params">(std_srvs::Trigger::Request  &amp;req,</span></span></span><br><span class="line"><span class="function"><span class="params">         			std_srvs::Trigger::Response &amp;res)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	pubCommand = !pubCommand;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 显示请求数据</span></span><br><span class="line">    ROS_INFO(<span class="string">&quot;Publish turtle velocity command [%s]&quot;</span>, pubCommand==<span class="literal">true</span>?<span class="string">&quot;Yes&quot;</span>:<span class="string">&quot;No&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 设置反馈数据</span></span><br><span class="line">	res.success = <span class="literal">true</span>;</span><br><span class="line">	res.message = <span class="string">&quot;Change turtle command state!&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// ROS节点初始化</span></span><br><span class="line">    ros::init(argc, argv, <span class="string">&quot;turtle_command_server&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建节点句柄</span></span><br><span class="line">    ros::NodeHandle n;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建一个名为/turtle_command的server，注册回调函数commandCallback</span></span><br><span class="line">    ros::ServiceServer command_service = n.advertiseService(<span class="string">&quot;/turtle_command&quot;</span>, commandCallback);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 创建一个Publisher，发布名为/turtle1/cmd_vel的topic，消息类型为geometry_msgs::Twist，队列长度10</span></span><br><span class="line">	turtle_vel_pub = n.advertise&lt;geometry_msgs::Twist&gt;(<span class="string">&quot;/turtle1/cmd_vel&quot;</span>, <span class="number">10</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 循环等待回调函数</span></span><br><span class="line">    ROS_INFO(<span class="string">&quot;Ready to receive turtle command.&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 设置循环的频率</span></span><br><span class="line">	<span class="function">ros::Rate <span class="title">loop_rate</span><span class="params">(<span class="number">10</span>)</span></span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span>(ros::ok())</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">// 查看一次回调函数队列</span></span><br><span class="line">    	ros::spinOnce();</span><br><span class="line">		</span><br><span class="line">		<span class="comment">// 如果标志为true，则发布速度指令</span></span><br><span class="line">		<span class="keyword">if</span>(pubCommand)</span><br><span class="line">		&#123;</span><br><span class="line">			geometry_msgs::Twist vel_msg;</span><br><span class="line">			vel_msg.linear.x = <span class="number">0.5</span>;</span><br><span class="line">			vel_msg.angular.z = <span class="number">0.2</span>;</span><br><span class="line">			turtle_vel_pub.publish(vel_msg);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">//按照循环频率延时</span></span><br><span class="line">	    loop_rate.sleep();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="7-服务数据的定义和使用"><a href="#7-服务数据的定义和使用" class="headerlink" title="7 服务数据的定义和使用"></a>7 服务数据的定义和使用</h1><ol>
-<li>定义srv文件</li>
-<li>在package.xml中添加功能包依赖</li>
-<li>在CmakeLists.txt</li>
-</ol>
-<h1 id="8-参数的使用与编程方法"><a href="#8-参数的使用与编程方法" class="headerlink" title="8 参数的使用与编程方法"></a>8 参数的使用与编程方法</h1><p>ROS Master中有个参数模型（全局字典）</p>
-<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210418165001465.png" alt="image-20210418165001465" style="zoom:50%;">
-
-<p><strong>参数命令行使用</strong></p>
-<ul>
-<li><strong>YAML参数文件</strong></li>
-</ul>
-<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">background_b:255</span></span><br><span class="line"><span class="string">background_g:86</span></span><br><span class="line"><span class="string">background_r:69</span></span><br><span class="line"><span class="string">rosdistro:&#x27;neotic&#x27;</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><strong>rosparam</strong></li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$rosparam</span> list 											// 列出当前多有参数</span><br><span class="line"><span class="variable">$rosparam</span> get param_key 						// 显示某个参数值</span><br><span class="line"><span class="variable">$rosparam</span> <span class="built_in">set</span> param_key param_value // 设置某个参数值</span><br><span class="line"><span class="variable">$rosparam</span> dump file_name 						// 设置参数到文件</span><br><span class="line"><span class="variable">$rosparam</span> load file_name 						// 从文件读取参数</span><br><span class="line"><span class="variable">$rosparam</span> delete param_key					// 删除参数</span><br></pre></td></tr></table></figure>
-
-<h1 id="9-ROS中的坐标系管理系统"><a href="#9-ROS中的坐标系管理系统" class="headerlink" title="9 ROS中的坐标系管理系统"></a>9 ROS中的坐标系管理系统</h1><ul>
-<li>TF坐标变换如何实现<ul>
-<li>广播TF变换</li>
-<li>监听TF变换</li>
-</ul>
-</li>
-</ul>
-<h1 id="10-tf坐标系广播与监听的实现"><a href="#10-tf坐标系广播与监听的实现" class="headerlink" title="10 tf坐标系广播与监听的实现"></a>10 tf坐标系广播与监听的实现</h1><p><strong>坐标系广播实现</strong></p>
-<ul>
-<li>定义TF广播器（TransformBroadcaster）</li>
-<li>创建坐标变换值</li>
-<li>发布坐标变换（sendTransform）</li>
-</ul>
-<p><strong>坐标系监听实现</strong></p>
-<h1 id="11-Launch-启动文件"><a href="#11-Launch-启动文件" class="headerlink" title="11 Launch 启动文件"></a>11 Launch 启动文件</h1><p>Launch文件：通过XML文件实现多节点的配置和启动（可以自动启动ROS Master）</p>
-<h2 id="11-1-Launch文件语法"><a href="#11-1-Launch文件语法" class="headerlink" title="11.1 Launch文件语法"></a>11.1 Launch文件语法</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">launch</span>&gt;</span></span><br><span class="line">  	<span class="tag">&lt;<span class="name">node</span> <span class="attr">pkg</span>=<span class="string">&quot;turtlesim&quot;</span> <span class="attr">name</span>=<span class="string">&quot;sim1&quot;</span> <span class="attr">type</span>=<span class="string">&quot;turtlesim_node&quot;</span>/&gt;</span></span><br><span class="line">  	<span class="tag">&lt;<span class="name">node</span> <span class="attr">pkg</span>=<span class="string">&quot;turtlesim&quot;</span> <span class="attr">name</span>=<span class="string">&quot;sim2&quot;</span> <span class="attr">type</span>=<span class="string">&quot;turtlesim_node&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">launch</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><code>&lt;launch&gt;</code></li>
-</ul>
-<blockquote>
-<p>launch文件中的根元素采用<code>&lt;launch&gt;</code>标签定义</p>
-</blockquote>
-<ul>
-<li><p><code>&lt;node&gt;</code></p>
-<ol>
-<li>启动节点：</li>
-</ol>
-<blockquote>
-<p><code>&lt;node pkg=&quot;package-name&quot; type=&quot;executable-name&quot; name=&quot;node-name&quot;/&gt;</code></p>
-</blockquote>
-<ol start="2">
-<li><code>pkg</code>:节点所在的功能包名称</li>
-<li><code>type:</code> 节点的可执行文件名称</li>
-<li><code>name:</code> 节点运行时的名称[可以用来取代初始化的名字]</li>
-<li><code>output, respawn, required, ns, args</code></li>
-</ol>
-</li>
-<li><p><code>&lt;param&gt;/&lt;rosparam&gt;</code></p>
-<p>设置ROS系统运行中的参数，<strong>存储在参数服务器中</strong></p>
-<p><code>&lt;param name=&quot;output_frame&quot; value=&quot;odom&quot;/&gt;</code></p>
-<ul>
-<li><code>name:</code> 参数名</li>
-<li><code>value:</code> 参数值</li>
-</ul>
-<p>加载参数文件中的多个参数</p>
-<p><code>&lt;rosparam file=&quot;params.yaml&quot; command=&quot;load&quot; ns=&quot;params&quot;/&gt;</code></p>
-</li>
-<li><p><code>&lt;arg&gt;</code></p>
-<p>launch文件内部的局部变量，<strong>仅限于launch文件使用</strong></p>
-<p><code>&lt;arg name=&quot;arg-name&quot; default=&quot;arg-value&quot;/&gt;</code></p>
-<ul>
-<li><code>name:</code> 参数名</li>
-<li><code>value:</code> 参数值</li>
-</ul>
-<p>调用：</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">param</span> <span class="attr">name</span>=<span class="string">&quot;foo&quot;</span> <span class="attr">value</span>=<span class="string">&quot;$(arg arg-name)&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">node</span> <span class="attr">name</span>=<span class="string">&quot;node&quot;</span> <span class="attr">pkg</span>=<span class="string">&quot;package&quot;</span> <span class="attr">type</span>=<span class="string">&quot;type&quot;</span> <span class="attr">args</span>=<span class="string">&quot;$(arg arg-name)&quot;</span>&gt;</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>重映射<code>&lt;remap&gt;</code></p>
-<p>重映射ROS计算图资源的重命名</p>
-<p><code>&lt;remap from=&quot;/turtlebot/cmd_vel&quot;to=&quot;/cmd_vel&quot;/&gt;</code></p>
-<ul>
-<li><code>from:</code> 原命名</li>
-<li><code>to:</code> 映射之后的命名</li>
-</ul>
-</li>
-<li><p>嵌套<code>&lt;include&gt;</code></p>
-<p>包含其他launch文件，类似C语言中的头文件包含</p>
-<p><code>&lt;include file=&quot;$(dirname)/other.launch&quot;/&gt;</code></p>
-<ul>
-<li><code>file:</code> 包含的其他launch文件路径</li>
-</ul>
-</li>
-</ul>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
   id="post-uCore/Lab 2 物理内存管理"
   class="article article-type-post"
   itemscope
@@ -1061,16 +1025,30 @@
   data-scroll-reveal
 >
   <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/04/11/uCore/Lab%202%20%E7%89%A9%E7%90%86%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/"
+    >Lab 2 物理内存管理</a> 
+</h2>
+ 
+
+    </header>
      
     <div class="article-meta">
       <a href="/2021/04/11/uCore/Lab%202%20%E7%89%A9%E7%90%86%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="article-date">
   <time datetime="2021-04-11T11:52:10.059Z" itemprop="datePublished">2021-04-11</time>
-</a>    
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/uCore/">uCore</a>
+  </div>
+   
     </div>
       
     <div class="article-entry" itemprop="articleBody">
        
-  <script src="/assets/js/APlayer.min.js"> </script><h1 id="Lab-2-物理内存管理"><a href="#Lab-2-物理内存管理" class="headerlink" title="Lab 2 物理内存管理"></a>Lab 2 物理内存管理</h1><blockquote>
+  <script src="/assets/js/APlayer.min.js"> </script><blockquote>
 <p>这个lab目的是完成一个简单的物理内存管理系统</p>
 </blockquote>
 <h1 id="1-实验目的"><a href="#1-实验目的" class="headerlink" title="1 实验目的"></a>1 实验目的</h1><ul>
@@ -1212,6 +1190,8 @@
     
     <footer class="article-footer">
        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/uCore/" rel="tag">uCore</a></li></ul>
+
     </footer>
   </div>
 
@@ -2454,7 +2434,7 @@
   
   <nav class="page-nav">
     
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/">下一页</a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">下一页</a>
   </nav>
   
 </section>
@@ -2543,10 +2523,6 @@
     
     <li class="nav-item">
       <a class="nav-item-link" href="/tags">标签</a>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-item-link" href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/">区块链</a>
     </li>
     
     <li class="nav-item">
