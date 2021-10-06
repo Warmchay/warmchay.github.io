@@ -1,6 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>FPGA Acceleration (Intro)</title>
+    <url>/2021/10/05/FPGA/Introduction%20to%20FPGA%20Acceleration/</url>
+    <content><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><p>FPGA could offload CPU’s processing power and can enable high bandwidths.</p>
+<h2 id="What-is-FPGA"><a href="#What-is-FPGA" class="headerlink" title="What is FPGA"></a>What is FPGA</h2><blockquote>
+<p> FPGA: Field Programmable <strong>Gate Array(门阵列)</strong></p>
+</blockquote>
+<p>An FPGA is an integrated circuit consisting of “logic blocks”, “I/O cells” and  “interconnection resources”,this allows the chip to be reconfigured to connect the I/O and logic blocks together.</p>
+<p><strong>1. logic blocks</strong> </p>
+<p>each could do simple logic ops, such as AND or XOR, and has some degree of memory(存储器), <strong>be it a simple Flip-flop（触发器） or a more complex block of memory</strong>.</p>
+<p>And logic blocks have turned to by more logic function blocks using <strong>lookup tables(查找表)</strong> within the blocks to switch current function: <strong>e.g. to perform tasks as arithmetic ops.</strong></p>
+<p>Current FPGA are starting to cross the line of FPGA and on-chip system, while the true power of FPGA is having a nember of logic blocks that can be connected together to perform massively parallel, and real time processing..</p>
+<img src="https://i.loli.net/2021/10/06/Uwc4PeHu3WFkjDZ.png" alt="image-20211005142912319.png" style="zoom:50%;">
+
+<h2 id="Speed-Comparison"><a href="#Speed-Comparison" class="headerlink" title="Speed Comparison"></a>Speed Comparison</h2><ul>
+<li>CPU: how long functions take to exec <strong>or</strong> how fast they run</li>
+<li>FPGA: based on data throughput.</li>
+</ul>
+<p><font color="red"><b>Sweet Point:</b></font></p>
+<p>in-line processing（内联处理），可以在不知道其余数据是什么样的情况下对data stream执行功能，利于管理高数据速率，仅需要 CPU 去处理少量数据。</p>
+<p><font color="red"><b>Weak Point：</b></font> </p>
+<p>内存小，没有寻址寄存器组，无法处理数据。</p>
+<h3 id="FPGA-加速原理"><a href="#FPGA-加速原理" class="headerlink" title="FPGA 加速原理"></a>FPGA 加速原理</h3><p><strong>并行计算编程技巧：从 GPU 的 CUDA 并行编程开始（新竹清华大学课程）</strong></p>
+<ol>
+<li><strong>GPU 瓶颈之一在于运算单元喂不饱</strong></li>
+</ol>
+<p>GPU有很多并行运算单元，只有当运算单元一直在做运算时才能发挥最大效率。当代码写的不好，会出现GPU没做多少计算就需要从DDR取数据，运算单元则有可能因为取数据的延时而在那里等待，这样GPU运算单元的利用率就低了。</p>
+<p>所以GPU要提高效率，需要充分利用片上内存，减少DDR的访问频率，这和CPU要优化Cache命中率是一样的。</p>
+<p><strong>2. FPGA的优势在哪</strong></p>
+<p>如Tesla P40与其附带的FPGA的原始算力是差不多的，但是在片上内存上，FPGA有着更高的计算容量，片上内存在DL中多应用于减少掩饰，大量的片上Cache缓存能减少外部内存读取带来的内存瓶颈，能减少高内存带宽解决方案所需要的功耗和成本。</p>
+<p>访问外部存储，如读写DDR，是非常耗能的，可能数据在DDR和芯片之间的能耗比芯片本身做计算的能耗还要高，FPGA片上内存的大容量和灵活配置能减少对外部DDR的读写，这个可以缓解内存瓶颈，也能减少延时和降低功耗。</p>
+<p><strong>3. FPGA最擅长实时流水线计算</strong></p>
+<p>实时的意思即运算速度和数据来的速度是一样的，如<code>1920*1080*60</code>帧的视频流，像素时钟频率为<code>150MHz</code>，FPGA在对它进行处理的时候运算时钟频率也为<code>150MHz</code>。</p>
+<img src="https://i.loli.net/2021/10/06/D5COS3nHhsMcyVl.jpg" alt="v2-5b8edf852cd2a342b2d858ae3f45234c_720w.jpg" style="zoom:80%;">
+
+<p>FPGA能在图像一边从HDMI或传感器芯片传过来时同时做处理，而CPU则是one by one，因此FPGA可以把大量计算全部并行起来达到实时速度的。</p>
+<p><strong>4. 最高效的计算方式应该是</strong></p>
+<p>计算的瓶颈往往不在于运算单元的数量，而是在内存带宽上，即数据读写来不及，运算单元喂不饱，最高效的计算方式是能利用片上的高速内存，这样能尽可能减少对外部DDR的读写，这也同时降低了功耗。</p>
+<p><font color="red">为什么FPGA比GPU的能耗更低呢？</font>因为FPGA是硬件可编程，所以它有着直接的数据通路。比如FPGA算两个数相加，那直接把两个数从内存读进来送到加法器后去加即可，但是在GPU中还需要进行指令译码，译码结果为加法后才能送往加法器，这中间还需要经过一些选通器才会被正确的送到加法器而不是其他的运算单元。</p>
+<p>而GPU这些译码，选通数据都会产生额外的功耗，但是FPGA每次需要做的运算都是固定的，不需要指令译码，也不需要数据的选通。</p>
+<p><strong>FPGA相较于GPU最大的优势为其有片上内存，比GPU的Cache大得多，可以缓存需要运算的数据和中间结果，减少从DDR中读数据</strong></p>
+<h2 id="附录A-DDR-SDRAM"><a href="#附录A-DDR-SDRAM" class="headerlink" title="附录A DDR SDRAM"></a>附录A DDR SDRAM</h2><blockquote>
+<p>DDR SDRAM: Double Data Rate SDRAM – 双倍数据率SDRAM</p>
+</blockquote>
+<p><strong>1. SDRAM，DRAM，SRAM and RAM、ROM</strong></p>
+<ul>
+<li><strong>ROM and RAM</strong></li>
+</ul>
+<p><strong>ROM</strong>：read-only，储存资料后不能改变，资料不会因为关闭电源而消失；</p>
+<p><strong>RAM：</strong> random-access，自由指定地址进行数据读写，但是掉电之后就会丢失数据：如PC的内存。</p>
+<ul>
+<li><strong>SRAM and DRAM</strong></li>
+</ul>
+<p><strong>SRAM：</strong> Static RAM，静止存取功能的内存，不需要refresh电路即能保存它内部存储的数据，在加电情况下不需要refresh，数据不会丢失。但集成度较低，相同容量的内存需要很大的体积，功耗较大，同时因为比较昂贵，常用在CPU的一级、二级Cache</p>
+<p><strong>DRAM：</strong> Dynamic RAM，只能将数据保存较短时间，为了保持数据，DRAM使用电容储存，隔一段时间需要refresh一次，如果存储单元没有被refresh，存储的信息就会丢失。速度比SRAM慢，但是价格便宜，常用于PC的内存。</p>
+<ul>
+<li><strong>DDR SDRAM</strong></li>
+</ul>
+<p><strong>Synchronous DRAM：</strong>同步动态随机存储器，Synchronous指Mem工作需要同步时钟，内部命令的发送与数据的传输都以它为基准。</p>
+<p><strong>DDR：</strong> 在SDRAM基础上发展而来，这种改进型的DRAM和SDRAM基本一样，不同之处在于可以它可以在一个时钟读写两次数据，这样使得数据传输速度加倍了。</p>
+<h3 id="References"><a href="#References" class="headerlink" title="References"></a>References</h3><ol>
+<li><p><a href="https://www.stemmer-imaging.com/en-dk/technical-tips/introduction-to-fpga-acceleration/">Introduction to FPGA acceleration</a></p>
+</li>
+<li><p><a href="https://zhuanlan.zhihu.com/p/149221232">深入理解FPGA加速原理——不是随便写个C代码去HLS一下就能加速的</a></p>
+</li>
+<li><p><a href="https://zhuanlan.zhihu.com/p/23261548">DDR的前世与今生</a></p>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>FPGA and GPU</category>
+      </categories>
+      <tags>
+        <tag>FPGA</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>C++ 新知识</title>
     <url>/2021/05/09/OOP/C++%20%E6%96%B0%E7%9F%A5%E8%AF%86/</url>
     <content><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><h1 id="C-新知识"><a href="#C-新知识" class="headerlink" title="C++ 新知识"></a>C++ 新知识</h1><h2 id="1-main-int-argc-char-argv"><a href="#1-main-int-argc-char-argv" class="headerlink" title="1 main(int argc, char** argv)"></a>1 main(int argc, char** argv)</h2><p>这个表示在可执行文件中，传入的参数有多少，以argc表示</p>

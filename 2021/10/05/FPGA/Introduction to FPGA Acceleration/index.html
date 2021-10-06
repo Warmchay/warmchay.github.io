@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    C++ 新知识 |  
+    FPGA Acceleration (Intro) |  
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -45,7 +45,7 @@
     <main class="content on">
       <section class="outer">
   <article
-  id="post-OOP/C++ 新知识"
+  id="post-FPGA/Introduction to FPGA Acceleration"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -56,18 +56,18 @@
     <header class="article-header">
        
 <h1 class="article-title sea-center" style="border-left:0" itemprop="name">
-  C++ 新知识
+  FPGA Acceleration (Intro)
 </h1>
  
 
     </header>
      
     <div class="article-meta">
-      <a href="/2021/05/09/OOP/C++%20%E6%96%B0%E7%9F%A5%E8%AF%86/" class="article-date">
-  <time datetime="2021-05-09T05:11:58.704Z" itemprop="datePublished">2021-05-09</time>
+      <a href="/2021/10/05/FPGA/Introduction%20to%20FPGA%20Acceleration/" class="article-date">
+  <time datetime="2021-10-05T06:28:59.968Z" itemprop="datePublished">2021-10-05</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/OOP/">OOP</a>
+    <a class="article-category-link" href="/categories/FPGA-and-GPU/">FPGA and GPU</a>
   </div>
   
 <div class="word_count">
@@ -75,7 +75,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">1.3k</span>
+            <span class="post-count">1.5k</span>
         </span>
     </span>
 
@@ -99,85 +99,71 @@
   
     <div class="article-entry" itemprop="articleBody">
        
-  <script src="/assets/js/APlayer.min.js"> </script><h1 id="C-新知识"><a href="#C-新知识" class="headerlink" title="C++ 新知识"></a>C++ 新知识</h1><h2 id="1-main-int-argc-char-argv"><a href="#1-main-int-argc-char-argv" class="headerlink" title="1 main(int argc, char** argv)"></a>1 main(int argc, char** argv)</h2><p>这个表示在可执行文件中，传入的参数有多少，以argc表示</p>
-<p>传入参数（字符串）用<code>*argv</code>来存储</p>
-<p>举个例子：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*cmdFile.cpp*/</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span></span>&#123;</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;argc; ++i)&#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Hello,&quot;</span> &lt;&lt; argv[i] &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+  <script src="/assets/js/APlayer.min.js"> </script><p>FPGA could offload CPU’s processing power and can enable high bandwidths.</p>
+<h2 id="What-is-FPGA"><a href="#What-is-FPGA" class="headerlink" title="What is FPGA"></a>What is FPGA</h2><blockquote>
+<p> FPGA: Field Programmable <strong>Gate Array(门阵列)</strong></p>
+</blockquote>
+<p>An FPGA is an integrated circuit consisting of “logic blocks”, “I/O cells” and  “interconnection resources”,this allows the chip to be reconfigured to connect the I/O and logic blocks together.</p>
+<p><strong>1. logic blocks</strong> </p>
+<p>each could do simple logic ops, such as AND or XOR, and has some degree of memory(存储器), <strong>be it a simple Flip-flop（触发器） or a more complex block of memory</strong>.</p>
+<p>And logic blocks have turned to by more logic function blocks using <strong>lookup tables(查找表)</strong> within the blocks to switch current function: <strong>e.g. to perform tasks as arithmetic ops.</strong></p>
+<p>Current FPGA are starting to cross the line of FPGA and on-chip system, while the true power of FPGA is having a nember of logic blocks that can be connected together to perform massively parallel, and real time processing..</p>
+<img src="https://i.loli.net/2021/10/06/Uwc4PeHu3WFkjDZ.png" alt="image-20211005142912319.png" style="zoom:50%;">
 
-<p>生成可执行文件<code>cmdFile</code>后</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./cmdFile daniel zoris</span><br><span class="line">Hello,daniel</span><br><span class="line">Hello,zoris</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-C库宏-va-arg"><a href="#2-C库宏-va-arg" class="headerlink" title="2 C库宏 va_arg()"></a>2 C库宏 va_arg()</h2><p>C库宏<code>type va_arg(va_list ap, type)</code>检索函数参数列表中类型为type的下一个参数，它无法判断检索到的参数是否是传给函数的最后一个参数</p>
-<p><strong>为什么选择它？</strong></p>
-<ul>
-<li>可以在函数中加入省略号作为缺省参数</li>
+<h2 id="Speed-Comparison"><a href="#Speed-Comparison" class="headerlink" title="Speed Comparison"></a>Speed Comparison</h2><ul>
+<li>CPU: how long functions take to exec <strong>or</strong> how fast they run</li>
+<li>FPGA: based on data throughput.</li>
 </ul>
-<h3 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h3><p>用来实现与<code>printf</code>相似的功能，如printf的声明和调用方法为：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">printf</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* fromat, [,argument]...)</span></span>;  <span class="comment">//官方声明</span></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;My name is %s, age %d, &quot;</span>AnnieKim<span class="string">&quot;, 24&quot;</span>);  <span class="comment">//调用</span></span><br></pre></td></tr></table></figure>
+<p><font color="red"><b>Sweet Point:</b></font></p>
+<p>in-line processing（内联处理），可以在不知道其余数据是什么样的情况下对data stream执行功能，利于管理高数据速率，仅需要 CPU 去处理少量数据。</p>
+<p><font color="red"><b>Weak Point：</b></font> </p>
+<p>内存小，没有寻址寄存器组，无法处理数据。</p>
+<h3 id="FPGA-加速原理"><a href="#FPGA-加速原理" class="headerlink" title="FPGA 加速原理"></a>FPGA 加速原理</h3><p><strong>并行计算编程技巧：从 GPU 的 CUDA 并行编程开始（新竹清华大学课程）</strong></p>
+<ol>
+<li><strong>GPU 瓶颈之一在于运算单元喂不饱</strong></li>
+</ol>
+<p>GPU有很多并行运算单元，只有当运算单元一直在做运算时才能发挥最大效率。当代码写的不好，会出现GPU没做多少计算就需要从DDR取数据，运算单元则有可能因为取数据的延时而在那里等待，这样GPU运算单元的利用率就低了。</p>
+<p>所以GPU要提高效率，需要充分利用片上内存，减少DDR的访问频率，这和CPU要优化Cache命中率是一样的。</p>
+<p><strong>2. FPGA的优势在哪</strong></p>
+<p>如Tesla P40与其附带的FPGA的原始算力是差不多的，但是在片上内存上，FPGA有着更高的计算容量，片上内存在DL中多应用于减少掩饰，大量的片上Cache缓存能减少外部内存读取带来的内存瓶颈，能减少高内存带宽解决方案所需要的功耗和成本。</p>
+<p>访问外部存储，如读写DDR，是非常耗能的，可能数据在DDR和芯片之间的能耗比芯片本身做计算的能耗还要高，FPGA片上内存的大容量和灵活配置能减少对外部DDR的读写，这个可以缓解内存瓶颈，也能减少延时和降低功耗。</p>
+<p><strong>3. FPGA最擅长实时流水线计算</strong></p>
+<p>实时的意思即运算速度和数据来的速度是一样的，如<code>1920*1080*60</code>帧的视频流，像素时钟频率为<code>150MHz</code>，FPGA在对它进行处理的时候运算时钟频率也为<code>150MHz</code>。</p>
+<img src="https://i.loli.net/2021/10/06/D5COS3nHhsMcyVl.jpg" alt="v2-5b8edf852cd2a342b2d858ae3f45234c_720w.jpg" style="zoom:80%;">
 
-<h4 id="1）通用的工作原理"><a href="#1）通用的工作原理" class="headerlink" title="1）通用的工作原理"></a>1）通用的工作原理</h4><p>大多数带有变长参数的函数都利用<strong>显示声明</strong>的参数中的一些信息，来获取调用中提供的其他可选实参的类型和数目。</p>
-<p>比如printf函数，就是根据第一个参数推到可选实参：</p>
+<p>FPGA能在图像一边从HDMI或传感器芯片传过来时同时做处理，而CPU则是one by one，因此FPGA可以把大量计算全部并行起来达到实时速度的。</p>
+<p><strong>4. 最高效的计算方式应该是</strong></p>
+<p>计算的瓶颈往往不在于运算单元的数量，而是在内存带宽上，即数据读写来不及，运算单元喂不饱，最高效的计算方式是能利用片上的高速内存，这样能尽可能减少对外部DDR的读写，这也同时降低了功耗。</p>
+<p><font color="red">为什么FPGA比GPU的能耗更低呢？</font>因为FPGA是硬件可编程，所以它有着直接的数据通路。比如FPGA算两个数相加，那直接把两个数从内存读进来送到加法器后去加即可，但是在GPU中还需要进行指令译码，译码结果为加法后才能送往加法器，这中间还需要经过一些选通器才会被正确的送到加法器而不是其他的运算单元。</p>
+<p>而GPU这些译码，选通数据都会产生额外的功耗，但是FPGA每次需要做的运算都是固定的，不需要指令译码，也不需要数据的选通。</p>
+<p><strong>FPGA相较于GPU最大的优势为其有片上内存，比GPU的Cache大得多，可以缓存需要运算的数据和中间结果，减少从DDR中读数据</strong></p>
+<h2 id="附录A-DDR-SDRAM"><a href="#附录A-DDR-SDRAM" class="headerlink" title="附录A DDR SDRAM"></a>附录A DDR SDRAM</h2><blockquote>
+<p>DDR SDRAM: Double Data Rate SDRAM – 双倍数据率SDRAM</p>
+</blockquote>
+<p><strong>1. SDRAM，DRAM，SRAM and RAM、ROM</strong></p>
 <ul>
-<li>如果有一个<code>%</code>后有一个<code>s</code>，说明后面还有第二个类型为字符串的参数；如果还有第二个<code>%</code>，后面跟着d，说明还需要第三个类型为整数的参数。</li>
+<li><strong>ROM and RAM</strong></li>
 </ul>
-<p><font color="red"><b>所以说，通常情况下，第一个参数是必不可少的</b></font></p>
-<h4 id="2）如何获取变长参数"><a href="#2）如何获取变长参数" class="headerlink" title="2）如何获取变长参数"></a>2）如何获取变长参数</h4><p>为了解决变长参数问题，需要用到以下几个宏，并且使用这几个宏时<strong>必须至少提供一个</strong>显式的参数：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">type va_arg&#123;</span><br><span class="line">  va_list arg_ptr, type</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">void</span> va_end&#123;</span><br><span class="line">  va_list arg_ptr;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">void</span> va_start&#123;</span><br><span class="line">  va_list arg_ptr, prev_param</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>其中，type指要获取的参数的类型，比如int，char*等，<code>arg_ptr</code>是指向参数列表的指针（<code>va_list</code>类型），<code>prev_param</code>是指向最后一个显示声明的参数，以用来获取第一个变长参数的位置。</p>
-<p><strong>使用步骤：</strong></p>
-<ol>
-<li>定义一个va_list类型的变量，变量是指向参数的指针</li>
-<li><code>va_start</code>初始化刚定义的变量，第二个参数是最后一个显示声明的参数</li>
-<li><code>va_arg</code>返回变长参数的值，第二个参数是该变长参数的类型</li>
-<li><code>va_end</code>将第一步定义的变量重置为NULL</li>
-</ol>
-<p><strong>注意事项⚠️</strong></p>
-<ol>
-<li>变长参数的<strong>类型和数目不能通过宏来获取</strong>，只能通过自己写程序控制</li>
-<li>编译器对变长参数函数的原型检查不够严格，会影响代码质量</li>
-</ol>
-<h3 id="2-1-声明"><a href="#2-1-声明" class="headerlink" title="2.1 声明"></a>2.1 声明</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">type <span class="title">va_arg</span><span class="params">(va_list ap, type)</span></span></span><br></pre></td></tr></table></figure>
-
-<h3 id="2-2-参数"><a href="#2-2-参数" class="headerlink" title="2.2 参数"></a>2.2 参数</h3><p>$$<br>(d+2<em>m+3</em>(m+1)/5+y+y/4-y/100+y/400+1)%7<br>$$</p>
+<p><strong>ROM</strong>：read-only，储存资料后不能改变，资料不会因为关闭电源而消失；</p>
+<p><strong>RAM：</strong> random-access，自由指定地址进行数据读写，但是掉电之后就会丢失数据：如PC的内存。</p>
 <ul>
-<li><code>ap</code> - 这是一个<code>va_list</code>类型的对象，存储了有关额外参数和检索状态的信息，这个对象应该在第一次调用<code>va_arg</code>之前通过调用<code>va_start</code>进行初始化</li>
-<li><code>type</code> - 这是一个类型名称，这个类型名称是作为扩展自该宏的表达式的类型来使用的</li>
+<li><strong>SRAM and DRAM</strong></li>
 </ul>
-<h3 id="2-3-返回值"><a href="#2-3-返回值" class="headerlink" title="2.3 返回值"></a>2.3 返回值</h3><p>这个宏返回下一个额外的参数。类型为type</p>
-<h3 id="2-4-va-list用法"><a href="#2-4-va-list用法" class="headerlink" title="2.4 va_list用法"></a>2.4 va_list用法</h3><p>回顾一下printf函数的声明：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">printf</span><span class="params">(<span class="keyword">char</span> *fromat, ...)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p>第一个<code>char* format</code>是常写的带<code>%d, %f</code>这样转换单元的格式字符串，第二个参数是<code>...</code>，这个是变参函数定义时的奥秘：</p>
-<ol>
-<li>变参处的定义或声明，用<code>...</code>代替参数类型</li>
-<li>变参<code>...</code>只能放在参数列表最末尾</li>
-</ol>
-<p>对于一个结构体函数：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">  <span class="keyword">double</span> x, y;</span><br><span class="line">&#125;point;</span><br><span class="line"></span><br><span class="line"><span class="function">struct point <span class="title">barycenter</span><span class="params">(<span class="keyword">int</span> n, ...)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> i;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">point</span> <span class="title">t</span>;</span></span><br><span class="line">  strucy point sum=&#123;<span class="number">0</span>&#125;;</span><br><span class="line">  va_list listPointer;</span><br><span class="line">  va_start(listPointer, n);</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;n; ++i)&#123;</span><br><span class="line">    t = va_arg(listPointer,struct point);</span><br><span class="line">    sum.x += t.x;</span><br><span class="line">    sum.y += t.y;</span><br><span class="line">  &#125;</span><br><span class="line">  sum.x /= n;</span><br><span class="line">  sum.y /= n;</span><br><span class="line">  va_end(listPointer);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><strong>以上用到的宏：</strong></p>
+<p><strong>SRAM：</strong> Static RAM，静止存取功能的内存，不需要refresh电路即能保存它内部存储的数据，在加电情况下不需要refresh，数据不会丢失。但集成度较低，相同容量的内存需要很大的体积，功耗较大，同时因为比较昂贵，常用在CPU的一级、二级Cache</p>
+<p><strong>DRAM：</strong> Dynamic RAM，只能将数据保存较短时间，为了保持数据，DRAM使用电容储存，隔一段时间需要refresh一次，如果存储单元没有被refresh，存储的信息就会丢失。速度比SRAM慢，但是价格便宜，常用于PC的内存。</p>
 <ul>
-<li><p><code>va_list</code>: 用来定义一个变量列表的指针类型</p>
-</li>
-<li><p><code>va_start(listPointer, n)</code>将listPointer这个指针绑定到有n个变量的传入参数列表上</p>
-</li>
-<li><p><code>va_arg(listPointer, type)</code>从参数列表中逐个取出数据，取出数据的类型由type决定，它返回这个type类型的值，我们可以马上把它赋值给另一个变量</p>
-</li>
-<li><p>当函数调用结束的时候，需要使用<code>va_end</code>来清除<code>listPointer</code>指向的空间，否则会发生内存泄漏问题</p>
-<p><strong>可能存在的疑问：</strong></p>
-</li>
+<li><strong>DDR SDRAM</strong></li>
 </ul>
-<ol>
-<li>必须知道传入参数的个数吗？</li>
+<p><strong>Synchronous DRAM：</strong>同步动态随机存储器，Synchronous指Mem工作需要同步时钟，内部命令的发送与数据的传输都以它为基准。</p>
+<p><strong>DDR：</strong> 在SDRAM基础上发展而来，这种改进型的DRAM和SDRAM基本一样，不同之处在于可以它可以在一个时钟读写两次数据，这样使得数据传输速度加倍了。</p>
+<h3 id="References"><a href="#References" class="headerlink" title="References"></a>References</h3><ol>
+<li><p><a target="_blank" rel="noopener" href="https://www.stemmer-imaging.com/en-dk/technical-tips/introduction-to-fpga-acceleration/">Introduction to FPGA acceleration</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/149221232">深入理解FPGA加速原理——不是随便写个C代码去HLS一下就能加速的</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/23261548">DDR的前世与今生</a></p>
+</li>
 </ol>
-<p>对，如果没有参数个数，va_start的时候就无法绑定</p>
-<ol start="2">
-<li>所有的可变参数必须都是同一个类型吗</li>
-</ol>
-<p>不是的，对比一下printf函数，printf通过<code>char* format</code>格式字符串，不仅确定了参数个数，还确定了每个参数的类型（通过%d这样的转换单元），这样只要在va_arg的时候采用适当的type类型就能够读出各种类型的参数。</p>
-<h3 id="2-4-举个例子"><a href="#2-4-举个例子" class="headerlink" title="2.4 举个例子"></a>2.4 举个例子</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdarg.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum</span><span class="params">(<span class="keyword">int</span>, ...)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;15和56的和 = %d\n&quot;</span>, sum(<span class="number">2</span>, <span class="number">15</span>, <span class="number">56</span>));</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">sum</span><span class="params">(<span class="keyword">int</span> num_args, ...)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> val = <span class="number">0</span>;</span><br><span class="line">  va_list ap;</span><br><span class="line">  <span class="keyword">int</span> i;</span><br><span class="line">  </span><br><span class="line">  va_start(ap, num_args);</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>; u &lt; num_args; ++i)</span><br><span class="line">  &#123;</span><br><span class="line">    val += va_args(ap, <span class="keyword">int</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  va_end(ap);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> val;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
  
       <!-- reward -->
       
@@ -248,12 +234,12 @@
     <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://warmchay.github.io/2021/05/09/OOP/C++%20%E6%96%B0%E7%9F%A5%E8%AF%86/" alt="微信分享二维码">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://warmchay.github.io/2021/10/05/FPGA/Introduction%20to%20FPGA%20Acceleration/" alt="微信分享二维码">
     </div>
 </div>
 
 <div id="share-mask"></div>  
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/" rel="tag">C++</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/FPGA/" rel="tag">FPGA</a></li></ul>
 
     </footer>
   </div>
@@ -261,19 +247,10 @@
    
   <nav class="article-nav">
     
-      <a href="/2021/10/05/FPGA/Introduction%20to%20FPGA%20Acceleration/" class="article-nav-link">
-        <strong class="article-nav-caption">上一篇</strong>
-        <div class="article-nav-title">
-          
-            FPGA Acceleration (Intro)
-          
-        </div>
-      </a>
     
-    
-      <a href="/2021/04/22/XV6-Core/Chapter%201/" class="article-nav-link">
+      <a href="/2021/05/09/OOP/C++%20%E6%96%B0%E7%9F%A5%E8%AF%86/" class="article-nav-link">
         <strong class="article-nav-caption">下一篇</strong>
-        <div class="article-nav-title">Chapter 1</div>
+        <div class="article-nav-title">C++ 新知识</div>
       </a>
     
   </nav>
