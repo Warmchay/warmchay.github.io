@@ -145,6 +145,89 @@
     
     
     <article
+  id="post-GiteeGit-上传文件"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/03/16/GiteeGit-%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6/"
+    >Gitee/Git 上传文件</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/16/GiteeGit-%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6/" class="article-date">
+  <time datetime="2021-03-16T01:24:27.621Z" itemprop="datePublished">2021-03-16</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E9%9A%8F%E7%AC%94/">随笔</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <script src="/assets/js/APlayer.min.js"> </script><blockquote>
+<p>想着之后用gitee托管代码会比较方便，kexueshangwang对于懒癌来说目前除了翻墙找“学习”资源浪费学习时间外，没什么必要。</p>
+<p>但是git怎么上传文件，我也琢磨了好久，这是在上传时的步骤和中间出现的一些问题</p>
+</blockquote>
+<p><strong>在建立了项目的文件夹后，点开这个文件夹，在文件夹目录这块<code>git bash</code></strong></p>
+<ul>
+<li><strong>Ⅰ 建立远程连接</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git remote add origin <span class="string">&#x27;xxx&#x27;</span>   //这个xxx是你的仓库地址，在<span class="built_in">clone</span>(克隆/下载)那里直接复制paste在这就ok了</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>Ⅱ 将文件夹连接到分支【上传文件到缓存区必做的一步】</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git pull origin master</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>Ⅲ 添加文件至缓冲区</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git add .</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>Ⅳ 将缓冲区的文件上传至master分支</strong></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push origin master</span><br></pre></td></tr></table></figure>
+
+<p>最后你就能够发现你的仓库文件已经更新啦~</p>
+<p><strong>小问题：</strong></p>
+<ul>
+<li>在与远程仓库建立连接的过程中你会看到，原先仓库里的文件也会到你的文件夹中，我觉得是因为在<code>git pull</code>的时候<code>fetch</code>操作也加进来了，但因为我在上传过程中出现了几个bug，后续确认下是否是这样，<strong>欢迎指正鸭</strong></li>
+<li><strong>注意：</strong>在<code>git push</code>过程中如果单单在项目文件加了一个空文件夹外，其他什么都没有，<code>git push</code>会报<code>error</code>的~~【我就是这么过来的orz】</li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Git/" rel="tag">Git</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-About Me"
   class="article article-type-post"
   itemscope
