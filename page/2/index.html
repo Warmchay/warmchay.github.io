@@ -145,6 +145,263 @@
     
     
     <article
+  id="post-OOP/三 基础语法 II"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/04/10/OOP/%E4%B8%89%20%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95%20II/"
+    >OOP 3 -- 基础语法II</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/04/10/OOP/%E4%B8%89%20%E5%9F%BA%E7%A1%80%E8%AF%AD%E6%B3%95%20II/" class="article-date">
+  <time datetime="2021-04-10T08:58:57.288Z" itemprop="datePublished">2021-04-10</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/OOP/">OOP</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="三-基础语法-II"><a href="#三-基础语法-II" class="headerlink" title="三 基础语法 II"></a>三 基础语法 II</h1><h2 id="3-1-构造函数-amp-析构函数"><a href="#3-1-构造函数-amp-析构函数" class="headerlink" title="3.1 构造函数 &amp; 析构函数"></a>3.1 构造函数 &amp; 析构函数</h2><h3 id="3-1-1-构造函数"><a href="#3-1-1-构造函数" class="headerlink" title="3.1.1 构造函数"></a>3.1.1 构造函数</h3><ol>
+<li>由编译器自动调用，用于对象数据成员的初始化及其他初始化工作</li>
+<li>没有返回值，函数名与类名相同</li>
+<li>构造函数可以<strong>重载</strong>，可以使用不同的函数参数进行对象初始化</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span> &#123;</span></span><br><span class="line">  <span class="keyword">long</span> ID;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  Student(<span class="keyword">long</span> id) &#123; ID = id; &#125;</span><br><span class="line">  Student(<span class="keyword">int</span> year, <span class="keyword">int</span> order) &#123;</span><br><span class="line">    ID = year*<span class="number">10000</span> + order;</span><br><span class="line">  &#125;</span><br><span class="line">  ...;</span><br><span class="line">  <span class="comment">//</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>不带任何参数的构造函数，称为“默认构造函数”，也称“缺省构造函数”</li>
+<li>定义<strong>元素为对象的数组</strong>（<code>ClassName array_var[NUM];</code>）时，类必须提供默认构造函数的定义</li>
+<li>使用默认构造函数生成对象时，对象定义格式为：<code>ClassName obj;</code>,而不是<code>ClassName obj();</code></li>
+</ul>
+<h3 id="3-1-2-构造函数的初始化列表"><a href="#3-1-2-构造函数的初始化列表" class="headerlink" title="3.1.2 构造函数的初始化列表"></a>3.1.2 构造函数的初始化列表</h3><ul>
+<li>构造函数可以初始化列表来<strong>初始化成员数据</strong></li>
+<li>该列表在定义构造函数时使用，位置出现在函数题左花括号<code>&#123;</code>之前，以冒号<code>:</code>作为开头</li>
+<li>使用“数据成员（初始值）”的形式</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span>&#123;</span></span><br><span class="line">  <span class="keyword">long</span> ID;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  Student(<span class="keyword">long</span> id) : ID(id) &#123; &#125;<span class="comment">//相当于对ID初始化</span></span><br><span class="line">  Student(<span class="keyword">int</span> year, <span class="keyword">int</span> order) &#123;</span><br><span class="line">    ID = year*<span class="number">10000</span> + order;&#125;</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>委派构造函数</strong></li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Info</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  Info() &#123; Init(); &#125;</span><br><span class="line">  Info(<span class="keyword">int</span> i) : Info()&#123; id = i; &#125;</span><br><span class="line">  Info(<span class="keyword">char</span> c) : Info()&#123; gender = c; &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">Init</span><span class="params">()</span> </span>&#123; .... &#125; <span class="comment">//其他初始化</span></span><br><span class="line">  <span class="keyword">int</span> id &#123;<span class="number">2016</span>&#125;;</span><br><span class="line">  <span class="keyword">char</span> gender &#123;<span class="string">&#x27;M&#x27;</span>&#125;;</span><br><span class="line">  ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-1-3-析构函数"><a href="#3-1-3-析构函数" class="headerlink" title="3.1.3 析构函数"></a>3.1.3 析构函数</h3><ul>
+<li>一个类只有一个析构函数，名称是“～类名”， 没有函数返回值，没有函数参数</li>
+<li>编译器在<strong>对象生命期结束时自动调用类的析构函数</strong>，以便释放对象占用的资源或其它后处理</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ClassRoom</span> &#123;</span></span><br><span class="line">  <span class="keyword">int</span> num;</span><br><span class="line">  <span class="keyword">long</span>* ID_list;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  ClassRoom() : num(<span class="number">0</span>), ID_list(<span class="number">0</span>) &#123; &#125;</span><br><span class="line">  ...</span><br><span class="line">  ~ClassRoom()&#123;	<span class="comment">//析构函数</span></span><br><span class="line">    <span class="keyword">if</span> (ID_list) <span class="keyword">delete</span>[] ID_list; <span class="comment">//释放内存</span></span><br><span class="line">    <span class="comment">//如果ID_list不为空，则需要释放</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-1-4-拷贝构造函数"><a href="#3-1-4-拷贝构造函数" class="headerlink" title="3.1.4 拷贝构造函数"></a>3.1.4 <strong>拷贝构造函数</strong></h3><ul>
+<li>函数调用时以类的对象为形参或返回类对象时，编译器会生成自动调用“拷贝构造函数”，在<strong>已有对象基础上生成新对象</strong></li>
+<li>拷贝构造函数是一种特殊的构造函数，是<strong>同类对象</strong>的常量引用</li>
+<li>语义上：用<strong>参数对象的内容初始化当前对象</strong></li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> &#123;</span></span><br><span class="line">  <span class="keyword">int</span> id;</span><br><span class="line">  ...</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  Person(<span class="keyword">const</span> Person&amp; src) &#123; id = src.id; ... &#125;</span><br><span class="line">  ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>拷贝构造函数</strong>通常用于：</p>
+<ul>
+<li>通过使用另一个同类型的对象初始化新创建的对象</li>
+<li>复制对象并把它<strong>作为参数传递给函数</strong></li>
+<li>复制对象，并从函数返回这个对象</li>
+</ul>
+<h2 id="3-2-赋值运算符重载"><a href="#3-2-赋值运算符重载" class="headerlink" title="3.2 赋值运算符重载"></a>3.2 赋值运算符重载</h2><ul>
+<li>赋值运算符为在类中定义的特殊成员函数</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ClassName&amp; <span class="keyword">operator</span> = (<span class="keyword">const</span> ClassName&amp; right)&#123;</span><br><span class="line">  <span class="keyword">if</span>(<span class="keyword">this</span> != &amp;right)&#123;<span class="comment">//避免自己赋值给自己(判断内存空间是否相同)</span></span><br><span class="line">		<span class="comment">// 将right对象中内容复制到当前对象中</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>举个例子</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span>&#123;</span></span><br><span class="line">  <span class="keyword">int</span> id;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  Test(<span class="keyword">int</span> i) : id(i) &#123;<span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;obj_&quot;</span> &lt;&lt; id &lt;&lt; <span class="string">&quot;created\n&quot;</span>;&#125;</span><br><span class="line">	Test&amp; <span class="keyword">operator</span> = (<span class="keyword">const</span> Test&amp; right)&#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">this</span> == &amp;right) <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;same obj!\n&quot;</span>;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">      <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;obj_&quot;</span> &lt;&lt; id &lt;&lt; <span class="string">&quot; = obj_&quot;</span> &lt;&lt; right.id &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">      <span class="keyword">this</span>-&gt;id = right.id;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	Test a(1), b(2);</span><br><span class="line">  </span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot; a = a: &quot;</span>;</span><br><span class="line">  a = a;	<span class="comment">/// a.operator = (a);</span></span><br><span class="line">  </span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot; a = b: &quot;</span>;</span><br><span class="line">  a = b;	<span class="comment">/// a.operator = (b);</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">*	obj_1 created</span></span><br><span class="line"><span class="comment">*	obj_2 created</span></span><br><span class="line"><span class="comment">*	a = a: same obj!</span></span><br><span class="line"><span class="comment">*	a = b: obj1 = obj2</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-3-流运算符重载"><a href="#3-3-流运算符重载" class="headerlink" title="3.3 流运算符重载"></a>3.3 流运算符重载</h2><blockquote>
+<p>对象输入输出 </p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">istream&amp; <span class="keyword">operator</span> &gt;&gt; (istream&amp; in, Test&amp; dst);</span><br><span class="line">ostream&amp; <span class="keyword">operator</span> &gt;&gt; (ostream&amp; out, <span class="keyword">const</span> Test&amp; src);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>函数名为：<code>operator&gt;&gt;</code> 和 <code>operator&lt;&lt;</code></p>
+<blockquote>
+<p>流提取运算符&gt;&gt;, 流插入运算符&lt;&lt;来输入和输出内置的数据类型，可以重载流提取运算符和流插入运算符来操作对象等用户自定义的数据类型</p>
+</blockquote>
+</li>
+<li><p>返回值为：<code>istream&amp;</code> 和 <code>ostream&amp;</code>， 均为引用，<strong>需要把运算符重载函数声明为类的友元函数，这样就能不用创建对象而直接调用函数</strong></p>
+</li>
+<li><p>参数分别为：流对象的引用、目标对象的引用。对于输出流，目标对象还是常量</p>
+</li>
+</ul>
+<p><strong>将流运算符函数声明为类的友元</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span> &#123;</span></span><br><span class="line">  <span class="keyword">int</span> id;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  Test(<span class="keyword">int</span> i) : id(i) &#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;obj_&quot;</span> &lt;&lt; id &lt;&lt; <span class="string">&quot; created\n&quot;</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">friend</span> istream&amp; <span class="keyword">operator</span>&gt;&gt; (istream&amp; in, Test&amp; dst);</span><br><span class="line">  <span class="keyword">friend</span> ostream&amp; <span class="keyword">operator</span>&lt;&lt; (ostream&amp; out, <span class="keyword">const</span> Test&amp; src);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>以上类中声明了Test类的两个友元函数 – <strong>全局流运算符重载函数</strong></li>
+<li>使得这两个函数在实现时可以访问对象的私有成员（如int id）</li>
+</ul>
+<p>举个例子：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span> &#123;</span></span><br><span class="line">  <span class="keyword">int</span> id;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  Test(<span class="keyword">int</span> i) : id(i) &#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;obj_&quot;</span> &lt;&lt; id &lt;&lt; <span class="string">&quot; created\n&quot;</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">friend</span> istream&amp; <span class="keyword">operator</span>&gt;&gt; (istream&amp; in, Test&amp; dst);</span><br><span class="line">  <span class="keyword">friend</span> ostream&amp; <span class="keyword">operator</span>&lt;&lt; (ostream&amp; out, <span class="keyword">const</span> Test&amp; src);</span><br><span class="line">&#125;;</span><br><span class="line">istream&amp; <span class="keyword">operator</span>&gt;&gt; (istream&amp; in, Test&amp; dst) &#123;</span><br><span class="line">  in &gt;&gt; dst.id;</span><br><span class="line">  <span class="keyword">return</span> in;</span><br><span class="line">&#125;</span><br><span class="line">ostream&amp; <span class="keyword">operator</span>&lt;&lt; (ostream&amp; out, <span class="keyword">const</span> Test&amp; src) &#123;</span><br><span class="line">  out &lt;&lt; src.id &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">  <span class="keyword">return</span> out;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="function">Test <span class="title">obj</span><span class="params">(<span class="number">1</span>)</span></span>;	<span class="built_in">cout</span> &lt;&lt; obj;</span><br><span class="line">  <span class="built_in">cin</span> &gt;&gt; obj;	<span class="built_in">cout</span> &lt;&lt; obj;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* obj_1 created</span></span><br><span class="line"><span class="comment">* 1</span></span><br><span class="line"><span class="comment">* 2	// 修改obj.id = 2</span></span><br><span class="line"><span class="comment">* 2 // 打印obj.id = 2</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-4-函数运算符重载"><a href="#3-4-函数运算符重载" class="headerlink" title="3.4 函数运算符重载"></a>3.4 函数运算符重载</h2><ul>
+<li>函数运算符<code>()</code>也能重载，使对象看上去像是一个函数名</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">ReturnType <span class="title">operator</span><span class="params">()</span> <span class="params">(Parameters)</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">ClassName obj;</span><br><span class="line">Obj(real_parameters);</span><br><span class="line"><span class="comment">//-&gt;Obj.operator() (real_parameters);</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>;</span><br><span class="line">  <span class="function"><span class="keyword">int</span> <span class="title">operator</span><span class="params">()</span> <span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b)</span></span>&#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;operator() called.&quot;</span> &lt;&lt; a &lt;&lt; <span class="string">&#x27; &#x27;</span> &lt;&lt; b &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">return</span> a+b;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">  Test sum;</span><br><span class="line">  <span class="keyword">int</span> s = sum(<span class="number">3</span>, <span class="number">4</span>); <span class="comment">/// sum对象看上去像是一个函数，故也称&quot;函数对象&quot;</span></span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;a+b=&quot;</span> &lt;&lt; s &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>再来一个例子</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Less</span>&#123;</span></span><br><span class="line">	<span class="keyword">int</span> thres_;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  Less(<span class="keyword">int</span> th) : thres_(th) &#123;&#125;</span><br><span class="line">  <span class="function"><span class="keyword">bool</span> <span class="title">operator</span><span class="params">()</span><span class="params">(<span class="keyword">int</span>)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">Less::operator</span><span class="params">()</span> <span class="params">(<span class="keyword">int</span> value)</span></span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (value&lt;thres_);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>应用：</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Filter</span><span class="params">(<span class="keyword">int</span> *arr, <span class="keyword">int</span> num, Less l)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;num; ++i)&#123;</span><br><span class="line">		<span class="keyword">if</span>(l(arr[i]))&#123;</span><br><span class="line">      <span class="built_in">cout</span> &lt;&lt; arr[i] &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> arr[<span class="number">5</span>] = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>&#125;;</span><br><span class="line">  <span class="keyword">int</span> tmp;</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;tmp:&quot;</span>; <span class="built_in">cin</span> &gt;&gt; tmp;</span><br><span class="line">  <span class="function">Less <span class="title">l</span><span class="params">(<span class="number">2</span>)</span></span>;</span><br><span class="line">  Filter(arr, <span class="number">5</span>, l);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 1</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-5-下标-amp-自增减-运算符重载"><a href="#3-5-下标-amp-自增减-运算符重载" class="headerlink" title="3.5 下标&amp;自增减 运算符重载"></a>3.5 下标&amp;自增减 运算符重载</h2><h3 id="3-5-1-数组运算符-重载"><a href="#3-5-1-数组运算符-重载" class="headerlink" title="3.5.1 数组运算符[]重载"></a>3.5.1 数组运算符[]重载</h3><ul>
+<li>函数声明 ：<code>返回类型 operator[](参数);</code></li>
+<li>如果返回类型是引用，则数组运算符调用可以出现在等号左边，接受赋值，即</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Obj[index] = value;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>如果返回类型不是引用，则只能出现在等号右边</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Var = Obj[index];</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-5-2-重载前缀-后缀–"><a href="#3-5-2-重载前缀-后缀–" class="headerlink" title="3.5.2 重载前缀++/后缀–"></a>3.5.2 重载前缀++/后缀–</h3><ul>
+<li><p><strong>前缀运算符重载声明</strong></p>
+<ul>
+<li><code>ReturnType operator++();</code></li>
+<li><code>ReturnType operator--();</code></li>
+</ul>
+</li>
+<li><p><strong>后缀运算符重载声明</strong></p>
+<ul>
+<li><code>ReturnType operator++(int dummy);</code></li>
+<li><code>ReturnType operator--(int dummy);</code></li>
+</ul>
+</li>
+<li><p>通过在函数参数中的哑元参数dummy来区分前缀与后缀的同名重载</p>
+</li>
+</ul>
+<blockquote>
+<p>哑元：函数体语句中没有使用该参数</p>
+</blockquote>
+<h2 id="3-6-静态成员与常量成员"><a href="#3-6-静态成员与常量成员" class="headerlink" title="3.6 静态成员与常量成员"></a>3.6 静态成员与常量成员</h2><h3 id="3-6-1-类中的静态成员"><a href="#3-6-1-类中的静态成员" class="headerlink" title="3.6.1 类中的静态成员"></a>3.6.1 类中的静态成员</h3><ol>
+<li>在类型前面加上static修饰的数据成员，隶属于类，称为类的静态成员变量，也称“类变量”<ul>
+<li>静态数据成员<strong>被该类的所有对象共享（</strong>即所有对象中的数据与实际上处于同一内存位置</li>
+<li>静态数据需要在实现文件中赋初值：<code>Type ClassName::static_var = Value;</code></li>
+</ul>
+</li>
+<li>返回值类型前面加上static修饰的成员函数，为静态成员函数，他们调用非静态成员函数</li>
+<li>类的静态成员（数据、函数）可以通过对象类访问，也可以通过类名来访问</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span> &#123;</span></span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">int</span> count;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  Test() &#123;count++;&#125;</span><br><span class="line">  ~Test() &#123;count--;&#125;</span><br><span class="line">  <span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">how_many</span><span class="params">()</span> </span>&#123;<span class="keyword">return</span> count;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">int</span> Test::count = <span class="number">0</span>; 	<span class="comment">//定义静态变量</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">print</span><span class="params">(Test t)</span></span>&#123;</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;in print(), Test#:&quot;</span> &lt;&lt; t.how_many() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  Test t1;</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Test#: &quot;</span> &lt;&lt; Test::how_many() &lt;&lt; <span class="built_in">endl</span>; <span class="comment">// Test#:1</span></span><br><span class="line">  </span><br><span class="line">  Test t2;</span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Test#: &quot;</span> &lt;&lt; Test::how_many() &lt;&lt; <span class="built_in">endl</span>; <span class="comment">// TEst#:1</span></span><br><span class="line">  </span><br><span class="line">  <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;Test#:&quot;</span> &lt;&lt; t1.how_many &lt;&lt; <span class="string">&quot;,&quot;</span> &lt;&lt; t2.how_many(); <span class="comment">//0 0</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>构造：count++，但是这里因为没有<strong>拷贝构造函数</strong>，使最后出现的值相同</p>
+<p><strong>析构：</strong> count–， 所以最后都为0</p>
+</blockquote>
+<h3 id="3-6-2-类中的常量成员"><a href="#3-6-2-类中的常量成员" class="headerlink" title="3.6.2 类中的常量成员"></a>3.6.2 类中的常量成员</h3><ol>
+<li>使用const修饰的数据成员，称为类的常量数据成员，在对象的整个生命周期都不可更改<ul>
+<li>常量数据成员<strong>只能在构造的初始化列表</strong>中被设置，不允许在函数体中通过复制来设置</li>
+</ul>
+</li>
+<li>如果用const来修饰成员函数，则该成员函数在实现时<strong>不能修改类的数据成员–即函数体中不能有改变对象状态的语句</strong><ul>
+<li>如果对象被定义为<strong>常量</strong>，则它只能调用以const修饰的成员函数，其他普通成员函数不允许调用</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">int</span> ID;   <span class="comment">//ID常量，不可修改</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Test(<span class="keyword">int</span> tmp) : ID(tmp)&#123;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">MyID</span><span class="params">()</span> <span class="keyword">const</span></span>&#123;<span class="keyword">return</span> ID;&#125;</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">who</span><span class="params">()</span> </span>&#123;<span class="keyword">return</span> ID;&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&quot;Test.cpp&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="function">Test <span class="title">obj1</span><span class="params">(<span class="number">1233</span>)</span></span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;static: &quot;</span> &lt;&lt; obj1.MyID() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;non-static: &quot;</span> &lt;&lt; obj1.who() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">const</span> Test <span class="title">obj2</span><span class="params">(<span class="number">1234</span>)</span></span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;static: &quot;</span> &lt;&lt; obj2.MyID() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">&quot;non-static:&quot;</span> &lt;&lt; <span class="string">&quot;no output&quot;</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">*static: 1233</span></span><br><span class="line"><span class="comment">*non-static: 1233</span></span><br><span class="line"><span class="comment">*static: 1234</span></span><br><span class="line"><span class="comment">*non-static:no output</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-7-对象组合"><a href="#3-7-对象组合" class="headerlink" title="3.7 对象组合"></a>3.7 对象组合</h2><h3 id="3-7-1-包含其他类的对象"><a href="#3-7-1-包含其他类的对象" class="headerlink" title="3.7.1 包含其他类的对象"></a>3.7.1 包含其他类的对象</h3><ol>
+<li><p>可以在类中使用其他类来定义数据成员，通常称之为“子对象”。这种<strong>包含与被包含</strong>的对象间的关系称为“组合”， <strong>组合关系可以嵌套</strong></p>
+<blockquote>
+<p>如同“俄罗斯套娃”</p>
+</blockquote>
+</li>
+<li><p>子对象<strong>构造时如果需要参数</strong>，<strong>则</strong>应该在当前类的构造函数的<strong>初始化列表</strong>中进行。如果<strong>使用默认构造函数来构造子对象</strong>，则不用做任何处理</p>
+</li>
+<li><p>对象的构造与析构次序</p>
+<ul>
+<li><p>先完成子对象构造，再完成当前对象的构造</p>
+<blockquote>
+<p>先从最内部开始构造</p>
+</blockquote>
+</li>
+<li><p><strong>对象析构的次序与对象构造的次序</strong>是相反的</p>
+<blockquote>
+<p>先从最外部析构</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="3-8-移动构造函数（C-11）"><a href="#3-8-移动构造函数（C-11）" class="headerlink" title="3.8 移动构造函数（C++ 11）"></a>3.8 移动构造函数（C++ 11）</h2><ol>
+<li><p>语法</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ClassName(ClassName&amp;&amp;);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>目的</p>
+<ul>
+<li><p>来偷<strong>“临时变量”</strong>中的资源（如内存</p>
+</li>
+<li><p>临时变量被编译器设置为常量形式，使用“拷贝构造”函数无法将资源“<strong>偷</strong>出来”</p>
+<blockquote>
+<p>“偷”是对原对象的一种改动，违反常量的限制</p>
+</blockquote>
+</li>
+<li><p>基于“右值引用”「&amp;&amp;」定义的“移动构造”函数支持接受临时变量，能“偷”出临时变量中的资源</p>
+</li>
+</ul>
+</li>
+</ol>
+<p>通过增加<code>-fno-elide-constructors</code>可以避免编译器优化而忽略部分过程的问题</p>
+<h2 id="3-9-default修饰符"><a href="#3-9-default修饰符" class="headerlink" title="3.9 default修饰符"></a>3.9 default修饰符</h2><p><strong>编译器自动生成的成员函数：</strong></p>
+<p>如果以下<strong>成员函数用户</strong>都没有被类实现，则编译器会自动为类生成他们的缺省实现</p>
+<ul>
+<li>默认构造函数 – 空函数，什么也不做</li>
+<li>析构函数 – 空函数，什么也不做</li>
+<li>拷贝构造函数 – 按bit位复制对象所占内存的内容</li>
+<li>移动构造函数 – 与默认拷贝构造函数一样</li>
+<li>赋值运算符重载 – 与默认拷贝构造函数一样</li>
+</ul>
+<p>如果用户定义了上述某个成员函数，则编译器不再自动提供相应的默认实现</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/C/" rel="tag">C++</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-OOP/二 基础语法 I"
   class="article article-type-post"
   itemscope
@@ -2114,176 +2371,6 @@ $$
 <img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323095219014.png" alt="image-20210323095219014" style="zoom:50%;">
 
 <p>达到高的并发水平同时减少缺页率</p>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-OS/五 虚拟内存"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/03/22/OS/%E4%BA%94%20%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98/"
-    >Operating System 5 -- 虚拟内存</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/03/22/OS/%E4%BA%94%20%E8%99%9A%E6%8B%9F%E5%86%85%E5%AD%98/" class="article-date">
-  <time datetime="2021-03-22T08:31:40.153Z" itemprop="datePublished">2021-03-22</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <script src="/assets/js/APlayer.min.js"> </script><h1 id="五-虚拟内存"><a href="#五-虚拟内存" class="headerlink" title="五 虚拟内存"></a>五 虚拟内存</h1><h2 id="5-1-起因"><a href="#5-1-起因" class="headerlink" title="5.1 起因"></a>5.1 起因</h2><blockquote>
-<p>程序规模的增长速度远远大于存储器容量的增长速度</p>
-</blockquote>
-<p>理想中的存储器：更大更快更便宜的非易失性存储器</p>
-<p><strong>实际：</strong></p>
-<img src="https://i.loli.net/2021/03/22/VSd2z58utmBQp4L.png" alt="image-20210322144502671.png" style="zoom:50%;">
-
-<p>主存储器贵，硬盘大但传输速度慢</p>
-<p><strong>有效管理内存</strong>：分页分段机制，现有的物理内存通过操作系统去获得更快更大的内存空间</p>
-<p><strong>当出现内存不够用的情况怎么办？</strong></p>
-<ul>
-<li>如果程序太大，超出内存容量，可以采用手动的覆盖（overlay），把需要的指令和数据保存在内存当中</li>
-<li>或者采用<strong>自动的交换技术（swapping）</strong>，把暂时不能执行的程序送到外存中</li>
-<li>想要在有限容量的内存中，以<strong>更小的页粒度</strong>为单位装人更多更大的程序，采用<strong>自动的虚拟存储技术</strong></li>
-</ul>
-<h2 id="5-2-覆盖技术"><a href="#5-2-覆盖技术" class="headerlink" title="5.2 覆盖技术"></a>5.2 覆盖技术</h2><h3 id="lt-1-gt-目标"><a href="#lt-1-gt-目标" class="headerlink" title="&lt;1&gt;  目标"></a>&lt;1&gt;  目标</h3><p>在较小的可用内存中运行较大的程序，常用语多道程序系统，和分区存储管理配合使用</p>
-<h3 id="lt-2-gt-原理"><a href="#lt-2-gt-原理" class="headerlink" title="&lt;2&gt; 原理"></a>&lt;2&gt; 原理</h3><p>把程序按照自身逻辑结构，划分为若干个功能上相对独立的程序模块</p>
-<p>将不会同时执行的模块共享同一块内存区域，按照时间先后来运行</p>
-<ul>
-<li><strong>必要部分（常用功能）</strong>的代码和数据常驻内存</li>
-<li><strong>可选部分（不常用功能）</strong>在其他程序模块中实现，平时存在外存，<strong>使用时装入内存</strong></li>
-<li>不存在调用关系的模块不需要同时装入内存中，从而能够相互覆盖，即这些模块共用一个分区【类似<strong>“分时”</strong>】</li>
-</ul>
-<p>举个栗子【<strong>进程树</strong>】</p>
-<blockquote>
-<p><strong>同一层</strong>的子进程可以相互覆盖，因此放在同一个覆盖区</p>
-</blockquote>
-<p>另一种覆盖方法：</p>
-<img src="https://i.loli.net/2021/03/22/quJQm9Hd6XCf3nA.png" alt="image-20210322150451018.png" style="zoom:50%;">
-
-<h3 id="lt-3-gt-缺点"><a href="#lt-3-gt-缺点" class="headerlink" title="&lt;3&gt; 缺点"></a>&lt;3&gt; 缺点</h3><ul>
-<li>如何将大程序划分为多个小功能模块，来确定各个模块的覆盖关系费时费力</li>
-<li>覆盖模块<strong>从外存装入内存</strong>，是以时间延长换取空间节省</li>
-</ul>
-<h2 id="5-3-交换技术"><a href="#5-3-交换技术" class="headerlink" title="5.3 交换技术"></a>5.3 交换技术</h2><h3 id="lt-1-gt-目标-1"><a href="#lt-1-gt-目标-1" class="headerlink" title="&lt;1&gt; 目标"></a>&lt;1&gt; 目标</h3><p>多道程序在内存中，让正在运行的程序或需要运行的程序获得更多的内存资源</p>
-<h3 id="lt-2-gt-方法"><a href="#lt-2-gt-方法" class="headerlink" title="&lt;2&gt; 方法"></a>&lt;2&gt; 方法</h3><ul>
-<li>可将暂时不能运行的程序送到外存，从而获得空闲内存空间</li>
-<li>操作系统把一个进程的<strong>整个地址空间内容保存到外存</strong>中（swap out）<strong>「os认为这个程序不用执行」</strong>，<strong>将外存中某个进程的地址空间读入内存中</strong>（swap in）。换入换出内容的大小为整个程序的地址空间</li>
-</ul>
-<img src="https://i.loli.net/2021/03/22/aSFpnHUwV8lYhIC.png" alt="image-20210322151545762.png" style="zoom:50%;">
-
-<h3 id="lt-3-gt-问题"><a href="#lt-3-gt-问题" class="headerlink" title="&lt;3&gt; 问题"></a>&lt;3&gt; 问题</h3><ul>
-<li><strong>什么时候需要交换？</strong></li>
-</ul>
-<p>只当内存空间不够或者存在危险时才换出</p>
-<ul>
-<li><strong>交换区的大小？</strong></li>
-</ul>
-<p>需要足够大来存放所有用户进程的所有内存映像的拷贝，才能对这些内存映像进行直接存取</p>
-<ul>
-<li><strong>内存地址固定吗？</strong></li>
-</ul>
-<p>采用<strong>动态地址映射</strong>，换入换出的内存位置不一定相同</p>
-<h3 id="lt-4-gt-覆盖-v-s-交换"><a href="#lt-4-gt-覆盖-v-s-交换" class="headerlink" title="&lt;4&gt; 覆盖 v.s 交换"></a>&lt;4&gt; 覆盖 v.s 交换</h3><ol>
-<li><strong>覆盖：</strong> 覆盖<strong>只能发生相互之间没有调用关系</strong>的程序模块之间，程序员必须给出程序内的各个模块之间逻辑覆盖结构</li>
-<li><strong>交换：</strong> 以内存中的程序大小为单位进行，不需要给出各个模块之间的逻辑覆盖结构</li>
-<li><strong>总结一下：</strong> 交换发生在内存中程序与管理程序或操作系统之间，而覆盖发生在运行程序的内部</li>
-</ol>
-<h2 id="5-4-虚存技术"><a href="#5-4-虚存技术" class="headerlink" title="5.4 虚存技术"></a>5.4 虚存技术</h2><h3 id="5-4-1-目标"><a href="#5-4-1-目标" class="headerlink" title="5.4.1 目标"></a>5.4.1 目标</h3><p><strong>覆盖：</strong> 程序员需要自己确定程序各个模块的覆盖关系</p>
-<p><strong>交换：</strong> 以进程作为交换，需要把进程的整个地址空间都换入换出，增加了处理器开销</p>
-<p><strong>虚存目标：</strong></p>
-<ul>
-<li>不把所有程序放入内存，因而能够运行比当前空闲内存更大的程序，由操作系统自己完成，不需要程序员手动操作</li>
-<li>能够实现内存与外存之间的交换，来获得更多的空闲内存空间。但只对进程的部分内容进行交换，减少了开销。</li>
-</ul>
-<img src="https://i.loli.net/2021/03/22/IQvrAWuk4HsORJM.png" alt="image-20210322153118350.png" style="zoom:50%;">
-
-<h3 id="5-4-2-程序局部性原理"><a href="#5-4-2-程序局部性原理" class="headerlink" title="5.4.2 程序局部性原理"></a>5.4.2 程序局部性原理</h3><blockquote>
-<p><strong>局部性原理：</strong> 程序执行过程中的一个较短时期内，所执行的指令地址和指令的操作数地址，<strong>分别局限于一定区域</strong></p>
-</blockquote>
-<ul>
-<li><strong>时间局部性：</strong> 一个数据的一次访问和下次访问集中在较短时期内</li>
-<li><strong>空间局部性：</strong> 当前指令和邻近的几条指令，当前访问的数据和邻近的几个数据都集中在一个较小区域内，<strong>内存中靠的很近</strong>。</li>
-</ul>
-<p><img src="https://i.loli.net/2021/03/22/nTCQV48cqfISBNa.png" alt="image-20210322154212146.png" style="zoom:50%;"><img src="https://i.loli.net/2021/03/22/5GywzFrBdVRWb7c.png" alt="image-20210322162031899.png"></p>
-<blockquote>
-<p>默认行优先，如果按列来遍历，时间开销会非常大，因为$a_{0, 0} –&gt; a_{1, 0}$相差$1024KB$.而$a_{0,0} –&gt; a_{0,1}$相差$1KB$.</p>
-<p>因此，按列访问，访问次数为$1024 * 1024$</p>
-<p>而按行为$1024$次</p>
-</blockquote>
-<h3 id="5-4-3-基本概念"><a href="#5-4-3-基本概念" class="headerlink" title="5.4.3 基本概念"></a>5.4.3 基本概念</h3><blockquote>
-<p>虚存可以在页式或段式内存管理的基础上实现</p>
-</blockquote>
-<ul>
-<li>装入程序时，不用将全部都装入到内存，只需要将当前需要执行的部分页面或段载入主存，让程序执行即可</li>
-<li>程序执行时，如果执行的指令或者访问的数据<strong>没有</strong>在内存<strong>「缺页/缺段」</strong>，由<strong>处理器</strong>通知操作系统将相应的页面或段掉入内存，继续执行程序</li>
-<li>另外，os将内存中暂时不使用的页面或段调出保存在外存上，腾出更多空闲时间存放将要装入的程序及要调入的页面或段</li>
-</ul>
-<h3 id="5-4-4-基本特征"><a href="#5-4-4-基本特征" class="headerlink" title="5.4.4 基本特征"></a>5.4.4 基本特征</h3><ul>
-<li><strong>用户空间大：</strong> 把物理内存与外存相结合，提供给用户的虚存空间通常大于实际的物理内存，实现两者的分离</li>
-<li><strong>部分交换：</strong> 虚存的调入和调出是对部分虚拟地址空间进行的</li>
-<li><strong>不连续性：</strong> 物理内存分配的不连续，虚存地址空间使用的不连续</li>
-</ul>
-<h3 id="5-4-5-虚拟页式内存管理"><a href="#5-4-5-虚拟页式内存管理" class="headerlink" title="5.4.5 虚拟页式内存管理"></a>5.4.5 虚拟页式内存管理</h3><ul>
-<li>大部分虚拟存储系统都采用<strong>虚拟页式存储管理技术</strong>，即在页式存储管理的基础上，增加<strong>请求调页和页面置换</strong>功能</li>
-<li><strong>基本思路</strong>：<ul>
-<li>当一个用户程序要调入内存运行时，只装入部分的页面，就可以启动程序运行</li>
-<li>在运行的过程中，如果发现要运行的程序或者要访问的数据不在内存<strong>「因为页面只映射了一部分」</strong>，cpu会向操作系统发出<strong>缺页中断</strong>请求。系统在处理这个中断时，将外存中相应的页面调入内存，使程序继续运行</li>
-</ul>
-</li>
-</ul>
-<p><img src="https://i.loli.net/2021/03/22/5GywzFrBdVRWb7c.png" alt="image-20210322162031899.png"></p>
-<img src="https://i.loli.net/2021/03/22/gTyuKezlvwW6iRZ.png" alt="image-20210322162327848.png" style="zoom:50%;">
-
-<h3 id="5-4-6-后备存储-Backing-Store"><a href="#5-4-6-后备存储-Backing-Store" class="headerlink" title="5.4.6 后备存储 Backing Store"></a>5.4.6 后备存储 Backing Store</h3><p><strong>在哪里保存没有映射的页？</strong></p>
-<ul>
-<li>能够简单地识别二级存储器中的页</li>
-<li>交换空间（磁盘或者文件）：特殊格式，用于存储未被映射的页面</li>
-</ul>
-<p><strong>后备存储「backing store」</strong></p>
-<ul>
-<li>一个虚拟地址空间的页面可以被映射到一个文件（在二级存储中）的某个位置</li>
-<li><strong>代码段：</strong> 映射到可执行二进制文件</li>
-<li><strong>动态加载的共享库程序段：</strong> 映射到动态调用的库文件</li>
-<li><strong>其他段：</strong> 可能被映射到交换文件<strong>（swap file）</strong></li>
-</ul>
-<h3 id="5-4-7-虚拟内存性能"><a href="#5-4-7-虚拟内存性能" class="headerlink" title="5.4.7 虚拟内存性能"></a>5.4.7 虚拟内存性能</h3><img src="https://i.loli.net/2021/03/22/eySsPrOgQAjvp9L.png" alt="image-20210322163317854.png" style="zoom:50%;">
-
  
       <!-- reward -->
       
