@@ -145,6 +145,192 @@
     
     
     <article
+  id="post-OS/六 页面置换算法"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/03/22/OS/%E5%85%AD%20%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95/"
+    >Operating System 6 -- 页面置换算法</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/22/OS/%E5%85%AD%20%E9%A1%B5%E9%9D%A2%E7%BD%AE%E6%8D%A2%E7%AE%97%E6%B3%95/" class="article-date">
+  <time datetime="2021-03-22T09:17:36.334Z" itemprop="datePublished">2021-03-22</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="六-页面置换算法"><a href="#六-页面置换算法" class="headerlink" title="六 页面置换算法"></a>六 页面置换算法</h1><h2 id="6-1-功能与目标"><a href="#6-1-功能与目标" class="headerlink" title="6.1 功能与目标"></a>6.1 功能与目标</h2><p><strong>功能：</strong> 缺页中断发生，需要调入新的页面而内存已满时，选择内存当中需要被置换的页面</p>
+<p><strong>目标：</strong> <font color="red"><b>尽可能地减少页面的换进换出次数</b></font>「即缺页中断的次数」。具体讲，把<strong>未来不再使用的或短期内较少使用的页面换出</strong>，通常只能在局部性原理指导下依据过去的统计数据来进行预测「减少交换带来的时间开销」</p>
+<p><strong>页面锁定（frame locking）：</strong> 用于描述必须常驻内存的os的关键部分或<strong>时间关键（time-critical）</strong>的应用进程。实现的方法是：在页表中添加<strong>锁定标志位（lock bit）</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322171811496.png" alt="image-20210322171811496" style="zoom:50%;">
+
+<h2 id="6-2-局部页面置换算法"><a href="#6-2-局部页面置换算法" class="headerlink" title="6.2 局部页面置换算法"></a>6.2 局部页面置换算法</h2><h3 id="6-2-1-最优页面置换算法「OPT，optional」"><a href="#6-2-1-最优页面置换算法「OPT，optional」" class="headerlink" title="6.2.1 最优页面置换算法「OPT，optional」"></a>6.2.1 最优页面置换算法「OPT，optional」</h3><p><strong>基本思路：</strong> 当一个缺页中断发生时，对于保存在内存当中的每一个逻辑页面，计算他的下一次访问之前，还需要等待多长时间，<strong>选择等待时间最长的那个，作为被置换的页面</strong></p>
+<blockquote>
+<p>这只是一种理想情况，实际系统中无法实现，因为os无法知道每一个页面要等待多长时间以后才会被再次访问</p>
+</blockquote>
+<p>可以用来作为其他算法的性能评价指标（在一个模拟器上运行某个程序，并记录每一次的页面访问情况，在第二遍运行时即可使用最优算法）</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322172535251.png" alt="image-20210322172535251" style="zoom:50%;">
+
+<h3 id="6-2-2-先进先出算法「FIFO」"><a href="#6-2-2-先进先出算法「FIFO」" class="headerlink" title="6.2.2 先进先出算法「FIFO」"></a>6.2.2 先进先出算法「FIFO」</h3><p><strong>基本思路：</strong> 选择在内存中<strong>驻留时间最长的页面并淘汰</strong>。即系统维护着一个链表，记录了所有位于内存当中的逻辑页面，从链表的排列顺序来看，链首页面的驻留时间最长，链尾页面驻留的时间最短。</p>
+<p>当发生一个缺页中断时，把链首页面淘汰出局，并把新的页面添加到链表的末尾</p>
+<p><strong>缺点：</strong> 性能较差，调出的页面有可能是经常要访问的页面。并且有$Belady$现象，FIFO算法很少单独使用</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322190815350.png" alt="image-20210322190815350" style="zoom:50%;">
+
+
+
+<h3 id="6-2-3-最近最久未使用算法「LRU，Least-Recently-Used」"><a href="#6-2-3-最近最久未使用算法「LRU，Least-Recently-Used」" class="headerlink" title="6.2.3 最近最久未使用算法「LRU，Least Recently Used」"></a>6.2.3 最近最久未使用算法「LRU，Least Recently Used」</h3><p><strong>基本思路：</strong> 当一个缺页中断发生时，淘汰最久未使用的页面</p>
+<p><strong>描述：</strong> 是对最优页面置换算法的一个近似，依据的是程序的局部性原理，即在最近一小段时间（最近几条指令）内，如果某些页面被频繁的访问，那么在将来的一小段时间内，他们还可能会再一次被频繁的访问。</p>
+<p>反过来说，如果在过去某些页面长时间未被访问，那么在将来它们还可能会长时间的得不到访问。</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322191410812.png" alt="image-20210322191410812" style="zoom:50%;">
+
+<p>LRU算法需要记录哥哥页面使用时间的先后顺序，开销比较大，两种可能的实现方法是：</p>
+<ol>
+<li><strong>系统维护一个页面链表</strong>，最近刚刚使用过的页面作为首结点，最久未使用的作为尾节点。每一次访问内存时，找到相应的页面，把他从链表中摘下来，再移动到链表之首。<strong>每次缺页中断发生时，淘汰链表末尾的页面</strong></li>
+<li><strong>设置一个活动页面栈。</strong> 需要淘汰时，选择栈底的页面，就是最久未使用的</li>
+</ol>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322191954433.png" alt="image-20210322191954433" style="zoom:50%;">
+
+<h3 id="6-2-4-时钟页面置换算法「Clock」"><a href="#6-2-4-时钟页面置换算法「Clock」" class="headerlink" title="6.2.4 时钟页面置换算法「Clock」"></a>6.2.4 时钟页面置换算法「Clock」</h3><blockquote>
+<p>是LRU的近似，对FIFO的一种改进</p>
+</blockquote>
+<p><strong>基本思路：</strong></p>
+<ul>
+<li>需要用到页表项当中的访问位。当一个页面被装入内存时，初始化该位为0。如果该页面被访问，则把该位置调为1</li>
+<li>把各个页面组织成环形链表（类似钟表面），把指针指向最老的页面（最新进来）</li>
+<li>当发生一个缺页中断时，考察指针所指向的最老页面，如果它的访问位为0，立即淘汰；若访问位为1，把该位置设为0，指针往下移动一格。如此下去，直到找到被淘汰的页面，然后把指针移动到它的下一格。</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322193041915.png" alt="image-20210322193041915" style="zoom:50%;">
+
+<p>**注意<code>used bit</code>是0/1 **</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322193640150.png" alt="image-20210322193640150" style="zoom:50%;">
+
+<h3 id="6-2-5-二次机会法「Enhanced-Clock-Algorithm」"><a href="#6-2-5-二次机会法「Enhanced-Clock-Algorithm」" class="headerlink" title="6.2.5 二次机会法「Enhanced Clock Algorithm」"></a>6.2.5 二次机会法「Enhanced Clock Algorithm」</h3><ul>
+<li>Clock算法中有巨大的代价来替换“脏”页</li>
+<li>修改Clock算法，使它允许<strong>脏页总是在第一次时钟头扫描中保留下来</strong></li>
+</ul>
+<blockquote>
+<p>同时使用“脏位”和使用位来指导置换</p>
+</blockquote>
+<p>对$a, b$执行写操作，由$(1, 0) \rightarrow (1, 1)$，即执行写操作<code>dirty bit = 1</code></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322202042975.png" alt="image-20210322202042975" style="zoom:50%;">
+
+<p>优先把只读页先换出去，给了写操作二次存活的机会【复活甲！】</p>
+<h3 id="6-2-5-最不常用算法「LFU，Least-Frequently-Used」"><a href="#6-2-5-最不常用算法「LFU，Least-Frequently-Used」" class="headerlink" title="6.2.5 最不常用算法「LFU，Least Frequently Used」"></a>6.2.5 最不常用算法「LFU，Least Frequently Used」</h3><p><strong>基本思路：</strong> 当一个缺页中断发生时，选择访问次数最少的那个页面，并淘汰之</p>
+<p><strong>实现方法：</strong> 对每个页面设置一个访问计数器，每当一个页面被访问时，该页面的访问计数器加1。当发生缺页中断时，淘汰计数值最小的那个页面</p>
+<p><strong>缺点：</strong> 这里硬件开发很大，如果前期开发使用次数多，后期很难判断。可以把访问计数器一定时间内左移一位减少2倍。</p>
+<p><strong>LRU和LFU的区别：</strong> LRU考察的是<strong>多久未访问</strong>，时间越短越好；而LFU考察的是<strong>访问的次数或额度</strong>，访问次数越多越好。</p>
+<h3 id="6-2-6-Belady现象"><a href="#6-2-6-Belady现象" class="headerlink" title="6.2.6 Belady现象"></a>6.2.6 Belady现象</h3><p><strong>解释：</strong> 在采用FIFO算法时，有时会出现<strong>分配的物理页面数增加</strong>，<strong>缺页率反而提高</strong>的异常现象的异常现象</p>
+<p><strong>产生原因：</strong> FIFO算法的替换特征与<strong>进程访问内存的动态特征</strong>是矛盾的，与置换算法的目标是不一致的（即替换较少的页面），因此被他<strong>置换出去的页面不一定是进程不会访问</strong>的</p>
+<h3 id="6-2-7-LRU、FIFO和Clock的比较"><a href="#6-2-7-LRU、FIFO和Clock的比较" class="headerlink" title="6.2.7 LRU、FIFO和Clock的比较"></a>6.2.7 LRU、FIFO和Clock的比较</h3><blockquote>
+<p>LRU和FIFO本质上都是先进先出</p>
+</blockquote>
+<p>LRU是针对页面的最近访问时间来排序；FIFO是针对页面进入内存的时间来排序，这个时间是固定不变的</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322203633347.png" alt="image-20210322203633347" style="zoom:50%;">
+
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210322203751942.png" alt="image-20210322203751942" style="zoom:50%;">
+
+<h2 id="6-3-全局页面置换算法"><a href="#6-3-全局页面置换算法" class="headerlink" title="6.3 全局页面置换算法"></a>6.3 全局页面置换算法</h2><h3 id="6-3-1局面页面替换算法的问题"><a href="#6-3-1局面页面替换算法的问题" class="headerlink" title="6.3.1局面页面替换算法的问题"></a><strong>6.3.1局面页面替换算法的问题</strong></h3><p>前面介绍的各种页面置换算法，都是机遇程序的局部性原理，但是这个原理是否成立？</p>
+<ul>
+<li><strong>如果局部性原理不成立，</strong> 那么各种页面置换算法就没有什么分别，也没有什么意义。例如：假设进程对逻辑页面的访问顺序为$1, 2, 3, 4, 5, 6, 7, 8, 9…$,即单调递增。那么在物理页面数有限的前提下，无论采用什么置换算法，每次的页面访问都必然导致缺页中断</li>
+<li><strong>如果局部性原理成立，</strong> 证明存在和用其进行定量分析的为工作集模型</li>
+</ul>
+<h3 id="6-3-2-工作集模型「Working-Set」"><a href="#6-3-2-工作集模型「Working-Set」" class="headerlink" title="6.3.2 工作集模型「Working Set」"></a>6.3.2 工作集模型「Working Set」</h3><p><strong>工作集：</strong> 一个进程当前<strong>正在使用的</strong>逻辑页面集合</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323091316028.png" alt="image-20210323091316028" style="zoom:50%;">
+
+<p><strong>举个栗子：</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323091653180.png" alt="image-20210323091653180" style="zoom:50%;">
+
+<blockquote>
+<p>$t_2$的局部性较好</p>
+</blockquote>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323091816367.png" alt="image-20210323091816367" style="zoom:50%;">
+
+<p><strong>常驻集：</strong> 指在当前时刻，进程<strong>实际驻留在内存当中的页面</strong>集合</p>
+<ul>
+<li>工作集是进程在运行过程中固有的性质，而常驻集取决于系统分配给进程的物理页面数目，以及所采用的页面置换算法</li>
+<li>如果一个进程的整个工作集都在内存当中，即常驻集包含于工作集，那么进程将很顺利的运行，不会造成太多的缺页中断（指导工作集发生剧烈变动，从而过渡到另一个状态）</li>
+<li>当进程常驻集的大小达到某个数目之后，再给它分配更多的物理页面，<strong>缺页率</strong>也不会明显的下降</li>
+</ul>
+<h3 id="6-3-3-工作集页置换算法"><a href="#6-3-3-工作集页置换算法" class="headerlink" title="6.3.3 工作集页置换算法"></a>6.3.3 工作集页置换算法</h3><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323093222033.png" alt="image-20210323093222033" style="zoom:50%;">
+
+<p>$Page\ d=-1, Page\ e=-2$,时间长度为$3$</p>
+<p>超出时间窗口的都将被直接清除</p>
+<h3 id="6-3-4-缺页率置换算法"><a href="#6-3-4-缺页率置换算法" class="headerlink" title="6.3.4 缺页率置换算法"></a>6.3.4 缺页率置换算法</h3><p><strong>可变分配策略：</strong> 常驻集大小可变，如每个进程在刚开始运行的时候，先根据程序大小给它分配一定数目的物理页面，然后在进程运行过程中，再动态的调整常驻集的大小</p>
+<ul>
+<li>可采用<strong>全局页面置换</strong>的方式，当发生一个缺页中断时，被置换的页面可以是在其他进程当中，各个并发进程竞争的使用物理页面</li>
+<li><strong>优缺点：</strong>性能较好，但增加了系统开销</li>
+<li><strong>具体实现：</strong>可以使用缺页率算法（PFF，page fault frequency）来动态调整常驻集的大小</li>
+</ul>
+<p><strong>缺页率：</strong> 表示为$\frac{缺页次数}{内存访问次数}$或$\frac{1}{缺页的平均时间间隔}$，影响因素为：</p>
+<ul>
+<li>页面置换算法</li>
+<li>分配给进程的物理页面数目</li>
+<li>页面本身的大小</li>
+<li>程序的编写方法</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323093912412.png" alt="image-20210323093912412" style="zoom:50%;">
+
+<p>一个交替的工作集计算明确的试图最小化页缺失</p>
+<ul>
+<li>缺页率高，增加工作集</li>
+<li>缺页率低，减少工作集</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323094113240.png" alt="image-20210323094113240" style="zoom:50%;">
+
+<blockquote>
+<p>4-1 = 3 &gt; 2 删除page a &amp; page b</p>
+</blockquote>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323094448846.png" alt="image-20210323094448846" style="zoom:50%;">
+
+<p>不断进行page的动态调整</p>
+<h3 id="6-3-5-抖动问题「thrashing」"><a href="#6-3-5-抖动问题「thrashing」" class="headerlink" title="6.3.5 抖动问题「thrashing」"></a>6.3.5 抖动问题「thrashing」</h3><ul>
+<li>如果分配给一个进程的物理页面太少，不能包含整个工作集，进程可能会造成很多缺页中断，需要频繁的在内存与外存之间替换页面，从而使进程的运行速度变得很慢，把这种状态称为<strong>“抖动”</strong></li>
+<li><strong>产生原因：</strong> 随着驻留内存的进程数目增加，分配给每个进程的物理页面数不断减小，缺页率不断上升，所以os要选择<strong>一个适当的进程数目和进程需要的帧数，以便在并发水平和缺页率之间达到一个平衡</strong></li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323094930617.png" alt="image-20210323094930617" style="zoom:50%;">
+
+<p><strong>找到最高值「平衡点」</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323095219014.png" alt="image-20210323095219014" style="zoom:50%;">
+
+<p>达到高的并发水平同时减少缺页率</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-OS/五 虚拟内存"
   class="article article-type-post"
   itemscope
@@ -315,7 +501,7 @@
 
     
     <article
-  id="post-清清的星星球纪录-1"
+  id="post-Starry Night/Starry Light 1"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -326,26 +512,26 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2021/03/21/%E6%B8%85%E6%B8%85%E7%9A%84%E6%98%9F%E6%98%9F%E7%90%83%E7%BA%AA%E5%BD%95-1/"
-    >清清的星星球纪录-1</a> 
+  <a class="article-title" href="/2021/03/21/Starry%20Night/Starry%20Light%201/"
+    >Starry Light 1</a> 
 </h2>
  
 
     </header>
      
     <div class="article-meta">
-      <a href="/2021/03/21/%E6%B8%85%E6%B8%85%E7%9A%84%E6%98%9F%E6%98%9F%E7%90%83%E7%BA%AA%E5%BD%95-1/" class="article-date">
+      <a href="/2021/03/21/Starry%20Night/Starry%20Light%201/" class="article-date">
   <time datetime="2021-03-21T11:58:12.654Z" itemprop="datePublished">2021-03-21</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%98%9F%E6%98%9F%E7%90%83%E5%B7%A1%E6%B8%B8%E8%AE%B0/">星星球巡游记</a>
+    <a class="article-category-link" href="/categories/Starry-Light/">Starry Light</a>
   </div>
    
     </div>
       
     <div class="article-entry" itemprop="articleBody">
        
-  <script src="/assets/js/APlayer.min.js"> </script><h1 id="清清的星星球纪录-1"><a href="#清清的星星球纪录-1" class="headerlink" title="清清的星星球纪录-1"></a>清清的星星球纪录-1</h1><p>这一周挺混沌的。</p>
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="Starry-Light-1"><a href="#Starry-Light-1" class="headerlink" title="Starry Light 1"></a>Starry Light 1</h1><p>这一周挺混沌的。</p>
 <blockquote>
 <p>“你是一个很理性的人”，小清曾这么对清清说。</p>
 <p>“我不是”，清清镇静地回应了他；</p>
@@ -1199,7 +1385,7 @@
 
     
     <article
-  id="post-汉诺塔，快排与数组内逆序"
+  id="post-Why/比特币是什么"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -1210,112 +1396,7 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2021/03/16/%E6%B1%89%E8%AF%BA%E5%A1%94%EF%BC%8C%E5%BF%AB%E6%8E%92%E4%B8%8E%E6%95%B0%E7%BB%84%E5%86%85%E9%80%86%E5%BA%8F/"
-    >学习记录--汉诺塔，快排与数组内逆序</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/03/16/%E6%B1%89%E8%AF%BA%E5%A1%94%EF%BC%8C%E5%BF%AB%E6%8E%92%E4%B8%8E%E6%95%B0%E7%BB%84%E5%86%85%E9%80%86%E5%BA%8F/" class="article-date">
-  <time datetime="2021-03-16T01:24:27.626Z" itemprop="datePublished">2021-03-16</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <script src="/assets/js/APlayer.min.js"> </script><h1 id="一-汉诺塔问题"><a href="#一-汉诺塔问题" class="headerlink" title="一 汉诺塔问题"></a>一 汉诺塔问题</h1><blockquote>
-<p>这里没有用指针，之后再更新指针部分      —11.15</p>
-</blockquote>
-<p>汉诺塔问题一直困扰了我比较久，总结的规律是，递归方式重点在于分为<strong>初始柱【A】、中转柱【B】及目标柱【C】</strong></p>
-<p>那么问题其实就在于它的这个过程要怎么转了，一般过程都是最上面的一个整体（以64个圆盘为例，则把最上方的63块看为整体）<code>A-&gt;C-&gt;B</code><strong>【此时中转柱为C】</strong>而后把最后一个大圆盘<code>A-&gt;C</code><strong>【这里不需要中转柱】</strong>，再接着，以A为中转柱，将B上的圆盘全部转移到C上，即<code>B-&gt;A-&gt;C</code></p>
-<blockquote>
-<p>注意：以上A、B、C柱子是时刻发生变化的，因为这中间圆盘是一个一个取得，则每次这三类柱子得顺序都会发生变化。但如果从宏观上来看，就是三根柱子得大变化。所以，考场上懵的话想想宏观就能很快敲出来了。</p>
-</blockquote>
-<p>核心算法为：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">move</span><span class="params">(<span class="keyword">int</span> n, <span class="keyword">char</span> a, <span class="keyword">char</span> b, <span class="keyword">char</span> c)</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(n == <span class="number">1</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%c --&gt; %c\n&quot;</span>, a, c);					<span class="comment">//若只剩下一个了，直接转移就行啦</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    move(n<span class="number">-1</span>, a, c, b);									<span class="comment">//此时初始柱为a（不一定是A）						</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%c --&gt; %c\n&quot;</span>, a, c);</span><br><span class="line">    move(n<span class="number">-1</span>, b, a, c);									<span class="comment">//此时初试柱为b（不一定是B）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><strong>注意：</strong>在输出的时候，输出的是a，c柱，是当时得初始柱和目标柱，不是A和C柱嗷嗷</p>
-</blockquote>
-<h1 id="二-快速排序"><a href="#二-快速排序" class="headerlink" title="二 快速排序"></a>二 快速排序</h1><blockquote>
-<p>是一道关于分配牛奶得问题，其实用sort直接就出来了，但是因为一直不会快排，内心虚，就学习了下快排怎么写，发现这个分治法有点意思</p>
-</blockquote>
-<p>因为一开始看快排很容易懵，那么怎么理解会更快呢，把分治法称为<strong>“挖坑填数+分治”</strong>就快啦~</p>
-<h2 id="2-1-基本概念"><a href="#2-1-基本概念" class="headerlink" title="2.1 基本概念"></a>2.1 基本概念</h2><p>总的来说就是，先找到一个基准点<code>通常为最左边s[l],或者最右边s[r]</code>，如果选取最左边<code>s[l]</code>为基准点，那么最先比较的则是最右端<code>s[r]</code>，如果比<code>s[l]</code>大，则跳到下一个<code>s[--r]</code>，若比它小，则<code>s[r]</code>填补<code>s[l]</code>的坑位，然后<code>++i</code>，将右边的坑位与左边的坑位再进行比较；知道<code>i == j</code>为止</p>
-<h2 id="2-2-挖坑填数"><a href="#2-2-挖坑填数" class="headerlink" title="2.2 挖坑填数"></a>2.2 挖坑填数</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">change_loc</span><span class="params">(<span class="keyword">int</span> s[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(l &lt; r)&#123;</span><br><span class="line">        <span class="keyword">int</span> x = s[l], i = l, j = r;</span><br><span class="line">        <span class="comment">/*先右端*/</span></span><br><span class="line">        <span class="keyword">while</span>(i &lt; j &amp;&amp; s[j] &gt;= x)&#123;          <span class="comment">//注意这个i&lt;j，容易漏，如果减过头了就麻烦了</span></span><br><span class="line">            --j;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(i &lt; j)&#123;                          <span class="comment">//有可能i=j，所以还要加判断</span></span><br><span class="line">            s[i] = s[j];                    <span class="comment">//填数</span></span><br><span class="line">            ++i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">/*再左端*/</span></span><br><span class="line">        <span class="keyword">while</span>(i &lt; j &amp;&amp; s[i] &lt;= x)&#123;</span><br><span class="line">            ++i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(i &lt; j)&#123;</span><br><span class="line">            s[j] = s[i];</span><br><span class="line">            --j;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    s[i] = x;                               <span class="comment">//当i=j时，填补完毕，可以退出来了</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> i;                               <span class="comment">//返回此时中间点得位置，便于i的左端和右端继续排序</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-3-分治"><a href="#2-3-分治" class="headerlink" title="2.3 分治"></a>2.3 分治</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(<span class="keyword">int</span> s[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(l &lt; r)&#123;</span><br><span class="line">    	<span class="keyword">int</span> i = quick_sort(s, l, r);		<span class="comment">//找到中间点</span></span><br><span class="line">	    quick_sort(s, l, i<span class="number">-1</span>);				<span class="comment">//先左端</span></span><br><span class="line">    	quick_sort(s, i+<span class="number">1</span>, r);				<span class="comment">//再右端</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-4-总结"><a href="#2-4-总结" class="headerlink" title="2.4 总结"></a>2.4 总结</h2><blockquote>
-<p>如果分两个函数来写不够简洁，将<strong>挖坑填数与分治</strong>总结写成：</p>
-</blockquote>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(<span class="keyword">int</span> s[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(l &lt; r)&#123;</span><br><span class="line">        <span class="keyword">int</span> x = s[l], i = l, j = r;</span><br><span class="line">        <span class="keyword">while</span>(i&lt;j)&#123;</span><br><span class="line">            <span class="comment">/*先让左边与右边比较*/</span></span><br><span class="line">            <span class="keyword">while</span>(i&lt;j &amp;&amp; s[j] &gt;= x)&#123;</span><br><span class="line">                --j;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(i &lt; j)&#123;</span><br><span class="line">                s[i++] = s[j];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">while</span>(i&lt;j &amp;&amp; s[i] &lt;= x)&#123;</span><br><span class="line">                ++i;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(i &lt; j)&#123;</span><br><span class="line">                s[j--] = s[i];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        s[i] = x;</span><br><span class="line">        quick_sort(s, l, i<span class="number">-1</span>);</span><br><span class="line">        quick_sort(s, i+<span class="number">1</span>, r);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-5-补充说明–结构体"><a href="#2-5-补充说明–结构体" class="headerlink" title="2.5 补充说明–结构体"></a>2.5 补充说明–结构体</h2><blockquote>
-<p>这里我是用来比较结构体的，但是遇到的问题就是怎么传结构体进去，后面发现了我的定性思维的问题</p>
-</blockquote>
-<p>我在定义结构体时是这么定义的：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">	<span class="keyword">int</span> price;</span><br><span class="line">    <span class="keyword">int</span> num;</span><br><span class="line">&#125;Cow[MAX];</span><br></pre></td></tr></table></figure>
-
-<p>这里问题出在我怎么把一个结构体数组传进去进行比较呢，但这样定义结构体没有普遍性，总的来说就是限制的太死了，换成这样定义就好多了</p>
-<p><strong>改进：</strong></p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">    <span class="keyword">int</span> price;</span><br><span class="line">    <span class="keyword">int</span> num;</span><br><span class="line">&#125;Cow;</span><br><span class="line">Cow cow[MAX];</span><br></pre></td></tr></table></figure>
-
-<p>而后在比较时我传值就可以这样</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(Cow c[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p>在进行比较时，设置中间变量进行交换时，我就可以把x定义为<code>Cow x = c[l]</code>;这样就不会限制的那么死了。</p>
-<p>灵感来源于看别人进行sort排序时传进去的是</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sort(cow, cow+m, cmp);			<span class="comment">//其中cow为数组首地址，m为长度，cmp为比较函数</span></span><br></pre></td></tr></table></figure>
-
-<p>然后发现原版的sort可以传结构体数组的话，说明就是我的问题了，后面我就按照结构体来定义了，而不是结构体数组。</p>
-<h1 id="三-数组内逆序"><a href="#三-数组内逆序" class="headerlink" title="三 数组内逆序"></a>三 数组内逆序</h1><p>今天卡到的竟然是数组内逆序，我卡了20多分钟，然后用了一种我从没有用过的方法orz…</p>
-<p>具体是这样的，我还是定义为<code>l、r</code>，但是改为了</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*设数组定义为ElemType a[MAX]*/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">change_loc</span><span class="params">(ElemType a[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line"> 	<span class="keyword">if</span>(l&lt;r)&#123;									<span class="comment">/*这个判断容易忘记！*/</span></span><br><span class="line">    	<span class="keyword">while</span>(l&lt;r)&#123;</span><br><span class="line">			ElemType tmp = a[l];</span><br><span class="line">    		a[l] = a[r];</span><br><span class="line">    		a[r] = tmp;</span><br><span class="line">    		l++; r--;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>我觉得这样挺好orz..</p>
-</blockquote>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-比特币是什么"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/03/16/%E6%AF%94%E7%89%B9%E5%B8%81%E6%98%AF%E4%BB%80%E4%B9%88/"
+  <a class="article-title" href="/2021/03/16/Why/%E6%AF%94%E7%89%B9%E5%B8%81%E6%98%AF%E4%BB%80%E4%B9%88/"
     >比特币与区块链</a> 
 </h2>
  
@@ -1323,11 +1404,11 @@
     </header>
      
     <div class="article-meta">
-      <a href="/2021/03/16/%E6%AF%94%E7%89%B9%E5%B8%81%E6%98%AF%E4%BB%80%E4%B9%88/" class="article-date">
+      <a href="/2021/03/16/Why/%E6%AF%94%E7%89%B9%E5%B8%81%E6%98%AF%E4%BB%80%E4%B9%88/" class="article-date">
   <time datetime="2021-03-16T01:24:27.626Z" itemprop="datePublished">2021-03-16</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/">区块链</a>
+    <a class="article-category-link" href="/categories/Why/">Why</a>
   </div>
    
     </div>
@@ -1606,7 +1687,7 @@
 
     
     <article
-  id="post-字符串+线索二叉树"
+  id="post-算法/汉诺塔，快排与数组内逆序"
   class="article article-type-post"
   itemscope
   itemprop="blogPost"
@@ -1617,19 +1698,124 @@
     <header class="article-header">
        
 <h2 itemprop="name">
-  <a class="article-title" href="/2021/03/16/%E5%AD%97%E7%AC%A6%E4%B8%B2+%E7%BA%BF%E7%B4%A2%E4%BA%8C%E5%8F%89%E6%A0%91/"
-    >学习记录--字符串+线索二叉树构建</a> 
+  <a class="article-title" href="/2021/03/16/%E7%AE%97%E6%B3%95/%E6%B1%89%E8%AF%BA%E5%A1%94%EF%BC%8C%E5%BF%AB%E6%8E%92%E4%B8%8E%E6%95%B0%E7%BB%84%E5%86%85%E9%80%86%E5%BA%8F/"
+    >学习记录--汉诺塔，快排与数组内逆序</a> 
 </h2>
  
 
     </header>
      
     <div class="article-meta">
-      <a href="/2021/03/16/%E5%AD%97%E7%AC%A6%E4%B8%B2+%E7%BA%BF%E7%B4%A2%E4%BA%8C%E5%8F%89%E6%A0%91/" class="article-date">
+      <a href="/2021/03/16/%E7%AE%97%E6%B3%95/%E6%B1%89%E8%AF%BA%E5%A1%94%EF%BC%8C%E5%BF%AB%E6%8E%92%E4%B8%8E%E6%95%B0%E7%BB%84%E5%86%85%E9%80%86%E5%BA%8F/" class="article-date">
+  <time datetime="2021-03-16T01:24:27.626Z" itemprop="datePublished">2021-03-16</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="一-汉诺塔问题"><a href="#一-汉诺塔问题" class="headerlink" title="一 汉诺塔问题"></a>一 汉诺塔问题</h1><blockquote>
+<p>这里没有用指针，之后再更新指针部分      —11.15</p>
+</blockquote>
+<p>汉诺塔问题一直困扰了我比较久，总结的规律是，递归方式重点在于分为<strong>初始柱【A】、中转柱【B】及目标柱【C】</strong></p>
+<p>那么问题其实就在于它的这个过程要怎么转了，一般过程都是最上面的一个整体（以64个圆盘为例，则把最上方的63块看为整体）<code>A-&gt;C-&gt;B</code><strong>【此时中转柱为C】</strong>而后把最后一个大圆盘<code>A-&gt;C</code><strong>【这里不需要中转柱】</strong>，再接着，以A为中转柱，将B上的圆盘全部转移到C上，即<code>B-&gt;A-&gt;C</code></p>
+<blockquote>
+<p>注意：以上A、B、C柱子是时刻发生变化的，因为这中间圆盘是一个一个取得，则每次这三类柱子得顺序都会发生变化。但如果从宏观上来看，就是三根柱子得大变化。所以，考场上懵的话想想宏观就能很快敲出来了。</p>
+</blockquote>
+<p>核心算法为：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">move</span><span class="params">(<span class="keyword">int</span> n, <span class="keyword">char</span> a, <span class="keyword">char</span> b, <span class="keyword">char</span> c)</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(n == <span class="number">1</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%c --&gt; %c\n&quot;</span>, a, c);					<span class="comment">//若只剩下一个了，直接转移就行啦</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    move(n<span class="number">-1</span>, a, c, b);									<span class="comment">//此时初始柱为a（不一定是A）						</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%c --&gt; %c\n&quot;</span>, a, c);</span><br><span class="line">    move(n<span class="number">-1</span>, b, a, c);									<span class="comment">//此时初试柱为b（不一定是B）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>注意：</strong>在输出的时候，输出的是a，c柱，是当时得初始柱和目标柱，不是A和C柱嗷嗷</p>
+</blockquote>
+<h1 id="二-快速排序"><a href="#二-快速排序" class="headerlink" title="二 快速排序"></a>二 快速排序</h1><blockquote>
+<p>是一道关于分配牛奶得问题，其实用sort直接就出来了，但是因为一直不会快排，内心虚，就学习了下快排怎么写，发现这个分治法有点意思</p>
+</blockquote>
+<p>因为一开始看快排很容易懵，那么怎么理解会更快呢，把分治法称为<strong>“挖坑填数+分治”</strong>就快啦~</p>
+<h2 id="2-1-基本概念"><a href="#2-1-基本概念" class="headerlink" title="2.1 基本概念"></a>2.1 基本概念</h2><p>总的来说就是，先找到一个基准点<code>通常为最左边s[l],或者最右边s[r]</code>，如果选取最左边<code>s[l]</code>为基准点，那么最先比较的则是最右端<code>s[r]</code>，如果比<code>s[l]</code>大，则跳到下一个<code>s[--r]</code>，若比它小，则<code>s[r]</code>填补<code>s[l]</code>的坑位，然后<code>++i</code>，将右边的坑位与左边的坑位再进行比较；知道<code>i == j</code>为止</p>
+<h2 id="2-2-挖坑填数"><a href="#2-2-挖坑填数" class="headerlink" title="2.2 挖坑填数"></a>2.2 挖坑填数</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">change_loc</span><span class="params">(<span class="keyword">int</span> s[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(l &lt; r)&#123;</span><br><span class="line">        <span class="keyword">int</span> x = s[l], i = l, j = r;</span><br><span class="line">        <span class="comment">/*先右端*/</span></span><br><span class="line">        <span class="keyword">while</span>(i &lt; j &amp;&amp; s[j] &gt;= x)&#123;          <span class="comment">//注意这个i&lt;j，容易漏，如果减过头了就麻烦了</span></span><br><span class="line">            --j;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(i &lt; j)&#123;                          <span class="comment">//有可能i=j，所以还要加判断</span></span><br><span class="line">            s[i] = s[j];                    <span class="comment">//填数</span></span><br><span class="line">            ++i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">/*再左端*/</span></span><br><span class="line">        <span class="keyword">while</span>(i &lt; j &amp;&amp; s[i] &lt;= x)&#123;</span><br><span class="line">            ++i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(i &lt; j)&#123;</span><br><span class="line">            s[j] = s[i];</span><br><span class="line">            --j;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    s[i] = x;                               <span class="comment">//当i=j时，填补完毕，可以退出来了</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> i;                               <span class="comment">//返回此时中间点得位置，便于i的左端和右端继续排序</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-3-分治"><a href="#2-3-分治" class="headerlink" title="2.3 分治"></a>2.3 分治</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(<span class="keyword">int</span> s[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(l &lt; r)&#123;</span><br><span class="line">    	<span class="keyword">int</span> i = quick_sort(s, l, r);		<span class="comment">//找到中间点</span></span><br><span class="line">	    quick_sort(s, l, i<span class="number">-1</span>);				<span class="comment">//先左端</span></span><br><span class="line">    	quick_sort(s, i+<span class="number">1</span>, r);				<span class="comment">//再右端</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-4-总结"><a href="#2-4-总结" class="headerlink" title="2.4 总结"></a>2.4 总结</h2><blockquote>
+<p>如果分两个函数来写不够简洁，将<strong>挖坑填数与分治</strong>总结写成：</p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(<span class="keyword">int</span> s[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(l &lt; r)&#123;</span><br><span class="line">        <span class="keyword">int</span> x = s[l], i = l, j = r;</span><br><span class="line">        <span class="keyword">while</span>(i&lt;j)&#123;</span><br><span class="line">            <span class="comment">/*先让左边与右边比较*/</span></span><br><span class="line">            <span class="keyword">while</span>(i&lt;j &amp;&amp; s[j] &gt;= x)&#123;</span><br><span class="line">                --j;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(i &lt; j)&#123;</span><br><span class="line">                s[i++] = s[j];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">while</span>(i&lt;j &amp;&amp; s[i] &lt;= x)&#123;</span><br><span class="line">                ++i;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(i &lt; j)&#123;</span><br><span class="line">                s[j--] = s[i];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        s[i] = x;</span><br><span class="line">        quick_sort(s, l, i<span class="number">-1</span>);</span><br><span class="line">        quick_sort(s, i+<span class="number">1</span>, r);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-5-补充说明–结构体"><a href="#2-5-补充说明–结构体" class="headerlink" title="2.5 补充说明–结构体"></a>2.5 补充说明–结构体</h2><blockquote>
+<p>这里我是用来比较结构体的，但是遇到的问题就是怎么传结构体进去，后面发现了我的定性思维的问题</p>
+</blockquote>
+<p>我在定义结构体时是这么定义的：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">	<span class="keyword">int</span> price;</span><br><span class="line">    <span class="keyword">int</span> num;</span><br><span class="line">&#125;Cow[MAX];</span><br></pre></td></tr></table></figure>
+
+<p>这里问题出在我怎么把一个结构体数组传进去进行比较呢，但这样定义结构体没有普遍性，总的来说就是限制的太死了，换成这样定义就好多了</p>
+<p><strong>改进：</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">    <span class="keyword">int</span> price;</span><br><span class="line">    <span class="keyword">int</span> num;</span><br><span class="line">&#125;Cow;</span><br><span class="line">Cow cow[MAX];</span><br></pre></td></tr></table></figure>
+
+<p>而后在比较时我传值就可以这样</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(Cow c[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>在进行比较时，设置中间变量进行交换时，我就可以把x定义为<code>Cow x = c[l]</code>;这样就不会限制的那么死了。</p>
+<p>灵感来源于看别人进行sort排序时传进去的是</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sort(cow, cow+m, cmp);			<span class="comment">//其中cow为数组首地址，m为长度，cmp为比较函数</span></span><br></pre></td></tr></table></figure>
+
+<p>然后发现原版的sort可以传结构体数组的话，说明就是我的问题了，后面我就按照结构体来定义了，而不是结构体数组。</p>
+<h1 id="三-数组内逆序"><a href="#三-数组内逆序" class="headerlink" title="三 数组内逆序"></a>三 数组内逆序</h1><p>今天卡到的竟然是数组内逆序，我卡了20多分钟，然后用了一种我从没有用过的方法orz…</p>
+<p>具体是这样的，我还是定义为<code>l、r</code>，但是改为了</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*设数组定义为ElemType a[MAX]*/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">change_loc</span><span class="params">(ElemType a[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line"> 	<span class="keyword">if</span>(l&lt;r)&#123;									<span class="comment">/*这个判断容易忘记！*/</span></span><br><span class="line">    	<span class="keyword">while</span>(l&lt;r)&#123;</span><br><span class="line">			ElemType tmp = a[l];</span><br><span class="line">    		a[l] = a[r];</span><br><span class="line">    		a[r] = tmp;</span><br><span class="line">    		l++; r--;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>我觉得这样挺好orz..</p>
+</blockquote>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
+  id="post-算法/字符串+线索二叉树"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/03/16/%E7%AE%97%E6%B3%95/%E5%AD%97%E7%AC%A6%E4%B8%B2+%E7%BA%BF%E7%B4%A2%E4%BA%8C%E5%8F%89%E6%A0%91/"
+    >字符串+线索二叉树构建</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/16/%E7%AE%97%E6%B3%95/%E5%AD%97%E7%AC%A6%E4%B8%B2+%E7%BA%BF%E7%B4%A2%E4%BA%8C%E5%8F%89%E6%A0%91/" class="article-date">
   <time datetime="2021-03-16T01:24:27.625Z" itemprop="datePublished">2021-03-16</time>
 </a> 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">数据结构</a>
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>
   </div>
    
     </div>
@@ -1692,293 +1878,6 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-一致性算法【入门级】"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/03/16/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95%E3%80%90%E5%85%A5%E9%97%A8%E7%BA%A7%E3%80%91/"
-    >一致性算法【入门级】</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/03/16/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95%E3%80%90%E5%85%A5%E9%97%A8%E7%BA%A7%E3%80%91/" class="article-date">
-  <time datetime="2021-03-16T01:24:27.623Z" itemprop="datePublished">2021-03-16</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <script src="/assets/js/APlayer.min.js"> </script><h1 id="一致性算法（Paxos、Raft、ZAB）"><a href="#一致性算法（Paxos、Raft、ZAB）" class="headerlink" title="一致性算法（Paxos、Raft、ZAB）"></a>一致性算法（Paxos、Raft、ZAB）</h1><h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><table>
-<thead>
-<tr>
-<th align="left">一 什么是一致性</th>
-<th align="left">1.1 CAP theorem  1.2 一致性模型</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="left"><strong>二 强一致性算法</strong></td>
-<td align="left"><strong>2.1 Paxos  2.2 Raft  2.3  ZAB</strong></td>
-</tr>
-<tr>
-<td align="left"><strong>三 项目实践</strong></td>
-<td align="left"><strong>3.1 Zookeeper   3.2 etcd</strong></td>
-</tr>
-</tbody></table>
-<h2 id="一-什么是一致性"><a href="#一-什么是一致性" class="headerlink" title="一 什么是一致性"></a>一 什么是一致性</h2><p><img src="https://i.loli.net/2020/11/29/BJrYnVc6iFxmzRb.jpg" alt="什么是一致性.jpg"></p>
-<h3 id="1-1-CAP-Theorem"><a href="#1-1-CAP-Theorem" class="headerlink" title="1.1 CAP Theorem"></a>1.1 CAP Theorem</h3><blockquote>
-<p>对于一个分布式系统，不能同时满足以下三点：</p>
-<ul>
-<li>一致性（Consistency）</li>
-<li>可用性（Availability）</li>
-<li>分区容错性（Partition Tolerance）</li>
-</ul>
-</blockquote>
-<p><img src="https://i.loli.net/2020/11/29/KmxAkNXEdbI2Oc3.jpg" alt="什么是一致性--CAP.jpg"></p>
-<h3 id="1-2-一致性模型"><a href="#1-2-一致性模型" class="headerlink" title="1.2 一致性模型"></a><strong>1.2 一致性模型</strong></h3><ul>
-<li>弱一致性<ul>
-<li>最终一致性【最终你会读到他的】<ul>
-<li>DNS（Domain Name System）</li>
-<li>Gossip（Cassandra通信协议）</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><strong>强一致性【本篇重点】</strong><ul>
-<li>同步</li>
-<li>Paxos</li>
-<li>Raft（multi-paxos）</li>
-<li>ZAB（multi-paxos）</li>
-</ul>
-</li>
-</ul>
-<p>在进行下一步讲解前，咱们先需要明确下问题：</p>
-<blockquote>
-<p><strong>数据不能存在单点上。</strong></p>
-</blockquote>
-<p>分布式系统对<strong>fault tolorence</strong>的一般解决方案为<strong>state machine replication【状态机复制】</strong></p>
-<blockquote>
-<p>状态机复制听起来很玄学，简单理解为：</p>
-<p>state machine可以理解为一个函数，它本身有一个初始状态，加入设置为0，此时如果有一个log（input）进来，让它加5，这个为增加状态，此时它的结束状态是5了；那么这个就是一个state machine；</p>
-<p>而分布式系统希望往这个log上写日志，如：日志1，我加了x值；日志2，我删了x值….。而分布式系统的设计一般为把这些logs   replicate（复制）到其他节点上，保证这些log不仅仅存在单个节点上，而是分布在多个节点上的。</p>
-</blockquote>
-<p>其实我们今天讨论准确的说，应该是<strong>state machine replication</strong>的<strong>共识（consensus）算法</strong></p>
-<p>而paxos其实是一个共识算法。系统的最终一致性，不仅需要达成共识，还会取决于client的行为。</p>
-<h2 id="二-强一致性算法"><a href="#二-强一致性算法" class="headerlink" title="二 强一致性算法"></a>二 强一致性算法</h2><h3 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h3><blockquote>
-<p>一致性算法有几个派别构建了现在的强一致性算法使用。</p>
-</blockquote>
-<p><strong>① 主从同步复制</strong></p>
-<ol>
-<li>Master【主节点】接受写请求</li>
-<li>Master复制日志至slave【从节点】</li>
-<li>Master等待，直到所有【所有传给子节点的logs】从库返回</li>
-</ol>
-<p><strong>问题：</strong>一个节点失败，Master阻塞，导致整个集群不可用，虽然保证了一致性，但是可用性却大大降低了。</p>
-<p><strong>② 多数派【目前流行的数据库用的思想】</strong></p>
-<p>其基本想法为：</p>
-<p>每次写都保证写入大于$\frac{N}{2}$，每次都都保证从大于$\frac{N}{2}$个节点中读</p>
-<p><strong>但还是不够，其问题在于：</strong>在并发环境下，多数派无法保证系统的正确性，<strong>所以顺序也是非常重要的</strong></p>
-<p><img src="https://i.loli.net/2020/11/29/tcjIBXoib9YypeO.jpg" alt="强一致--Quorum.jpg"></p>
-<h3 id="2-1-Paxos"><a href="#2-1-Paxos" class="headerlink" title="2.1 Paxos"></a>2.1 Paxos</h3><blockquote>
-<p>前提：为了描述Paxos，<strong>Lamport</strong>[latex发明者]虚拟了一个叫Paxos的希腊城邦，这个岛按照议会民主制的政治模式制定法律，但是没有人愿意将自己的全部时间和精力放在这种事，所以无论是议员、议长或者传递纸条的服务员都不能保证别人需要时一定会出现，也无法承诺批准决议或者传递消息的时间。</p>
-</blockquote>
-<p><strong>分类：</strong></p>
-<ul>
-<li><strong>Basic Paxos</strong></li>
-<li><strong>Multi Paxos</strong></li>
-<li><strong>Fast Paxos</strong></li>
-</ul>
-<h4 id="2-1-1-RPC【Remote-Procedure-Call】"><a href="#2-1-1-RPC【Remote-Procedure-Call】" class="headerlink" title="2.1.1 RPC【Remote Procedure Call】"></a>2.1.1 <a href="%5Bhttps://zh.wikipedia.org/wiki/%E9%81%A0%E7%A8%8B%E9%81%8E%E7%A8%8B%E8%AA%BF%E7%94%A8%5D(https://zh.wikipedia.org/wiki/%E9%81%A0%E7%A8%8B%E9%81%8E%E7%A8%8B%E8%AA%BF%E7%94%A8)">RPC【Remote Procedure Call】</a></h4><blockquote>
-<p>分布式计算中，RPC远程过程调用作为计算机网络通信协议，为一种服务器对客户端的模式【Server-Client】。该协议允许程序员在本地调用另一地址【通常为另一台<strong>开放空间下的</strong>计算机】的功能程序，不需要二次编写具体的函数实现。经典实现是一个通过<strong>发送请求-接受请求</strong>的交互系统。</p>
-<p>如果涉及的软件采用<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B">面向对象编程</a>，那么远程过程调用亦可称作<strong>远程调用</strong>或<strong>远程方法调用</strong>，例：<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Java_RMI">Java RMI</a>。</p>
-<p>RPC是一种<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1">进程间通信</a>的模式，程序分布在不同的<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E5%9C%B0%E5%9D%80%E7%A9%BA%E9%97%B4">地址空间</a>里。如果在同一主机里，RPC可以通过不同的<strong>虚拟地址</strong>空间（即便使用相同的物理地址）进行通讯，而在不同的主机间，则通过不同的<strong>物理地址</strong>进行交互。许多技术（常常是不兼容）都是基于这种概念而实现的。</p>
-</blockquote>
-<h5 id="·-信息传递"><a href="#·-信息传递" class="headerlink" title="· 信息传递"></a>· 信息传递</h5><p>一般为Client向Server发出执行若干过程请求，并用Client提供的参数，将结果返回给Client。</p>
-<h5 id="·-具体流程"><a href="#·-具体流程" class="headerlink" title="· 具体流程"></a><strong>· 具体流程</strong></h5><ol>
-<li>客户端调用客户端stub（client stub）。这个调用是在<strong>本地</strong>，并将调用参数push到栈（stack）中。</li>
-</ol>
-<blockquote>
-<p>如果数据量较少，使用寄存器就阔以了</p>
-<p><strong>stub【桩】：<a href="%5Bhttps://zh.wikipedia.org/wiki/%E6%A1%A9_(%E8%AE%A1%E7%AE%97%E6%9C%BA)%5D(https://zh.wikipedia.org/wiki/%E6%A1%A9_(%E8%AE%A1%E7%AE%97%E6%9C%BA)">维基百科–桩</a></strong></p>
-<p><strong>打桩：</strong></p>
-<ol>
-<li><strong>容易扩展的块。</strong>可以为一个宏，一个函数，或者是数个宏，数个函数的组合；起到辅助作用，与一般的代码块相比，桩在并不是固定的只是一个块在这，类似于面向方面编程的横切点，只不过为<strong>显式插入</strong></li>
-<li><strong>√ RPC的代理点。</strong>不真正做事，而是通过PRC或者其他类似的机制由外部完成真正的工作。</li>
-</ol>
-</blockquote>
-<ol start="2">
-<li>客户端stub（client stub）将这些参数包装，并通过系统调用发送到服务端机器。打包的过程叫 <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Marshalling_(%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6)">marshalling</a>【序列化】。（常见方式：<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/XML">XML</a>、<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/JSON">JSON</a>、二进制编码）</li>
-<li>客户端本地操作系统发送信息至服务器。（可通过自定义<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E4%BC%A0%E8%BE%93%E6%8E%A7%E5%88%B6%E5%8D%8F%E8%AE%AE">TCP协议</a>或<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/HTTP">HTTP</a>传输）</li>
-<li>服务器系统将信息传送至服务端stub（server stub）。</li>
-<li>服务端stub（server stub）解析信息。该过程叫 <a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/Unmarshalling_(%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6)">unmarshalling</a>。</li>
-<li>服务端stub（server stub）调用程序，并通过类似的方式返回给客户端。</li>
-</ol>
-<h4 id="2-1-2-Basic-Paxos"><a href="#2-1-2-Basic-Paxos" class="headerlink" title="2.1.2 Basic Paxos"></a>2.1.2 Basic Paxos</h4><h5 id="·-角色介绍"><a href="#·-角色介绍" class="headerlink" title="· 角色介绍"></a>· 角色介绍</h5><table>
-<thead>
-<tr>
-<th>Client</th>
-<th>系统外部角色，请求发起者。像民众</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><strong>Proposer</strong></td>
-<td>接受Client请求，向集群提起提议（propose）。并在冲突发生时，起到冲突调节的作用。像议员，替民众提出议案【判断是否达到Quorum】【服务器】</td>
-</tr>
-<tr>
-<td><strong>Acceptor（Voter）</strong></td>
-<td>提议投票和接收者，只有在形成法定人数（Quorum，即为多数派）时，提议才会最终被接受。像国会<strong>【分布式存储的独立存储点】</strong>【计算集群】【达到共识的数据库】</td>
-</tr>
-<tr>
-<td><strong>Learner</strong></td>
-<td>提议接收者，backup，备份，对集群一致性没什么影响。像记录员，对已经通过的法案做记录【由Acceptor通知】</td>
-</tr>
-</tbody></table>
-<h5 id="·-步骤、阶段【phases】"><a href="#·-步骤、阶段【phases】" class="headerlink" title="· 步骤、阶段【phases】"></a>· 步骤、阶段【phases】</h5><ol>
-<li><strong>Phase 1a：Prepare</strong></li>
-</ol>
-<blockquote>
-<p><strong>proposer</strong>提出一个提案，编号为$N$,此$N$<strong>大于</strong>这个<strong>proposer</strong>之前提出的提案编号，请求<strong>acceptors</strong>的<strong>quorum</strong>接受</p>
-</blockquote>
-<ol start="2">
-<li><strong>Phase 1b：Promise</strong></li>
-</ol>
-<blockquote>
-<p>如果$N$大于此acceptors之前接受的任何提案编号则接受，否则拒绝</p>
-</blockquote>
-<ol start="3">
-<li><strong>Phase 2a：Accept</strong></li>
-</ol>
-<blockquote>
-<p>如果达到了quorum，proposer会发出accept的请求。这个请求包含提案编号$N$，以及提案内容</p>
-</blockquote>
-<ol start="4">
-<li><strong>Phase 2b：Accepted</strong></li>
-</ol>
-<blockquote>
-<p>如果此acceptor在此期间没有收到任何编号大于$N$的提案，则接受此提案内容，否则忽略</p>
-</blockquote>
-<h5 id="·-潜在问题"><a href="#·-潜在问题" class="headerlink" title="· 潜在问题"></a>· 潜在问题</h5><blockquote>
-<p><strong>活锁（liveness）</strong>或者<strong>dueling</strong></p>
-</blockquote>
-<p>用<code>random(timeout)</code>解决，进程冲突，一个进程先等一会。【一般等几秒钟】</p>
-<p>其他问题：</p>
-<ul>
-<li>难实现、效率低（2轮RPC）、活锁</li>
-</ul>
-<p><img src="https://i.loli.net/2020/11/29/SC8jnlerY25sUDP.jpg" alt="basic paxos基本流程.jpg"></p>
-<h3 id="2-2-Multi-Paxos"><a href="#2-2-Multi-Paxos" class="headerlink" title="2.2 Multi-Paxos"></a>2.2 Multi-Paxos</h3><blockquote>
-<p>新概念【<strong>Leader</strong>】：唯一的proposer，所有请求都需要经过这个Leader。</p>
-</blockquote>
-<p><strong>区别</strong>：与basic paxos多proposers相比，其提案唯一确定</p>
-<p><strong>特点：</strong>减少角色，进一步简化</p>
-<blockquote>
-<p>在确定了一个server作为leader后，就不需要像basic paxos每一次propose都需要promise，而是与其他服务器形成了leader-slave的关系，只要不挂机，都仅需<code>Accept!(N,I,Vn)</code>即可</p>
-</blockquote>
-<p><img src="https://i.loli.net/2020/11/29/C65B2y39TxYQfhL.jpg" alt="multi paxos基本流程.jpg"></p>
-<h4 id="2-2-1-Raft【简易版本的Multi-Paxos】"><a href="#2-2-1-Raft【简易版本的Multi-Paxos】" class="headerlink" title="2.2.1 Raft【简易版本的Multi-Paxos】"></a>2.2.1 Raft【简易版本的Multi-Paxos】</h4><blockquote>
-<p>Raft is a implementation of distributed consensus，用于解决<code>state machine replication</code>问题</p>
-</blockquote>
-<ul>
-<li><p>将达到共识划分为三个子问题</p>
-<ul>
-<li><p><strong>Leader Election</strong></p>
-<ul>
-<li>Only one candidate</li>
-</ul>
-<blockquote>
-<p>Raft通过timeout来控制选举，如果集群中follower没有收到heartbeat【心跳包】，说明其可以竞选leader。当某一follower成为candidate后，它会向集群中的其他followers发送请求，当投票数达到Quorum【该candidate能保证它投它自己+1 vote】，该candidate成为Leader，向集群发送heartbeat。</p>
-<p>这个时候，集群中的所有follower在每次接受到heartbeat时，都要刷新一次timeout；并且更新一次<code>Election Term (x+1)</code></p>
-</blockquote>
-<ul>
-<li>Candidates</li>
-</ul>
-<blockquote>
-<p>Raft会产生随机的timeout给candidates，被分到timeout短的成为leader</p>
-</blockquote>
-</li>
-<li><p><strong>Log Replication</strong></p>
-<ul>
-<li>两个阶段：写日志<code>Log</code>—&gt;提交<code>Commit</code></li>
-<li>当Leader知道quorum已经将log写入了后，它就可以提交了；提交后再提醒followers提交</li>
-<li><strong>若产生多个集群分区</strong></li>
-</ul>
-<blockquote>
-<p>在这种情况下，一般为$2k+1$个结点，为保证不会出现同时的$2N$票</p>
-<p>此时，quorum表示为除了Leaders的所有followers</p>
-</blockquote>
-</li>
-<li><p><strong>Safety【如何保证容错】</strong></p>
-<ul>
-<li>如果出现宕机，在该机器恢复后，它的状态会与其他机器达成consensus</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>重定义角色：</p>
-<ul>
-<li>Leader【<strong>整个集群只有一个Leader</strong>】</li>
-</ul>
-<blockquote>
-<p>出现leader后，所有的请求都由leader传给followers</p>
-</blockquote>
-<ul>
-<li>Follower</li>
-<li>Candidate【没有leader出现时，由follower经过<strong>timeout</strong>后成为candidate】</li>
-</ul>
-</li>
-<li><p><a target="_blank" rel="noopener" href="http://thesecretlivesofdata.com/raft/">原理动画解释</a></p>
-</li>
-<li><p><a target="_blank" rel="noopener" href="https://raft.github.io/">场景测试</a></p>
-</li>
-</ul>
-<p><img src="https://i.loli.net/2020/11/29/zQaAeuF3HpDLCsR.jpg" alt="强一致--主从同步.jpg"></p>
-<h4 id="2-2-2-其他问题"><a href="#2-2-2-其他问题" class="headerlink" title="2.2.2 其他问题"></a>2.2.2 其他问题</h4><p><strong>一致性不能代表完全正确性！</strong></p>
-<p>因为会出现三个可能的结果：<code>成功</code>,<code>失败</code>,<code>unknown(timeout)</code></p>
-<p>举个例子<strong>【Raft 5 Nodes】</strong>：Client写请求，leader问followers同步logs，此时集群中有3个节点失败，2个节点存活，结果会是？</p>
-<h3 id="2-3-ZAB-Multi-Paxos"><a href="#2-3-ZAB-Multi-Paxos" class="headerlink" title="2.3 ZAB(Multi-Paxos)"></a>2.3 ZAB(Multi-Paxos)</h3><blockquote>
-<p>基本与Raft相同，有些名词在叫法上有些区别；</p>
-<p>比如ZAB将某一个Leader的周期称为<code>epoch</code>，而Raft则称之为<code>term</code>；</p>
-<p>实际上也有存在着一些区别：如Raft保证log的连续性，Heartbeats方向为<code>Leader --&gt; Follower</code>，ZAB则相反，为<code>Follower --&gt; Leader</code></p>
-</blockquote>
-<h2 id="三-项目实践"><a href="#三-项目实践" class="headerlink" title="三 项目实践"></a>三 项目实践</h2><ul>
-<li>Zookeeper集群搭建和命令行操作</li>
-<li>Etcd集群搭建和restful api</li>
-</ul>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag">分布式</a></li></ul>
 
     </footer>
   </div>

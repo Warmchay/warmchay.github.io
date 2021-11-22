@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    字符串+线索二叉树构建 |  
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+<link rel="alternate" href="/atom.xml" title="Yitee" type="application/atom+xml">
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-算法/字符串+线索二叉树"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  字符串+线索二叉树构建
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/16/%E7%AE%97%E6%B3%95/%E5%AD%97%E7%AC%A6%E4%B8%B2+%E7%BA%BF%E7%B4%A2%E4%BA%8C%E5%8F%89%E6%A0%91/" class="article-date">
+  <time datetime="2021-03-16T01:24:27.625Z" itemprop="datePublished">2021-03-16</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">1.5k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">6 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <script src="/assets/js/APlayer.min.js"> </script><h2 id="一-字符串"><a href="#一-字符串" class="headerlink" title="一 字符串"></a>一 字符串</h2><p>今天的上机有几道题提醒了我可能我关于高精度和字符串掌握程度不熟，所以再来回顾一遍</p>
+<h3 id="1-1-高精度存值"><a href="#1-1-高精度存值" class="headerlink" title="1.1 高精度存值"></a>1.1 高精度存值</h3><p>这个使输入一个阶乘的值然后用数组来保存，一开始我的方法是：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> str;</span><br><span class="line"><span class="keyword">int</span> sum = <span class="number">0</span>, count = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=str.length()<span class="number">-1</span>; i&gt;=<span class="number">0</span>; --i)&#123;</span><br><span class="line">    sum += (str[i]-<span class="string">&#x27;0&#x27;</span>)*count;</span><br><span class="line">    count *= <span class="number">10</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; sum;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>问题在于：依旧相当于直接输出大的值，改善的点是我能输出多位的值了，思路就是错在输出了</p>
+</blockquote>
+<p>所以，正确的方法应该是用数组去存它们的一个个位的值，这个时候我的问题在于怎么一位一位</p>
+<p>地把数存进去，使用的算法是这样的</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MAX 100;</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">factorial</span><span class="params">(<span class="keyword">int</span> n)</span></span>&#123;			<span class="comment">/*n!*/</span></span><br><span class="line">    <span class="keyword">int</span> a[MAX], tmp;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">2</span>; i&lt;=n; ++i)&#123;</span><br><span class="line">        <span class="keyword">int</span> <span class="built_in">cin</span> = <span class="number">0</span>;			<span class="comment">/*每一轮重置一次进位数*/</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>; j&lt;MAX; ++j)&#123;</span><br><span class="line">            tmp = a[j]+<span class="built_in">cin</span>;		<span class="comment">/*把原有的数加上进位*/</span></span><br><span class="line">            <span class="built_in">cin</span> = a[j]/<span class="number">10</span>;</span><br><span class="line">            a[j] = tmp%<span class="number">10</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> i, sum = <span class="number">0</span>, count = <span class="number">1</span>;				<span class="comment">/*记录最大位在哪*/</span></span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; MAX<span class="number">-1</span>; ++i)&#123;</span><br><span class="line">        <span class="keyword">if</span>(a[i] == <span class="number">0</span>)</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> j = i<span class="number">-1</span>; j&gt;=<span class="number">0</span>; --j)&#123;</span><br><span class="line">        sum += a[j]*count;</span><br><span class="line">        count *= <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="1-2-字符串的一些函数操作"><a href="#1-2-字符串的一些函数操作" class="headerlink" title="1.2 字符串的一些函数操作"></a>1.2 字符串的一些函数操作</h3><h4 id="1-2-1-含有空格的字符串输入"><a href="#1-2-1-含有空格的字符串输入" class="headerlink" title="1.2.1 含有空格的字符串输入"></a>1.2.1 含有空格的字符串输入</h4><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getline(<span class="built_in">cin</span>, str);</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-2-2-字符串的删除与拼接"><a href="#1-2-2-字符串的删除与拼接" class="headerlink" title="1.2.2 字符串的删除与拼接"></a>1.2.2 字符串的删除与拼接</h4><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> s1, s2;		<span class="comment">//s1原串，s2子串</span></span><br><span class="line"><span class="keyword">while</span>(s1.find(s2) &lt; s1.length())&#123;</span><br><span class="line">	s1 = s.erase(s1.find(s2), s2.length());	<span class="comment">/*erase函数(首地址，删除的长度)*/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-2-3-字符串的公共前缀"><a href="#1-2-3-字符串的公共前缀" class="headerlink" title="1.2.3 字符串的公共前缀"></a>1.2.3 字符串的公共前缀</h4><p>最大问题在输入怎么输入，一般要求输入在一行内如：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">global glossory</span><br></pre></td></tr></table></figure>
+
+<p>我是这么输入的</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> s1, s2;</span><br><span class="line"><span class="built_in">cin</span> &gt;&gt; s1;</span><br><span class="line">getchar();</span><br><span class="line"><span class="built_in">cin</span> &gt;&gt; s2;</span><br><span class="line"><span class="comment">/*这样也能达成上述输入的效果，然后处理的时候视为两个字符串处理就好啦~*/</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="二-线索二叉树"><a href="#二-线索二叉树" class="headerlink" title="二 线索二叉树"></a>二 线索二叉树</h2><blockquote>
+<p>这个是复习的时候发现没听懂，所以记一下防止期末又忘了</p>
+</blockquote>
+<p>二叉树的核心在于<strong>线索化</strong>，其作用在于把一颗树转化为双向链表，这样能够判断其前缀和后缀是什么。</p>
+<p>其结构体定义为</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">BiThrNode</span>&#123;</span></span><br><span class="line">    ElemType data;							<span class="comment">//结点数据</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">BiThrNode</span> *<span class="title">lchild</span>, *<span class="title">rchild</span>;</span>		<span class="comment">//左右孩子的指针</span></span><br><span class="line">    <span class="keyword">int</span> ltag, rtag;							<span class="comment">//左右孩子的标志</span></span><br><span class="line">&#125;BiThrNode, *BiThrTree;</span><br></pre></td></tr></table></figure>
+
+<p>在我的理解中，难点在于ltag（rtag）是用来做什么的，因为这个我看了很多书都没能理解，在b站上找了懒猫老师的课，听了一边下来感觉大概清楚线索二叉树的线索化是怎么实现的。</p>
+<blockquote>
+<p>以下仅基于自己的理解，给自己复习的，如果有朋友看，可能你会看不懂qwq</p>
+</blockquote>
+<h3 id="①-空结点个数"><a href="#①-空结点个数" class="headerlink" title="① 空结点个数"></a>① 空结点个数</h3><p>一开始我们会按照前序、中序后者后序的组合（不能是中序+后序）建立好了一棵二叉树，但是我们在判断一个结点是否有子树时，会设置它的<code>lchild、rchild</code>为<code>NULL</code>，这样会使很多结点浪费掉了，做个计算</p>
+<p>设这颗二叉树结点个数为<code>n</code>，它有<code>n-1</code>条边，那么空结点数一共为<br>$$<br>2*n-(n-1) = n+1<br>$$<br>怎么理解呢？一个结点能引出两条边，而树的边两端真正连有结点的一共为<code>n-1</code>条，所以拿<code>2*n-(n-1)</code>就是空结点的个数<br>从<code>n+1</code>看来这个浪费的程度有点大，那么如何利用他们呢？</p>
+<h3 id="②-前缀、后缀"><a href="#②-前缀、后缀" class="headerlink" title="② 前缀、后缀"></a>② 前缀、后缀</h3><p>因为我们在建树的过程中，是把原有的顺序拆开的，比如说前序为<code>ABCDEF</code>,中序为<code>CBDAEF</code>,这样搭建出来的树<code>A</code>为根结点，其左孩子为<code>B</code> ，右孩子为 <code>E</code>，但是在中序遍历中，其前缀不为B，后缀为E，也就说明A两端是有子结点的，一般这种情况我们设A的<code>ltag = 0, rtag = 0</code>，表示其有左右孩子，但不一定为其前缀后者后缀形式。</p>
+<p>相反的，我们那这棵树的<code>C</code>作为另一种表示，C没有前缀，C的后缀为B，但我们知道，它没有左孩子与右孩子，这个时候我们把它的<code>lchild、rchild</code>指向其前驱和后继。所以在这里我们设置其<code>ltag = 1, rtag = 1</code>，表示其没有左右孩子，这时它的左右孩子的地址指向的是其在某种遍历方式里的前驱和后继。</p>
+<p>所以<code>ltag、rtag</code>可以看作是一种判断符，分为<code>1/0</code>的情况</p>
+<h3 id="₯③-保存状态结点–pre"><a href="#₯③-保存状态结点–pre" class="headerlink" title="₯③ 保存状态结点–pre"></a>₯③ 保存状态结点–pre</h3><p>那么如何保存其左右结点呢？</p>
+<p>我们先来看整个遍历的代码吧，这个是实现创建线索二叉树【中序遍历】的代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">InThreading</span><span class="params">(BiThrTree p)</span></span>&#123;</span><br><span class="line">    <span class="keyword">static</span> BiThrTree pre;			<span class="comment">//设置静态变量，让pre在每一次遍历中都能察觉到</span></span><br><span class="line">	<span class="keyword">if</span>(p == <span class="literal">NULL</span>) <span class="keyword">return</span>;</span><br><span class="line">	InThreding(p-&gt;lchild);			<span class="comment">//先递归到左子树最低点</span></span><br><span class="line">	<span class="keyword">if</span>(!p-&gt;lchild)&#123;					<span class="comment">//如果p没有左孩子</span></span><br><span class="line">		p-&gt;ltag = <span class="number">1</span>;				<span class="comment">//标志其为线索化的结点，即其左子树为其前驱，不是其真实的左孩子</span></span><br><span class="line">		p-&gt;lchild = pre;			<span class="comment">//pre为p上一个节点</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span>(!pre-&gt;rchild)&#123;</span><br><span class="line">		pre-&gt;rtag = <span class="number">1</span>;</span><br><span class="line">		pre-&gt;rchild = p;			<span class="comment">//开头在创建的过程中pre会经过两遍</span></span><br><span class="line">	&#125;</span><br><span class="line">	pre = p;</span><br><span class="line">	InThreading(p-&gt;rchild);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过这种方式我们就创建好了一颗线索二叉树</p>
+<p>最后，还有主要的是如果我的<code>ltag/rtag = 0</code>呢？那打印的时候我怎么保证遍历到的是其前驱呢？解决办法依旧是不断递归，假如要打印的是前驱</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">inOrder</span><span class="params">(BiThrTree t)</span></span>&#123;</span><br><span class="line">	BiThrTree p = t-&gt;lchild;			<span class="comment">//p指向t的左子树 </span></span><br><span class="line">	<span class="keyword">while</span>(p-&gt;ltag != <span class="number">0</span>)&#123;</span><br><span class="line">		p = p-&gt;lchild;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">cout</span> &lt;&lt; p-&gt;data &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">	<span class="keyword">while</span>(p-&gt;rtag &amp;&amp; p-&gt;rchild != t)&#123;	<span class="comment">//防止p指向右孩子出错</span></span><br><span class="line">		p = p-&gt;rchild;</span><br><span class="line">		<span class="built_in">cout</span> &lt;&lt; p-&gt;data &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">	&#125; </span><br><span class="line">	p = p-&gt;rchild;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+ 
+      <!-- reward -->
+      
+      <div id="reword-out">
+        <div id="reward-btn">
+          打赏
+        </div>
+      </div>
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+          
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://warmchay.github.io/2021/03/16/%E7%AE%97%E6%B3%95/%E5%AD%97%E7%AC%A6%E4%B8%B2+%E7%BA%BF%E7%B4%A2%E4%BA%8C%E5%8F%89%E6%A0%91/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
+
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/2021/03/16/%E7%AE%97%E6%B3%95/%E6%B1%89%E8%AF%BA%E5%A1%94%EF%BC%8C%E5%BF%AB%E6%8E%92%E4%B8%8E%E6%95%B0%E7%BB%84%E5%86%85%E9%80%86%E5%BA%8F/" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            学习记录--汉诺塔，快排与数组内逆序
+          
+        </div>
+      </a>
+    
+    
+      <a href="/2021/03/16/%E6%95%B0%E6%8D%AE%E5%BA%93/%E4%B8%80%E8%87%B4%E6%80%A7%E7%AE%97%E6%B3%95%E3%80%90%E5%85%A5%E9%97%A8%E7%BA%A7%E3%80%91/" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">一致性算法【入门级】</div>
+      </a>
+    
+  </nav>
+
+   
+<!-- valine评论 -->
+<div id="vcomments-box">
+  <div id="vcomments"></div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+<script>
+  new Valine({
+    el: "#vcomments",
+    app_id: "WPk3BYXTvroAcMVBUmuhww02-gzGzoHsz",
+    app_key: "dVytxHwDjvcuO9IyGIKc128B",
+    path: window.location.pathname,
+    avatar: "monsterid",
+    placeholder: "给我的文章加点评论吧~",
+    recordIP: true,
+  });
+  const infoEle = document.querySelector("#vcomments .info");
+  if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+    infoEle.childNodes.forEach(function (item) {
+      item.parentNode.removeChild(item);
+    });
+  }
+</script>
+<style>
+  #vcomments-box {
+    padding: 5px 30px;
+  }
+
+  @media screen and (max-width: 800px) {
+    #vcomments-box {
+      padding: 5px 0px;
+    }
+  }
+
+  #vcomments-box #vcomments {
+    background-color: #fff;
+  }
+
+  .v .vlist .vcard .vh {
+    padding-right: 20px;
+  }
+
+  .v .vlist .vcard {
+    padding-left: 10px;
+  }
+</style>
+
+ 
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2021
+        <i class="ri-heart-fill heart_icon"></i> Zoris Wang
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        由 <a href="https://hexo.io" target="_blank">Hexo</a> 强力驱动
+        <span class="division">|</span>
+        主题 - <a href="https://github.com/Shen-Yu/hexo-theme-ayer" target="_blank">Ayer</a>
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></s>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+        <script type="text/javascript" src='https://s9.cnzz.com/z_stat.php?id=1278069914&amp;web_id=1278069914'></script>
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="Yitee"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/friends">友链</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/2021/03/16/About%20Me">关于我</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://i.loli.net/2020/10/30/GFDWywm9ProCXcR.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://i.loli.net/2020/10/30/urJAkYB276w5gvD.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+    
+    <div id="music">
+    
+    
+    
+    <iframe frameborder="no" border="1" marginwidth="0" marginheight="0" width="200" height="52"
+        src="//music.163.com/outchain/player?type=2&id=1332662900&auto=0&height=32"></iframe>
+</div>
+
+<style>
+    #music {
+        position: fixed;
+        right: 15px;
+        bottom: 0;
+        z-index: 998;
+    }
+</style>
+    
+  </div>
+</body>
+
+</html>
