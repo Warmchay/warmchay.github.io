@@ -1,186 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title></title>
-    <url>/2021/11/22/Why/How%20to%20use%20LLVM/</url>
-    <content><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><h1 id="How-to-use-LLVM"><a href="#How-to-use-LLVM" class="headerlink" title="How to use LLVM"></a>How to use LLVM</h1><blockquote>
-<p>听闻了很久 llvm，看龙书的理论看了非常久，在今天又一次因为 IR。理论的碰壁，重新思考了下，为什么我想了解编译器：知其然，知其所以然。</p>
-<p>可能吸收效率最高的方法是：知其然(代码), 知其所以然(理论)。实践部分大面积参考了 Buaa 的编译实验，理论部分参考了《编译原理》和《编译器设计》(Coorper)这两本书。</p>
-</blockquote>
-<blockquote>
-<p>德尔非神谕的三句话：(随意加入)</p>
-<ol>
-<li>Know yourself 指的是人类要理解自己在时间和空间中的平行存在。可以参考通信中的时分和频分。</li>
-<li>Nothing in excess or Moderation 是指不要在一种时间/空间可能性上太过偏执，否则只能获得局部最优。</li>
-<li> Surety brings ruin 意味着一种确定态会导致其他态的坍塌，就像打开箱子之后薛定谔的猫。又因为没有一种可能性在无限的时间和空间里是绝对正确的，所以如果过分追求确定，到头来发现拯救世界的关键在于一开始的那只猫，那在打开箱子的surety就已经决定了ruin，之后所作的一切都没有意义了。</li>
-</ol>
-</blockquote>
-<h1 id="1-下载-llvm-工具链"><a href="#1-下载-llvm-工具链" class="headerlink" title="1 下载 llvm 工具链"></a>1 下载 llvm 工具链</h1><blockquote>
-<p>系统：Ubuntu 18.04</p>
-</blockquote>
-<p>Ubuntu-18系统默认的 LLVM 版本为6.0，如果下载 10.0+ 新版本，需要制定版本号:</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo apt-get install llvm-10</span><br><span class="line">$ sudo apt-get install clang-10</span><br></pre></td></tr></table></figure>
-
-<p>安装测试命令</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ clang-10 -v</span><br><span class="line">$ lli-10 --version</span><br></pre></td></tr></table></figure>
-
-<p>看着-10太别扭了，用 alias 命名指令</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ <span class="built_in">alias</span> clang=<span class="string">&quot;clang-10&quot;</span> <span class="comment"># 会出错</span></span><br><span class="line">$ <span class="built_in">alias</span> ll=<span class="string">&quot;lli-10&quot;</span>      <span class="comment"># 没用，ll 是 GNU 默认的软件源，为 ls -l 缩写</span></span><br></pre></td></tr></table></figure>
-
-<p>因为 clang 有个库存在 <code>/usr/lib</code> 目录中，bash 会提示你需要下载 clang 工具(如果你没有)，此时提示下载的是 6.0 版本，我觉得 clang-10 还是缩写为 clang 比较好，使用了 python 绑定为 python3 的方法 – <strong>使用 ln 软链接</strong></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ whereis clang-10</span><br><span class="line"><span class="comment"># clang-10: /usr/bin/clang-10 /usr/share/man/man1/clang-10.1.gz</span></span><br><span class="line">$ ln -s /usr/bin/clang-10 /usr/bin/clang</span><br><span class="line">$ ln -s /usr/bin/lli-10 /usr/bin/lli</span><br></pre></td></tr></table></figure>
-
-<p>新的安装成功测试</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ clang -v</span><br><span class="line">$ lli --version</span><br></pre></td></tr></table></figure>
-
-
-
-<h1 id="2-LLVM-简单使用"><a href="#2-LLVM-简单使用" class="headerlink" title="2 LLVM 简单使用"></a>2 LLVM 简单使用</h1><p>示例程序</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span> <span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a = <span class="number">42</span>;</span><br><span class="line">    <span class="keyword">int</span> b = <span class="number">19260817</span>;</span><br><span class="line">    <span class="keyword">return</span> a+b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-1-Clang"><a href="#2-1-Clang" class="headerlink" title="2.1 Clang"></a>2.1 Clang</h2><p>clang 为 c/c++/obj-c 的前端(Front) [词法/语法/语义分析]，用法与GCC基本相同</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># produce exectable file</span></span><br><span class="line">$ clang main.c -o main 		<span class="comment"># -o:output</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># compling process</span></span><br><span class="line">$ clang -ccc-print-phases main.c	</span><br><span class="line"><span class="comment"># -ccc-...: Cross-compilation(交叉编写) using Clang and print-phases </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># produce token</span></span><br><span class="line">$ clang -E -Xclang -dump-tokens main.c </span><br><span class="line"><span class="comment"># -E(--preprocessor): only run the preprocess, </span></span><br><span class="line"><span class="comment"># -Xclang&lt;arg&gt;: pass &lt;arg&gt; to the clang</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># produce Syntax-tree</span></span><br><span class="line">$ clang -fsyntax-only -Xclang -ast-dump main.c</span><br><span class="line"><span class="comment"># I don&#x27;t know -ast-dump&#x27;s meaning</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># generate llvm ir(without optimization)</span></span><br><span class="line">$ clang -S -emit-llvm main.c -o main -O0</span><br><span class="line"><span class="comment"># -S(-assemble): only run preprocess&amp;&amp;compilation steps</span></span><br><span class="line"><span class="comment"># -emit-llvm: use the LLVM representation for assembler and object files</span></span><br><span class="line"><span class="comment"># -O0: the 0-level optimization</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># generate asm code</span></span><br><span class="line">$ clang -S main.c -o main.s</span><br><span class="line"></span><br><span class="line"><span class="comment"># generate object file</span></span><br><span class="line">$ clang -c main.c -o main.o</span><br><span class="line"><span class="comment"># -c(--compile): run preprocess, compile and assemble steps</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h1 id="3-lli-10-ll"><a href="#3-lli-10-ll" class="headerlink" title="3 lli-10 (ll)"></a>3 lli-10 (ll)</h1><p>lli 可以用来解释生成的 llvm ir 格式文件，有两种 <code>-ll</code> 和 <code>-bc</code>, -bc 为 llvm ir 的二进制格式，-ll 为 llvm ir 的可读代码形式(给人看的)。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ clang -S -emit-llvm main.c -o main.ll -O0</span><br><span class="line"></span><br><span class="line"><span class="comment"># use lli to interpret .ll</span></span><br><span class="line">$ ll main.ll</span><br><span class="line"></span><br><span class="line">$ <span class="built_in">echo</span> $?</span><br><span class="line">127</span><br><span class="line"><span class="comment"># (19260817+42)%256。 &quot;$?&quot; 表示上一个命令执行后的退出状态(返回值)</span></span><br></pre></td></tr></table></figure>
-
-
-
-<h1 id="4-llvm-link"><a href="#4-llvm-link" class="headerlink" title="4 llvm-link"></a>4 llvm-link</h1><blockquote>
-<p>已建立好软链接: ln -s /usr/bin/llvm-link-10 /usr/bin/llvm-link</p>
-</blockquote>
-<p>假如引入一个外部库，为程序提供 I/O 操作，直接 main.ll 是会有 core dumped 问题。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a = <span class="number">19260817</span>;</span><br><span class="line">    <span class="keyword">int</span> b = <span class="number">42</span>;</span><br><span class="line"></span><br><span class="line">    putint(a);		<span class="comment">// 需要调用 #include &quot;libsys.h&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>可以通过 llvm-link 使 main.ll 链接到 libsys.ll 生成 llvm ir 文件 out.ll</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ clang -S -emit-llvm main.c -o main.ll</span><br><span class="line">$ clang -S -emit-llvm libsys.c -o libsys.ll</span><br><span class="line"></span><br><span class="line">$ llvm-link main.ll libsys.ll -o out.ll</span><br><span class="line"></span><br><span class="line">$ lli out.ll</span><br><span class="line">42</span><br></pre></td></tr></table></figure>
-
-
-
-<p>#5 LLVM IR</p>
-<blockquote>
-<p>IR: Intermediate representation (中间表示)</p>
-</blockquote>
-<h2 id="5-1-IR"><a href="#5-1-IR" class="headerlink" title="5.1 IR"></a>5.1 IR</h2><p>编译器工作过程可以分为三个部分：前端(front-end) - 中端(middle-end) - 后端(back-end)，每个部分的工作为：</p>
-<ul>
-<li>前端：源语言  –&gt; IR ( Clang、Rustc 等)</li>
-<li>中端：优化 IR （ LLVM Optimizer ）</li>
-<li>后端：IR 翻译为目标语言，一般是目标体系结构的汇编，如MIPS/x86 （ LLVM static compiler ）</li>
-</ul>
-<img src="https://i.loli.net/2021/11/23/AtqHPSI5vrVywEk.png" alt="屏幕快照 2021-11-23 上午9.33.54.png" style="zoom:60%;">
-
-<center><b>Fig 1:</b> LLVM 工作流程</center>
-
-<p>这种分工做法的好处是：</p>
-<ol>
-<li>只需要在 IR 上做好优化，再翻译到汇编，这样能够在所有支持的体系结构上实现优化，减少了重复的工作量</li>
-<li>举个例子，有 m 种语言，n 类编译器，如果直接将源语言翻译成目标语言，需要写 m*n 个编译器。而如果使用 IR 的中间形式 ，只需要 m+n 个编译器。</li>
-</ol>
-<p>LLVM IR 三种<strong>等价</strong>的中间格式为：</p>
-<ul>
-<li>在内存中的编译中间语言 (无法通过文件的形式展示)</li>
-<li>硬盘上存储的二进制中间语言 (.bc)</li>
-<li>人可读的代码语言 (.ll)</li>
-</ul>
-<h2 id="5-2-示例程序"><a href="#5-2-示例程序" class="headerlink" title="5.2 示例程序"></a>5.2 示例程序</h2><figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// main.c</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">foo</span><span class="params">(<span class="keyword">int</span> first, <span class="keyword">int</span> second)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> first + second;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> a = <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> b = <span class="number">4</span>;</span><br><span class="line">    <span class="keyword">return</span> foo(a, b);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>使用 <code>clang -emit-llvm -S main.c -o main.ll -O0</code> 生成的 main.ll 文件内容为：</p>
-<blockquote>
-<p>如果使用 VSCode，使用插件 “LLVM Syntax Highlight” 易于阅读</p>
-</blockquote>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">; ModuleID = &#x27;main.c&#x27;</span><br><span class="line">source_filename = &quot;main.c&quot;</span><br><span class="line">target datalayout = &quot;e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128&quot;</span><br><span class="line">target triple = &quot;x86_64-pc-linux-gnu&quot;</span><br><span class="line"></span><br><span class="line"><span class="variable">@a</span> = dso_local global i32 <span class="number">5</span>, align <span class="number">4</span></span><br><span class="line"></span><br><span class="line">; <span class="selector-tag">Function</span> <span class="selector-tag">Attrs</span>: <span class="selector-tag">noinline</span> <span class="selector-tag">nounwind</span> <span class="selector-tag">optnone</span> <span class="selector-tag">uwtable</span></span><br><span class="line"><span class="selector-tag">define</span> <span class="selector-tag">dso_local</span> <span class="selector-tag">i32</span> @<span class="selector-tag">foo</span>(i32 %<span class="number">0</span>, i32 %<span class="number">1</span>) <span class="selector-id">#0</span> &#123;</span><br><span class="line">  %3 = alloca i32, align 4</span><br><span class="line">  %4 = alloca i32, align 4</span><br><span class="line">  <span class="selector-tag">store</span> <span class="selector-tag">i32</span> %<span class="selector-tag">0</span>, <span class="selector-tag">i32</span>* %<span class="selector-tag">3</span>, <span class="selector-tag">align</span> <span class="selector-tag">4</span></span><br><span class="line">  <span class="selector-tag">store</span> <span class="selector-tag">i32</span> %<span class="selector-tag">1</span>, <span class="selector-tag">i32</span>* %<span class="selector-tag">4</span>, <span class="selector-tag">align</span> <span class="selector-tag">4</span></span><br><span class="line">  %5 = load i32, i32* %3, align 4</span><br><span class="line">  %6 = load i32, i32* %4, align 4</span><br><span class="line">  %7 = add nsw i32 %5, %6</span><br><span class="line">  <span class="selector-tag">ret</span> <span class="selector-tag">i32</span> %<span class="selector-tag">7</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">; <span class="selector-tag">Function</span> <span class="selector-tag">Attrs</span>: <span class="selector-tag">noinline</span> <span class="selector-tag">nounwind</span> <span class="selector-tag">optnone</span> <span class="selector-tag">uwtable</span></span><br><span class="line"><span class="selector-tag">define</span> <span class="selector-tag">dso_local</span> <span class="selector-tag">i32</span> @<span class="selector-tag">main</span>() <span class="selector-id">#0</span> &#123;</span><br><span class="line">  %1 = alloca i32, align 4</span><br><span class="line">  %2 = alloca i32, align 4</span><br><span class="line">  <span class="selector-tag">store</span> <span class="selector-tag">i32</span> <span class="selector-tag">0</span>, <span class="selector-tag">i32</span>* %<span class="selector-tag">1</span>, <span class="selector-tag">align</span> <span class="selector-tag">4</span></span><br><span class="line">  <span class="selector-tag">store</span> <span class="selector-tag">i32</span> <span class="selector-tag">4</span>, <span class="selector-tag">i32</span>* %<span class="selector-tag">2</span>, <span class="selector-tag">align</span> <span class="selector-tag">4</span></span><br><span class="line">  %3 = load i32, i32* @a, align 4</span><br><span class="line">  %4 = load i32, i32* %2, align 4</span><br><span class="line">  %5 = call i32 @foo(i32 %3, i32 %4)</span><br><span class="line">  <span class="selector-tag">ret</span> <span class="selector-tag">i32</span> %<span class="selector-tag">5</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">attributes #0 = &#123; noinline nounwind optnone uwtable &quot;correctly-rounded-divide-sqrt-fp-math&quot;=&quot;false&quot; &quot;disable-tail-calls&quot;=&quot;false&quot; &quot;frame-pointer&quot;=&quot;all&quot; &quot;less-precise-fpmad&quot;=&quot;false&quot; &quot;min-legal-vector-width&quot;=&quot;0&quot; &quot;no-infs-fp-math&quot;=&quot;false&quot; &quot;no-jump-tables&quot;=&quot;false&quot; &quot;no-nans-fp-math&quot;=&quot;false&quot; &quot;no-signed-zeros-fp-math&quot;=&quot;false&quot; &quot;no-trapping-math&quot;=&quot;false&quot; &quot;stack-protector-buffer-size&quot;=&quot;8&quot; &quot;target-cpu&quot;=&quot;x86-64&quot; &quot;target-features&quot;=&quot;+cx8,+fxsr,+mmx,+sse,+sse2,+x87&quot; &quot;unsafe-fp-math&quot;=&quot;false&quot; &quot;use-soft-float&quot;=&quot;false&quot; &#125;</span><br><span class="line"></span><br><span class="line">!llvm.module.flags = !&#123;!0&#125;</span><br><span class="line">!llvm.ident = !&#123;!1&#125;</span><br><span class="line"></span><br><span class="line">!0 = !&#123;i32 1, !&quot;wchar_size&quot;, i32 4&#125;</span><br><span class="line">!1 = !&#123;!&quot;clang version 10.0.0-4ubuntu1~18.04.2 &quot;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>不同硬件与系统，部分内容会有一点不一样。<code>target triple</code> 和 <code>target datalayout</code> 为程序的标签属性。<code>align</code> 字段描述程序的 align 属性，<code>dso_local</code> 为变量和函数运行时的抢占说明符，<code>;</code> 开头的字符串为 LLVM IR 的注释。程序的部分注释为：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">; @a represents global variable, and @a&#39;s type is: i32*</span><br><span class="line">@a &#x3D; dso_local global i32 5, align 4    ; why here happens &quot;align 4&quot;</span><br><span class="line"></span><br><span class="line">; &#96;define&#96; represents a function, &#96;@foo&#96; means function name, </span><br><span class="line">; &#96;i32 %0, i32 %1&#96; partly represents each 1st, 2nd var&#39;s type and name </span><br><span class="line">define dso_local i32 @foo(i32 %0, i32 %1) #0 &#123;</span><br><span class="line">  %3 &#x3D; alloca i32, align 4	; &#96;allocate&#96; i32&#39;s length to %3 with 4 bytes</span><br><span class="line">  %4 &#x3D; alloca i32, align 4</span><br><span class="line">  store i32 %0, i32* %3, align 4 ; &#96;store&#96; %0 to %3</span><br><span class="line">  store i32 %1, i32* %4, align 4</span><br><span class="line">  %5 &#x3D; load i32, i32* %3, align 4	; load %3&#39;s memory to %5</span><br><span class="line">  %6 &#x3D; load i32, i32* %4, align 4</span><br><span class="line">  %7 &#x3D; add nsw i32 %5, %6	% &#96;add&#96; %5,%6 in &#96;nsw(no signed wraped)无符号值运算&#96;</span><br><span class="line">  ret i32 %7</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">; 重新编号</span><br><span class="line">define dso_local i32 @main() #0 &#123;</span><br><span class="line">  %1 &#x3D; alloca i32, align 4</span><br><span class="line">  %2 &#x3D; alloca i32, align 4</span><br><span class="line">  store i32 0, i32* %1, align 4</span><br><span class="line">  store i32 4, i32* %2, align 4</span><br><span class="line">  %3 &#x3D; load i32, i32* @a, align 4</span><br><span class="line">  %4 &#x3D; load i32, i32* %2, align 4</span><br><span class="line">  %5 &#x3D; call i32 @foo(i32 %3, i32 %4)</span><br><span class="line">  ret i32 %5</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>注释以 <code>;</code> 开头</li>
-<li>LLVM IR 为静态，临时存储器为升序，如 <code>@foo</code> 中 <code>%1</code> 为 <code>i32</code> 类型数据，<code>%3</code> 为 <code>i32*</code> 类型地址</li>
-<li>全局变量和函数以 @ 为前缀，局部变量以 % 为前缀</li>
-</ul>
-<h2 id="5-3-IR-结构"><a href="#5-3-IR-结构" class="headerlink" title="5.3 IR 结构"></a>5.3 IR 结构</h2><p>参考资料：<a href="https://llvm.org/docs/ProgrammersManual.html#the-core-llvm-class-hierarchy-reference">LLVM Programmer Manual</a></p>
-<h3 id="1-总体结构"><a href="#1-总体结构" class="headerlink" title="(1) 总体结构"></a>(1) 总体结构</h3><ol>
-<li>基本单位为 module</li>
-<li>一个 module 中有多个实体，如 function 和 global variable</li>
-<li>一个 function define 中至少有一个 basicblock (基本块)</li>
-<li>每个 basicblock 中有若干 instruction (指令)，并且都以 terminator instruction 结尾</li>
-</ol>
-<h3 id="2-函数定义与声明-Define-amp-Declare"><a href="#2-函数定义与声明-Define-amp-Declare" class="headerlink" title="(2) 函数定义与声明 (Define &amp; Declare)"></a>(2) 函数定义与声明 (Define &amp; Declare)</h3><ol>
-<li><strong>函数定义 define</strong></li>
-</ol>
-<p>函数定义的最简单语法：<code>define i32 @func_name (i32 %a, i32% b, ...) &#123; ... (body) &#125;</code>,如基本的函数 main</p>
-<figure class="highlight less"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">define</span> <span class="selector-tag">i32</span> @<span class="selector-tag">main</span> () &#123;</span><br><span class="line">	<span class="selector-tag">ret</span> <span class="selector-tag">i32</span> <span class="selector-tag">0</span> ; 返回 <span class="selector-tag">integer</span> <span class="selector-tag">32bit</span> 的 <span class="selector-tag">0</span> 值</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>加上参数列表</p>
-<figure class="highlight less"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">define</span> <span class="selector-tag">i32</span> @<span class="selector-tag">foo</span>(int32 %a, int <span class="number">32%</span>b) &#123;</span><br><span class="line">  <span class="selector-tag">ret</span> <span class="selector-tag">i32</span> <span class="selector-tag">0</span>	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>可以在参数列表后面加上属性来指导优化，如在 5.2 中 <code>main.ll</code> 后有 <code>#0</code>，其与 main.ll 靠后的 <code>attributes #0 = ...</code> 是对应的，被用来给函数加上特定解释属性，如是否能够被内联等。</p>
-<p><strong>2. 函数声明 decalre</strong></p>
-<p>在 .ll 文件里声明库函数，可以用：</p>
-<figure class="highlight less"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">declare</span> <span class="selector-tag">i32</span> @<span class="selector-tag">getint</span>()</span><br><span class="line"><span class="selector-tag">declare</span> <span class="selector-tag">i32</span> @<span class="selector-tag">getarrat</span>(i32*)</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
-
-
-<h3 id="3-基本块-Basic-Block"><a href="#3-基本块-Basic-Block" class="headerlink" title="(3) 基本块 (Basic Block)"></a>(3) 基本块 (Basic Block)</h3><p>基本块包含了若干个顺序执行的指令和一个终结指令的代码序列。</p>
-<p>基本块内部没有控制流，基本块间实现跳转需要控制流。例如一个主函数内部没有跳转也没有函数调用，完全顺序执行的，那么这份代码中只有一个基本块。</p>
-<p>如，在函数中间加入一个 <code>if-else</code>，则这个函数有4个基本块，如图</p>
-<img src="https://i.loli.net/2021/11/23/ChE5pBwyfKec8Tv.png" alt="屏幕快照 2021-11-23 下午12.16.31.png" style="zoom:30%;">
-
-<center><b>Fig 2: </b> 函数内有 if-else 一共可以分为 4 个 basic block</center>
-
-
-
-<h3 id="4-指令-amp-终结指令"><a href="#4-指令-amp-终结指令" class="headerlink" title="(4) 指令 &amp; 终结指令"></a>(4) 指令 &amp; 终结指令</h3><p>一般指令 (Instruction) 指 LLVM IR 中的非分支指令，用于进行计算/访存，这些指令不会改变程序的<strong>控制流。</strong> 特殊的事，call 指令也是非分支指令，因为在使用 call 时，并不考虑被调用函数内部的情况，只关心当前传入的参数和被调用函数的返回值，不会改变当前程序的控制流。</p>
-<p><strong>终结指令 (Terminator Instruction)</strong></p>
-<blockquote>
-<p><strong>一定</strong>位于基本块的末尾，终结指令决定了程序控制流的执行方向</p>
-</blockquote>
-<ul>
-<li>ret 指令: 将程序控制流返回调用者</li>
-<li>br 指令: 根据标识符 label，选择控制流方向</li>
-</ul>
-<p>示例函数：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//if.c</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a = getint();</span><br><span class="line">    <span class="keyword">int</span> b = getint();</span><br><span class="line">    <span class="keyword">int</span> c = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (a == b) &#123;</span><br><span class="line">        c = <span class="number">5</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        c = <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    putint(c);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>main.ll (删减版)</p>
-<figure class="highlight less"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">declare</span> <span class="selector-tag">i32</span> @<span class="selector-tag">getint</span>()</span><br><span class="line"><span class="selector-tag">declare</span> <span class="selector-tag">void</span> @<span class="selector-tag">putint</span>(i32)</span><br><span class="line"><span class="selector-tag">define</span>  <span class="selector-tag">i32</span> @<span class="selector-tag">main</span>() &#123;</span><br><span class="line">  %1 = alloca i32</span><br><span class="line">  %2 = alloca i32</span><br><span class="line">  %3 = alloca i32</span><br><span class="line">  %4 = alloca i32</span><br><span class="line">  <span class="selector-tag">store</span> <span class="selector-tag">i32</span> <span class="selector-tag">0</span>, <span class="selector-tag">i32</span>* %<span class="selector-tag">1</span></span><br><span class="line">  %5 = call i32 () @getint()</span><br><span class="line">  <span class="selector-tag">store</span> <span class="selector-tag">i32</span> %<span class="selector-tag">5</span>, <span class="selector-tag">i32</span>* %<span class="selector-tag">2</span></span><br><span class="line">  %6 = call i32 () @getint()</span><br><span class="line">  <span class="selector-tag">store</span> <span class="selector-tag">i32</span> %<span class="selector-tag">6</span>, <span class="selector-tag">i32</span>* %<span class="selector-tag">3</span></span><br><span class="line">  <span class="selector-tag">store</span> <span class="selector-tag">i32</span> <span class="selector-tag">0</span>, <span class="selector-tag">i32</span>* %<span class="selector-tag">4</span></span><br><span class="line">  %7 = load i32, i32* %2</span><br><span class="line">  %8 = load i32, i32* %3</span><br><span class="line">  %9 = icmp eq i32 %7, %8</span><br><span class="line">  <span class="selector-tag">br</span> <span class="selector-tag">i1</span> %<span class="selector-tag">9</span>, <span class="selector-tag">label</span> %<span class="selector-tag">10</span>, <span class="selector-tag">label</span> %<span class="selector-tag">11</span></span><br><span class="line"></span><br><span class="line">10:                                               ; preds = %0</span><br><span class="line">  <span class="selector-tag">store</span> <span class="selector-tag">i32</span> <span class="selector-tag">5</span>, <span class="selector-tag">i32</span>* %<span class="selector-tag">4</span></span><br><span class="line">  <span class="selector-tag">br</span> <span class="selector-tag">label</span> %<span class="selector-tag">12</span></span><br><span class="line"></span><br><span class="line">11:                                               ; preds = %0</span><br><span class="line">  <span class="selector-tag">store</span> <span class="selector-tag">i32</span> <span class="selector-tag">10</span>, <span class="selector-tag">i32</span>* %<span class="selector-tag">4</span></span><br><span class="line">  <span class="selector-tag">br</span> <span class="selector-tag">label</span> %<span class="selector-tag">12</span></span><br><span class="line"></span><br><span class="line">12:                                               ; preds = %11, %10</span><br><span class="line">  %13 = load i32, i32* %4</span><br><span class="line">  <span class="selector-tag">call</span> <span class="selector-tag">void</span> @<span class="selector-tag">putint</span>(i32 %<span class="number">13</span>)</span><br><span class="line">  <span class="selector-tag">ret</span> <span class="selector-tag">i32</span> <span class="selector-tag">0</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>以上程序的控制流如图：</p>
-<img src="https://i.loli.net/2021/11/23/CsG49zdqEYvp8AX.png" alt="屏幕快照 2021-11-23 下午12.26.48.png" style="zoom:50%;">
-
-<p>提炼一下，br 指令出现的三次</p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">br i1 %9, label %10, label %11 ; 如果 %9=1, label %10; 否则 label %11</span><br></pre></td></tr></table></figure>
-
-<p>%9 的值源于上一个 icmp eq 指令来判断 %7 和 %8 是否相等，如果相等，则 %9 的值为 1。</p>
-<h3 id="5-类型系统"><a href="#5-类型系统" class="headerlink" title="(5) 类型系统"></a>(5) 类型系统</h3><p>类型系统做得好，能很大程度降低读取和分析 LLVM IR 的难度，这里介绍后续会用到的几种。</p>
-<ol>
-<li><strong>void type</strong></li>
-</ol>
-<p>仅用于占位，不表示任何值/空间</p>
-<figure class="highlight less"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">define</span> <span class="selector-tag">void</span> @<span class="selector-tag">foo</span>() &#123;&#125;</span><br></pre></td></tr></table></figure>
-
-<ol start="2">
-<li><strong>Integer type</strong></li>
-</ol>
-<p><code>i*</code>, 表示 <code>*bit</code> 的长度，如 bool 只有 1-bit，则为 i1</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ret i32 0</span><br><span class="line">br i1 %2,label %3,label %4</span><br></pre></td></tr></table></figure>
-
-<ol start="3">
-<li><strong>Label type</strong></li>
-</ol>
-<p>用作代码标签</p>
-<figure class="highlight less"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">br</span> <span class="selector-tag">label</span> %<span class="selector-tag">i12</span></span><br></pre></td></tr></table></figure>
-
-<p>4.<strong>其他 Type</strong></p>
-<p>慢慢来</p>
-<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ol>
-<li><a href="https://github.com/BUAA-SE-Compiling">Buaa-SE-Compling</a>, 北航软件学院编译原理课程实验组，2019级实验(B.S)</li>
-</ol>
-]]></content>
-  </entry>
-  <entry>
     <title>Linux File Permissions</title>
     <url>/2021/11/22/Why/Linux-File-Permissions/</url>
     <content><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><blockquote>
@@ -5132,70 +4952,6 @@ $$
       </tags>
   </entry>
   <entry>
-    <title>MapReduce I</title>
-    <url>/2021/03/16/%E6%95%B0%E6%8D%AE%E5%BA%93/MapReduce%E3%80%90%E2%85%A0%E3%80%91/</url>
-    <content><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><h1 id="MapReduce【Ⅰ】"><a href="#MapReduce【Ⅰ】" class="headerlink" title="MapReduce【Ⅰ】"></a>MapReduce【Ⅰ】</h1><blockquote>
-<p>因为是第一次读MapReduce，并且也是第一次接触到分布式，所以不懂得地方会很多，如果有想要找到相关部分的朋友，可以点对应的索引栏查找，如果没有找到你的问题，欢迎评论，我会及时回复你~</p>
-</blockquote>
-<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><h3 id="lt-1-gt-什么是MapReduce"><a href="#lt-1-gt-什么是MapReduce" class="headerlink" title="&lt;1&gt;什么是MapReduce"></a>&lt;1&gt;什么是MapReduce</h3><ul>
-<li>MapReduce为一个programming model</li>
-<li>同时也是一个实现了处理和生成超大数据集的算法模型</li>
-</ul>
-<h3 id="lt-2-gt-Basic-Implemation"><a href="#lt-2-gt-Basic-Implemation" class="headerlink" title="&lt;2&gt;Basic Implemation"></a>&lt;2&gt;Basic Implemation</h3><p>用户首先创建一个<code>Map</code>函数来处理一个基于<code>key/value pair</code>的数据模型，输出中间的基于<code>key/value</code>的数据集合，然后再创建一个Reduce函数来合并所有具有相同<code>intemediate key</code>的<code>intermediate value</code>。</p>
-<h3 id="lt-3-gt-特点"><a href="#lt-3-gt-特点" class="headerlink" title="&lt;3&gt;特点"></a>&lt;3&gt;特点</h3><ul>
-<li>MapReduce架构的程序能够在大量的普通配置的计算机<strong>【commodity machines】</strong>上实行并行化<strong>【parallelized】</strong>处理</li>
-</ul>
-<p>这个<code>run-time system</code>仅关心：</p>
-<ul>
-<li>如何<strong>分割</strong>输入数据【<strong>partitioning the input data</strong>】</li>
-<li>在大量计算机组成的集群上的<strong>调度</strong>【<strong>scheduling the program’s execution accross machines</strong>】</li>
-<li>集群中计算机的错误处理<strong>【handling machines failures】</strong></li>
-<li>管理集群中计算机之间必要的通信【<strong>managing the required communication</strong>】</li>
-</ul>
-<blockquote>
-<p>一个典型的MapReduce计算往往由几千台机器组成、处理以TB计算的数据<strong>【Highly scalable】</strong></p>
-</blockquote>
-<h2 id="1-Introduction"><a href="#1-Introduction" class="headerlink" title="1 Introduction"></a>1 Introduction</h2><h3 id="1-1-为什么提出了MapReduce"><a href="#1-1-为什么提出了MapReduce" class="headerlink" title="1.1 为什么提出了MapReduce"></a>1.1 为什么提出了MapReduce</h3><p><strong>To compute various kinds of derived data【衍生数据】</strong>，例如爬虫爬取的网面数量汇总、每天被请求的最多的查询集合等等。因为输入的数据量巨大，如果要在可接受的时间内完成运算，需要把这些<code>data</code>分布在成百上千的主机上。</p>
-<p>而我们前面提到的如何处理并行运算、如何分发数据、如何处理错误，这些问题综合在一起，需要大量的代码处理，但是这么综合解决需要大量的代码，那么怎么简单处理呢？</p>
-<h3 id="1-2-解决复杂问题"><a href="#1-2-解决复杂问题" class="headerlink" title="1.2 解决复杂问题"></a>1.2 解决复杂问题</h3><p>为了解决这些<code>complexity</code>，我们设计一个<code>new abstraction to express the simple computation</code><strong>【只用表述执行简单的运算】</strong>，不用去关心并行计算<strong>（parallelization）</strong>、容错<strong>（fault-tolerance）</strong>、数据分布<strong>（data distribution）</strong>、负载均衡<strong>（load balancing）</strong>等复杂的细节，而现在这些问题都被封装到了一个库里面，设计这个抽象模型的灵感来源于<code>Lisp</code>和其他函数式语言的<code>Map</code>和<code>Reduce</code>的原语。</p>
-<p>而大多数的运算都包含着这样的操作：</p>
-<ul>
-<li>先在输入数据的“逻辑”记录上应用<code>Map</code>操作得出一个中间<code>key/value pair</code>集合</li>
-<li>之后对所有具有相同<code>key</code>值的<code>value</code>值上应用<code>Reduce</code>操作，从而达到<strong>合并中间的数据</strong>，得到一个想要的结果的目的</li>
-<li>而后使用<code>MapReduce</code>模型，结合用户实现的<code>Map</code>和<code>Reduce</code>函数，从而能较为容易地实现大规模并行化计算</li>
-</ul>
-<p>而通过<code>MapReduce</code>模型自带的<code>re-execution</code>【<strong>“再次执行”</strong>】功能，也提供了初级的容错【<strong>fault tolerance</strong>】实现方案</p>
-<h3 id="1-3-Major-Contribution"><a href="#1-3-Major-Contribution" class="headerlink" title="1.3 Major Contribution"></a>1.3 Major Contribution</h3><blockquote>
-<p>这个工作【<strong>实现一个MapReduce框架模型</strong>】的主要贡献是通过简单的接口来实现<strong>自动的并行化和大规模的分布式计算</strong>，通过使用MapReduce模型接口实现在大量普通的PC机上<strong>高性能计算</strong></p>
-</blockquote>
-<blockquote>
-<p>PC机：个人计算机</p>
-</blockquote>
-<p>接下来几个部分将会讲述：</p>
-<ul>
-<li><strong>Section 2：</strong>Basic programming model and gives examples</li>
-<li><strong>Section 3：</strong>描述了一个经过裁剪的、适合于基于集群的计算环境中的MapReduce实现</li>
-<li><strong>Section 4：</strong>描述 一些在MapReduce编程模型中实用的技巧</li>
-<li><strong>Section 5：</strong>Performance measurements【<strong>测量性能</strong>】 of variety of tasks’ implementation.</li>
-<li><strong>Section 6：</strong>谷歌内部用MapReduce作为基础重写的索引系统产品，以及其他一些使用<strong>MapReduce的经验</strong></li>
-<li><strong>Section 7：</strong>Related and future work.</li>
-</ul>
-<h2 id="2-Progrmming-Model-编程模型"><a href="#2-Progrmming-Model-编程模型" class="headerlink" title="2 Progrmming Model [编程模型]"></a>2 Progrmming Model [编程模型]</h2><h3 id="Intro-–-MapReduce原理"><a href="#Intro-–-MapReduce原理" class="headerlink" title="Intro – MapReduce原理"></a>Intro – MapReduce原理</h3><p>Takes a set of input <code>key/value pairs</code>，produce a set of output <code>key/value pairs</code>.MapReduce的library groups<strong>【用户】</strong>用两个函数来表达该计算：<code>Map</code>and<code>Reduce</code>。</p>
-<p>用户自定义的<code>Map</code>函数接受一个输入的<code>key\value pairs</code>，然后产生一个中间<code>key/value</code>值的集合，<code>MapReduce</code>库把所有具有相同中间<code>key</code>值Ⅰ和相关的一个<code>value</code>值集合在一起传递给<code>reduce</code>函数；</p>
-<p>而用户定义的<code>Reduce</code>函数接受一个中间<code>key</code>的值Ⅰ和一个相关的<code>value</code>值的集合，<code>Reduce</code>函数合并这些<code>value</code>值，形成一个较小的<code>value</code>值的集合。一般的，每个<code>Reduce</code>函数调用只产生$0$或$1$个输出<code>value</code>值。通常我们通过一个迭代器把中间<code>value</code>值提供给<code>Redece</code>函数，这样我们就能够处理无法全部放入内存中的大量<code>value</code>值的集合。</p>
-<h3 id="2-1-例子"><a href="#2-1-例子" class="headerlink" title="2.1 例子"></a>2.1 例子</h3><p>以计算一个大的文档集合中包含每个单词出现的次数，伪代码为：</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">map</span>(String Key, String value)&#123;</span><br><span class="line">    <span class="comment">//Key---doucument name</span></span><br><span class="line">    <span class="comment">//Value---documents content</span></span><br><span class="line">    <span class="keyword">for</span> each word w in value:</span><br><span class="line">    	EmitIntermediate(w, <span class="string">&quot;l&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">reduce(String key, Ste=ing)&#123;</span><br><span class="line">    <span class="comment">//key: a word</span></span><br><span class="line">    <span class="comment">//values: a list of counts</span></span><br><span class="line">    <span class="keyword">int</span> result = <span class="number">0</span>；</span><br><span class="line">    <span class="keyword">for</span> each v in values:</span><br><span class="line">    	result += ParseInt(v);</span><br><span class="line">   	Emit(AsString(result));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>其中， <code>Map</code>函数输出文档中的每个词，以及这个词的出现次数（在这个例子失踪）</p>
-]]></content>
-      <categories>
-        <category>分布式</category>
-      </categories>
-      <tags>
-        <tag>分布式</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>LeetCode 树【递归解题I】</title>
     <url>/2021/03/16/%E7%AE%97%E6%B3%95/LeetCode%E3%80%90%E6%A0%91%E2%85%A0%E2%85%A1%E3%80%91/</url>
     <content><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><h1 id="LeetCode【树Ⅰ】"><a href="#LeetCode【树Ⅰ】" class="headerlink" title="LeetCode【树Ⅰ】"></a>LeetCode【树Ⅰ】</h1><blockquote>
@@ -5307,6 +5063,70 @@ $$
       </tags>
   </entry>
   <entry>
+    <title>MapReduce I</title>
+    <url>/2021/03/16/%E6%95%B0%E6%8D%AE%E5%BA%93/MapReduce%E3%80%90%E2%85%A0%E3%80%91/</url>
+    <content><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><h1 id="MapReduce【Ⅰ】"><a href="#MapReduce【Ⅰ】" class="headerlink" title="MapReduce【Ⅰ】"></a>MapReduce【Ⅰ】</h1><blockquote>
+<p>因为是第一次读MapReduce，并且也是第一次接触到分布式，所以不懂得地方会很多，如果有想要找到相关部分的朋友，可以点对应的索引栏查找，如果没有找到你的问题，欢迎评论，我会及时回复你~</p>
+</blockquote>
+<h2 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h2><h3 id="lt-1-gt-什么是MapReduce"><a href="#lt-1-gt-什么是MapReduce" class="headerlink" title="&lt;1&gt;什么是MapReduce"></a>&lt;1&gt;什么是MapReduce</h3><ul>
+<li>MapReduce为一个programming model</li>
+<li>同时也是一个实现了处理和生成超大数据集的算法模型</li>
+</ul>
+<h3 id="lt-2-gt-Basic-Implemation"><a href="#lt-2-gt-Basic-Implemation" class="headerlink" title="&lt;2&gt;Basic Implemation"></a>&lt;2&gt;Basic Implemation</h3><p>用户首先创建一个<code>Map</code>函数来处理一个基于<code>key/value pair</code>的数据模型，输出中间的基于<code>key/value</code>的数据集合，然后再创建一个Reduce函数来合并所有具有相同<code>intemediate key</code>的<code>intermediate value</code>。</p>
+<h3 id="lt-3-gt-特点"><a href="#lt-3-gt-特点" class="headerlink" title="&lt;3&gt;特点"></a>&lt;3&gt;特点</h3><ul>
+<li>MapReduce架构的程序能够在大量的普通配置的计算机<strong>【commodity machines】</strong>上实行并行化<strong>【parallelized】</strong>处理</li>
+</ul>
+<p>这个<code>run-time system</code>仅关心：</p>
+<ul>
+<li>如何<strong>分割</strong>输入数据【<strong>partitioning the input data</strong>】</li>
+<li>在大量计算机组成的集群上的<strong>调度</strong>【<strong>scheduling the program’s execution accross machines</strong>】</li>
+<li>集群中计算机的错误处理<strong>【handling machines failures】</strong></li>
+<li>管理集群中计算机之间必要的通信【<strong>managing the required communication</strong>】</li>
+</ul>
+<blockquote>
+<p>一个典型的MapReduce计算往往由几千台机器组成、处理以TB计算的数据<strong>【Highly scalable】</strong></p>
+</blockquote>
+<h2 id="1-Introduction"><a href="#1-Introduction" class="headerlink" title="1 Introduction"></a>1 Introduction</h2><h3 id="1-1-为什么提出了MapReduce"><a href="#1-1-为什么提出了MapReduce" class="headerlink" title="1.1 为什么提出了MapReduce"></a>1.1 为什么提出了MapReduce</h3><p><strong>To compute various kinds of derived data【衍生数据】</strong>，例如爬虫爬取的网面数量汇总、每天被请求的最多的查询集合等等。因为输入的数据量巨大，如果要在可接受的时间内完成运算，需要把这些<code>data</code>分布在成百上千的主机上。</p>
+<p>而我们前面提到的如何处理并行运算、如何分发数据、如何处理错误，这些问题综合在一起，需要大量的代码处理，但是这么综合解决需要大量的代码，那么怎么简单处理呢？</p>
+<h3 id="1-2-解决复杂问题"><a href="#1-2-解决复杂问题" class="headerlink" title="1.2 解决复杂问题"></a>1.2 解决复杂问题</h3><p>为了解决这些<code>complexity</code>，我们设计一个<code>new abstraction to express the simple computation</code><strong>【只用表述执行简单的运算】</strong>，不用去关心并行计算<strong>（parallelization）</strong>、容错<strong>（fault-tolerance）</strong>、数据分布<strong>（data distribution）</strong>、负载均衡<strong>（load balancing）</strong>等复杂的细节，而现在这些问题都被封装到了一个库里面，设计这个抽象模型的灵感来源于<code>Lisp</code>和其他函数式语言的<code>Map</code>和<code>Reduce</code>的原语。</p>
+<p>而大多数的运算都包含着这样的操作：</p>
+<ul>
+<li>先在输入数据的“逻辑”记录上应用<code>Map</code>操作得出一个中间<code>key/value pair</code>集合</li>
+<li>之后对所有具有相同<code>key</code>值的<code>value</code>值上应用<code>Reduce</code>操作，从而达到<strong>合并中间的数据</strong>，得到一个想要的结果的目的</li>
+<li>而后使用<code>MapReduce</code>模型，结合用户实现的<code>Map</code>和<code>Reduce</code>函数，从而能较为容易地实现大规模并行化计算</li>
+</ul>
+<p>而通过<code>MapReduce</code>模型自带的<code>re-execution</code>【<strong>“再次执行”</strong>】功能，也提供了初级的容错【<strong>fault tolerance</strong>】实现方案</p>
+<h3 id="1-3-Major-Contribution"><a href="#1-3-Major-Contribution" class="headerlink" title="1.3 Major Contribution"></a>1.3 Major Contribution</h3><blockquote>
+<p>这个工作【<strong>实现一个MapReduce框架模型</strong>】的主要贡献是通过简单的接口来实现<strong>自动的并行化和大规模的分布式计算</strong>，通过使用MapReduce模型接口实现在大量普通的PC机上<strong>高性能计算</strong></p>
+</blockquote>
+<blockquote>
+<p>PC机：个人计算机</p>
+</blockquote>
+<p>接下来几个部分将会讲述：</p>
+<ul>
+<li><strong>Section 2：</strong>Basic programming model and gives examples</li>
+<li><strong>Section 3：</strong>描述了一个经过裁剪的、适合于基于集群的计算环境中的MapReduce实现</li>
+<li><strong>Section 4：</strong>描述 一些在MapReduce编程模型中实用的技巧</li>
+<li><strong>Section 5：</strong>Performance measurements【<strong>测量性能</strong>】 of variety of tasks’ implementation.</li>
+<li><strong>Section 6：</strong>谷歌内部用MapReduce作为基础重写的索引系统产品，以及其他一些使用<strong>MapReduce的经验</strong></li>
+<li><strong>Section 7：</strong>Related and future work.</li>
+</ul>
+<h2 id="2-Progrmming-Model-编程模型"><a href="#2-Progrmming-Model-编程模型" class="headerlink" title="2 Progrmming Model [编程模型]"></a>2 Progrmming Model [编程模型]</h2><h3 id="Intro-–-MapReduce原理"><a href="#Intro-–-MapReduce原理" class="headerlink" title="Intro – MapReduce原理"></a>Intro – MapReduce原理</h3><p>Takes a set of input <code>key/value pairs</code>，produce a set of output <code>key/value pairs</code>.MapReduce的library groups<strong>【用户】</strong>用两个函数来表达该计算：<code>Map</code>and<code>Reduce</code>。</p>
+<p>用户自定义的<code>Map</code>函数接受一个输入的<code>key\value pairs</code>，然后产生一个中间<code>key/value</code>值的集合，<code>MapReduce</code>库把所有具有相同中间<code>key</code>值Ⅰ和相关的一个<code>value</code>值集合在一起传递给<code>reduce</code>函数；</p>
+<p>而用户定义的<code>Reduce</code>函数接受一个中间<code>key</code>的值Ⅰ和一个相关的<code>value</code>值的集合，<code>Reduce</code>函数合并这些<code>value</code>值，形成一个较小的<code>value</code>值的集合。一般的，每个<code>Reduce</code>函数调用只产生$0$或$1$个输出<code>value</code>值。通常我们通过一个迭代器把中间<code>value</code>值提供给<code>Redece</code>函数，这样我们就能够处理无法全部放入内存中的大量<code>value</code>值的集合。</p>
+<h3 id="2-1-例子"><a href="#2-1-例子" class="headerlink" title="2.1 例子"></a>2.1 例子</h3><p>以计算一个大的文档集合中包含每个单词出现的次数，伪代码为：</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="built_in">map</span>(String Key, String value)&#123;</span><br><span class="line">    <span class="comment">//Key---doucument name</span></span><br><span class="line">    <span class="comment">//Value---documents content</span></span><br><span class="line">    <span class="keyword">for</span> each word w in value:</span><br><span class="line">    	EmitIntermediate(w, <span class="string">&quot;l&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">reduce(String key, Ste=ing)&#123;</span><br><span class="line">    <span class="comment">//key: a word</span></span><br><span class="line">    <span class="comment">//values: a list of counts</span></span><br><span class="line">    <span class="keyword">int</span> result = <span class="number">0</span>；</span><br><span class="line">    <span class="keyword">for</span> each v in values:</span><br><span class="line">    	result += ParseInt(v);</span><br><span class="line">   	Emit(AsString(result));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中， <code>Map</code>函数输出文档中的每个词，以及这个词的出现次数（在这个例子失踪）</p>
+]]></content>
+      <categories>
+        <category>分布式</category>
+      </categories>
+      <tags>
+        <tag>分布式</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Gitee/Git 上传文件</title>
     <url>/2021/03/16/Why/GiteeGit-%E4%B8%8A%E4%BC%A0%E6%96%87%E4%BB%B6/</url>
     <content><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><blockquote>
@@ -5350,21 +5170,6 @@ $$
   </entry>
   <entry>
     <title>About Me</title>
-    <url>/2021/03/16/About%20Me/</url>
-    <content><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><blockquote>
-<p><strong>平稳、健康、幸福(●ˇ∀ˇ●)</strong></p>
-</blockquote>
-<hr>
-<p><strong>Name：</strong> <strong>王清 / Zoris Wang</strong></p>
-<p><strong>Address：</strong> <strong>陕西西安，广西北海</strong></p>
-<p><strong>邮箱：</strong><a href="mailto:&#x57;&#97;&#114;&#x6d;&#99;&#104;&#97;&#121;&#x40;&#x31;&#54;&#x33;&#46;&#x63;&#x6f;&#109;">&#x57;&#97;&#114;&#x6d;&#99;&#104;&#97;&#121;&#x40;&#x31;&#54;&#x33;&#46;&#x63;&#x6f;&#109;</a></p>
-<p><strong>CSDN：</strong> <a href="https://blog.csdn.net/Shea111?spm=1010.2135.3001.5113">Warmchay</a></p>
-<p><strong>博客园：</strong><a href="https://home.cnblogs.com/u/Warmchay">Warmchay</a>【已停更，懒癌日常= v =】</p>
-<p><img src="https://i.loli.net/2020/11/06/WGPKHfjqIn4FrZx.png" alt="aboutme.png"></p>
-]]></content>
-  </entry>
-  <entry>
-    <title>About Me</title>
     <url>/2021/03/16/About%20Me/About%20Me/</url>
     <content><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><blockquote>
 <p><strong>平稳、健康、幸福(●ˇ∀ˇ●)</strong></p>
@@ -5372,7 +5177,22 @@ $$
 <hr>
 <p><strong>Name：</strong> <strong>王清 / Zoris Wang</strong></p>
 <p><strong>Address：</strong> <strong>陕西西安，广西北海</strong></p>
-<p><strong>邮箱：</strong><a href="mailto:&#x57;&#97;&#114;&#109;&#99;&#x68;&#97;&#121;&#64;&#49;&#54;&#x33;&#x2e;&#x63;&#111;&#x6d;">&#x57;&#97;&#114;&#109;&#99;&#x68;&#97;&#121;&#64;&#49;&#54;&#x33;&#x2e;&#x63;&#111;&#x6d;</a></p>
+<p><strong>邮箱：</strong><a href="mailto:&#x57;&#97;&#114;&#x6d;&#x63;&#104;&#x61;&#121;&#x40;&#49;&#x36;&#x33;&#x2e;&#99;&#111;&#x6d;">&#x57;&#97;&#114;&#x6d;&#x63;&#104;&#x61;&#121;&#x40;&#49;&#x36;&#x33;&#x2e;&#99;&#111;&#x6d;</a></p>
+<p><strong>CSDN：</strong> <a href="https://blog.csdn.net/Shea111?spm=1010.2135.3001.5113">Warmchay</a></p>
+<p><strong>博客园：</strong><a href="https://home.cnblogs.com/u/Warmchay">Warmchay</a>【已停更，懒癌日常= v =】</p>
+<p><img src="https://i.loli.net/2020/11/06/WGPKHfjqIn4FrZx.png" alt="aboutme.png"></p>
+]]></content>
+  </entry>
+  <entry>
+    <title>About Me</title>
+    <url>/2021/03/16/About%20Me/</url>
+    <content><![CDATA[<script src="/assets/js/APlayer.min.js"> </script><blockquote>
+<p><strong>平稳、健康、幸福(●ˇ∀ˇ●)</strong></p>
+</blockquote>
+<hr>
+<p><strong>Name：</strong> <strong>王清 / Zoris Wang</strong></p>
+<p><strong>Address：</strong> <strong>陕西西安，广西北海</strong></p>
+<p><strong>邮箱：</strong><a href="mailto:&#x57;&#x61;&#x72;&#x6d;&#99;&#x68;&#x61;&#121;&#64;&#49;&#x36;&#x33;&#46;&#99;&#x6f;&#x6d;">&#x57;&#x61;&#x72;&#x6d;&#99;&#x68;&#x61;&#121;&#64;&#49;&#x36;&#x33;&#46;&#99;&#x6f;&#x6d;</a></p>
 <p><strong>CSDN：</strong> <a href="https://blog.csdn.net/Shea111?spm=1010.2135.3001.5113">Warmchay</a></p>
 <p><strong>博客园：</strong><a href="https://home.cnblogs.com/u/Warmchay">Warmchay</a>【已停更，懒癌日常= v =】</p>
 <p><img src="https://i.loli.net/2020/11/06/WGPKHfjqIn4FrZx.png" alt="aboutme.png"></p>
