@@ -145,6 +145,364 @@
     
     
     <article
+  id="post-OS/七 进程管理"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/03/23/OS/%E4%B8%83%20%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86/"
+    >Operating System 7 -- 进程管理</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/23/OS/%E4%B8%83%20%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86/" class="article-date">
+  <time datetime="2021-03-23T05:38:52.386Z" itemprop="datePublished">2021-03-23</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/">操作系统</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="七-进程管理"><a href="#七-进程管理" class="headerlink" title="七 进程管理"></a>七 进程管理</h1><h2 id="7-1-进程「Process」描述"><a href="#7-1-进程「Process」描述" class="headerlink" title="7.1 进程「Process」描述"></a>7.1 进程「Process」描述</h2><h3 id="1-进程的定义"><a href="#1-进程的定义" class="headerlink" title="1. 进程的定义"></a>1. 进程的定义</h3><p>一个具有一定独立功能的程序在一个数据集合上的一次动态执行过程</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323132339312.png" alt="image-20210323132339312" style="zoom:50%;">
+
+<p>程序是静态的，操作系统使其动态运行起来</p>
+<h3 id="2-进程的组成"><a href="#2-进程的组成" class="headerlink" title="2. 进程的组成"></a>2. 进程的组成</h3><ul>
+<li>程序的代码</li>
+<li>程序的处理数据</li>
+<li>PC「Program Counter」中的值，只是下一条将要运行的指令</li>
+<li>一组通用寄存器的当前值，堆、栈</li>
+<li>一组系统资源（如打开的文件）</li>
+</ul>
+<blockquote>
+<p> 总之，进程包含<strong>了正在运行的一个程序的所有状态信息</strong></p>
+</blockquote>
+<p><strong>进程与程序的联系？</strong></p>
+<ul>
+<li>程序是产生进程的基础</li>
+<li>程序的每次运行构成不同的进程</li>
+<li>进程是程序功能的体现</li>
+<li>通过<strong>多次执行</strong>，<strong>一个程序可对应多个进程</strong>；通过调用关系，<strong>一个进程可包括多个程序</strong></li>
+</ul>
+<blockquote>
+<p> 程序是菜谱，进程是做菜</p>
+</blockquote>
+<p><strong>进程与程序的区别？</strong></p>
+<ul>
+<li>进程是<strong>动态</strong>的，程序是<strong>静态</strong>的；程序是有序代码的集合，进程是程序的执行，进程有核心态/用户态</li>
+<li>进程是暂时的，程序是永久的；进程是一个状态变化的过程，程序可长久保存</li>
+<li>进程与程序的组成不同：进程组成包括程序、数据和进程控制块（即进程状态信息）</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323133306236.png" alt="image-20210323133306236" style="zoom:50%;">
+
+<blockquote>
+<p>体现了进程的动态切换特性</p>
+</blockquote>
+<h3 id="3-进程的特点"><a href="#3-进程的特点" class="headerlink" title="3. 进程的特点"></a>3. 进程的特点</h3><ul>
+<li>动态性：动态创建、结束进程</li>
+<li>并发性：可以被独立调度并占用处理机运行：<strong>并发运行</strong></li>
+<li>独立性：不同进程的工作不相互影响</li>
+<li>制约性：因访问共享数据/资源或进程同步而产生制约</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323133620864.png" alt="image-20210323133620864" style="zoom:50%;">
+
+<blockquote>
+<p>a)动态性 b)相对独立性 c)调度策略–流水线</p>
+</blockquote>
+<p>描述进程的数据结构：进程控制块<strong>「PCB, Process Control Block」</strong></p>
+<h3 id="4-进程控制结构"><a href="#4-进程控制结构" class="headerlink" title="4. 进程控制结构"></a>4. 进程控制结构</h3><p><strong>进程控制块：</strong> 操作系统管理控制进程运行所用的信息集合，操作系统用PCB来描述进程的基本情况以及运行变化的过程</p>
+<p>PCB是进程存在的唯一标志，为对进程的唯一描述</p>
+<p><strong>使用PCB</strong></p>
+<ul>
+<li><strong>进程的创建：</strong> 为该进程生成一个PCB</li>
+<li><strong>进程的终止：</strong> 回收它的PCB</li>
+<li><strong>进程的组织管理：</strong> 通过对PCB的组织管理来实现</li>
+</ul>
+<p><strong>PCB的三大信息</strong></p>
+<ol>
+<li><p><strong>进程标识信息：</strong> 如本进程的标识，本进程的产生者标识（父进程标识）；用户标识</p>
+</li>
+<li><p><strong>处理机状态信息保存区。</strong> 保存进程的运行现场信息：</p>
+<ul>
+<li><strong>用户可见寄存器：</strong> 用户程序可以使用的<strong>数据，地址等寄存器</strong></li>
+<li><strong>控制和状态寄存器：</strong> 如程序计数器（PC），程序状态字（PSW）</li>
+<li><strong>栈指针：</strong> 过程调用/系统调用/中断处理和返回时需要用到它</li>
+</ul>
+</li>
+<li><p><strong>进程控制信息</strong></p>
+<ul>
+<li><strong>调度和状态信息：</strong> 用于调度进程并占用处理机使用</li>
+<li><strong>进程间通信信息：</strong> 来支持进程间的与通信相关的各种标识、信号、信件等，这些信息存在接收方的PCB中</li>
+<li><strong>存储管理信息：</strong> 包含有指向本进程印象存储空间的数据结构</li>
+<li><strong>进程所用资源：</strong> 说明由进程打开，使用的系统资源，如打开的文件等</li>
+<li><strong>有关数据结构连接信息：</strong> 进程可以连接到一个进程队列中，或<strong>连接到相关的其他进程的PCB</strong></li>
+</ul>
+</li>
+</ol>
+<p><strong>PCB的组织方式</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323193928336.png" alt="image-20210323193928336" style="zoom:50%;">
+
+<h2 id="7-2-进程状态「State」"><a href="#7-2-进程状态「State」" class="headerlink" title="7.2 进程状态「State」"></a>7.2 进程状态「State」</h2><h3 id="7-2-1-进程的生命期管理"><a href="#7-2-1-进程的生命期管理" class="headerlink" title="7.2.1 进程的生命期管理"></a>7.2.1 进程的生命期管理</h3><p>$$<br>创建\rightarrow 运行\rightarrow 等待\rightarrow 唤醒\rightarrow 结束<br>$$</p>
+<h4 id="lt-1-gt-创建"><a href="#lt-1-gt-创建" class="headerlink" title="&lt;1&gt; 创建"></a>&lt;1&gt; 创建</h4><p>引起进程创建的3个主要事件：</p>
+<ul>
+<li>系统初始化时；</li>
+<li>用户请求创建一个新进程；</li>
+<li>正在运行的进程执行了创建进程的系统调用</li>
+</ul>
+<h4 id="lt-2-gt-运行"><a href="#lt-2-gt-运行" class="headerlink" title="&lt;2&gt; 运行"></a>&lt;2&gt; 运行</h4><p>内核选择一个就绪的进程，让它占用处理机并执行</p>
+<h4 id="lt-3-gt-等待"><a href="#lt-3-gt-等待" class="headerlink" title="&lt;3&gt; 等待"></a>&lt;3&gt; 等待</h4><p>以下情况，进程等待（阻塞）：</p>
+<ol>
+<li>请求并等待系统服务</li>
+<li>启动某种操作，无法马上完成</li>
+<li>需要的数据没有到达</li>
+</ol>
+<p>进程只能自己阻塞自己，因为只有进程自身才知道何时需要等待某种事件的发生</p>
+<h4 id="lt-4-gt-唤醒"><a href="#lt-4-gt-唤醒" class="headerlink" title="&lt;4&gt; 唤醒"></a>&lt;4&gt; 唤醒</h4><blockquote>
+<p>被动状况：$waiting\rightarrow running$</p>
+</blockquote>
+<ol>
+<li>被阻塞进程需要的资源可被满足</li>
+<li>被阻塞进程等待的事件到达</li>
+<li>将该进程的PCB插入到就绪队列</li>
+</ol>
+<blockquote>
+<p>进程只能被别的进程或操作系统唤醒</p>
+</blockquote>
+<h4 id="lt-5-gt-结束"><a href="#lt-5-gt-结束" class="headerlink" title="&lt;5&gt; 结束"></a>&lt;5&gt; 结束</h4><ul>
+<li>正常退出【自愿】</li>
+<li>错误退出【自愿】</li>
+<li>致命错误【强制】</li>
+<li>被其他进程杀死【强制】</li>
+</ul>
+<h3 id="7-2-2-进程状态变化模型"><a href="#7-2-2-进程状态变化模型" class="headerlink" title="7.2.2 进程状态变化模型"></a>7.2.2 进程状态变化模型</h3><p><strong>进程的三种基本状态：</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323195056829.png" alt="image-20210323195056829" style="zoom:50%;">
+
+<p><strong>状态变化图：</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323195135244.png" alt="image-20210323195135244" style="zoom:50%;">
+
+<blockquote>
+<p>Ready为就绪状态的进程</p>
+</blockquote>
+<h3 id="7-2-3-进程挂起"><a href="#7-2-3-进程挂起" class="headerlink" title="7.2.3 进程挂起"></a>7.2.3 进程挂起</h3><blockquote>
+<p>来合理充分地利用系统资源</p>
+</blockquote>
+<p>进程在挂起状态时，意味着进程没有占用内存空间，处在挂起状态的进程映像在磁盘上</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323195630177.png" alt="image-20210323195630177" style="zoom:50%;">
+
+<p><strong>挂起状态：</strong></p>
+<ul>
+<li><p><strong>阻塞挂起状态（Blocked suspend）：</strong> 进程在外存并等待某事件的出现</p>
+</li>
+<li><p><strong>就绪挂起状态（Ready suspend）：</strong> 进程在外存，但只要进入内存，即可运行</p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323195852296.png" alt="image-20210323195852296" style="zoom:50%;">
+
+</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323200052014.png" alt="image-20210323200052014" style="zoom:50%;">
+
+<p><font color="red"><strong>OS怎么通过PCB和定义的进程状态来管理PCB，帮助完成进程的调度过程？</strong></font></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323201256038.png" alt="image-20210323201256038" style="zoom:50%;">
+
+<p><strong>状态队列：</strong></p>
+<ul>
+<li>由os来维护<strong>一组队列</strong>，用来表示系统当中所有进程的当前状态</li>
+<li>不同的状态分别用不同的队列来表示（就绪队列、各种类型的阻塞队列）</li>
+<li>每个<strong>进程的PCB都根据他的状态</strong>加入到相应的队列当中，当一个进程的状态发生变化时，它的PCB从一个状态队列中脱离出来，加入到另外一个队列</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323202002300.png" alt="image-20210323202002300" style="zoom:50%;">
+
+<blockquote>
+<p>多个就绪队列体现了优先级</p>
+</blockquote>
+<h2 id="7-3-线程「Thread」"><a href="#7-3-线程「Thread」" class="headerlink" title="7.3 线程「Thread」"></a>7.3 线程「Thread」</h2><h3 id="7-3-1-线程-amp-进程"><a href="#7-3-1-线程-amp-进程" class="headerlink" title="7.3.1 线程 &amp; 进程"></a>7.3.1 线程 &amp; 进程</h3><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323202504735.png" alt="image-20210323202504735" style="zoom:50%;">
+$$
+Thread = Process- Shared \ Sources
+$$
+**线程优点：**
+
+<ul>
+<li>一个进程中可以同时存在多个线程</li>
+<li>各个线程之间可以并发执行</li>
+<li>各个线程之间可以共享地址空间和文件等资源</li>
+</ul>
+<p><strong>线程缺点：</strong></p>
+<ul>
+<li>一个线程崩溃，会导致其所属进程的所有线程崩溃</li>
+</ul>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323203250042.png" alt="image-20210323203250042" style="zoom:50%;">
+
+<p><strong>线程与进程的比较</strong></p>
+<ul>
+<li>进程是资源分配单位，线程是CPU调度单位</li>
+<li>进程拥有一个完整的资源平台，<strong>但是线程只独享必不可少的资源</strong>，如寄存器和栈</li>
+<li>线程同样具有就绪、阻塞和执行三种基本状态，同样具有状态之间的转换关系</li>
+<li>线程能减少并发执行的时间和空间开销<strong>【进程切换进行的页表开销十分大】</strong><ul>
+<li>线程的创建时间比进程短</li>
+<li>线程的终止时间比进程短</li>
+<li>同一进程内的线程切换时间比进程短</li>
+<li>由于同一进程的各线程间共享内存和文件资源，可直接进行不通过内核的通信</li>
+</ul>
+</li>
+</ul>
+<h3 id="7-3-2-线程的实现"><a href="#7-3-2-线程的实现" class="headerlink" title="7.3.2 线程的实现"></a>7.3.2 线程的实现</h3><p><strong>用户线程：</strong> 在用户空间实现【os看不见】</p>
+<p><strong>内核线程：</strong> 在内核中实现【由os管理】</p>
+<p><strong>轻量级进程：</strong> 在内核中实现，支持用户线程</p>
+<h4 id="lt-1-gt-用户线程与内核线程的对应关系"><a href="#lt-1-gt-用户线程与内核线程的对应关系" class="headerlink" title="&lt;1&gt; 用户线程与内核线程的对应关系"></a>&lt;1&gt; 用户线程与内核线程的对应关系</h4><blockquote>
+<p>有多对一，一对一，多对多。此刻举例为多对多：</p>
+</blockquote>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323204300913.png" alt="image-20210323204300913" style="zoom:50%;">
+
+<h4 id="lt-1-gt-用户线程"><a href="#lt-1-gt-用户线程" class="headerlink" title="&lt;1&gt; 用户线程"></a>&lt;1&gt; <strong>用户线程</strong></h4><img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210323205454265.png" alt="image-20210323205454265" style="zoom:50%;">
+
+<p>在用户空间实现的线程机制，它<strong>不依赖于os的内核</strong>，而是由一组<strong>用户级的线程库的函数</strong>来完成线程的管理，包括进程的创建、终止、同步和调度等</p>
+<ul>
+<li>因为用户线程的维护由相应进程来完成（通过线程库函数），不需要os内核了解用户线程的存在，可以用于不支持线程技术的多进程的os</li>
+<li>每个进程都需要它自己私有的<strong>线程控制块【TCB】</strong>列表，用来跟踪记录它各个线程的状态信息（PC、栈指针、寄存器），<strong>TCB由线程库函数来维护</strong></li>
+<li>用户线程的切换也是由线程库函数来完成，不需要用户态/核心态切换，所以速度特别快</li>
+<li>允许<strong>每个进程拥有自定义的线程调度算法</strong></li>
+</ul>
+<p><strong>缺点：</strong></p>
+<ul>
+<li>如果一个线程发起系统调用而阻塞，则整个线程在等待</li>
+<li>因为当一个线程开始运行后，除非它<strong>主动交出CPU的使用权</strong>，否则他所在的进程当中的其他线程将无法运行</li>
+<li>由于时间片分配给进程，因此与其他进程比，在多线程执行时，每个线程得到的时间片较少，执行会较慢</li>
+</ul>
+<h4 id="lt-2-gt-内核线程"><a href="#lt-2-gt-内核线程" class="headerlink" title="&lt;2&gt; 内核线程"></a>&lt;2&gt; <strong>内核线程</strong></h4><p>指在<strong>os的内核</strong>当中实现的一种线程机制，由os的内核来完成线程的创建、终止和管理</p>
+<ul>
+<li>在支持内核线程的os中，由内核来维护进程和线程的上下文信息（PCB和TCB）</li>
+<li>线程的创建、终止和切换都是通过系统调用/内核函数的方式来运行，由内核来完成。<strong>因此系统开销较大</strong></li>
+<li>在一个进程当中，如果<strong>某个内核线程发起系统调用而被阻塞，并不会影响其他内核线程的运行</strong></li>
+<li>时间片分配给线程，<strong>多线程的进程获得更多CPU时间</strong></li>
+<li>Windows NT和Windows 2000/XP支持内核线程</li>
+</ul>
+<h4 id="lt-3-gt-轻量级进程「Lightweight-Process」"><a href="#lt-3-gt-轻量级进程「Lightweight-Process」" class="headerlink" title="&lt;3&gt; 轻量级进程「Lightweight Process」"></a>&lt;3&gt; 轻量级进程「Lightweight Process」</h4><blockquote>
+<p>又称<strong>【协程】</strong></p>
+</blockquote>
+<h2 id="7-4-进程间通信「Inter-Process-Communication」"><a href="#7-4-进程间通信「Inter-Process-Communication」" class="headerlink" title="7.4 进程间通信「Inter-Process Communication」"></a>7.4 进程间通信「Inter-Process Communication」</h2><h3 id="7-4-1-上下文切换"><a href="#7-4-1-上下文切换" class="headerlink" title="7.4.1 上下文切换"></a>7.4.1 上下文切换</h3><p>停止当前运行进程并且调度其他进程</p>
+<ul>
+<li>必须在切换之前存储许多部分的进程上下文</li>
+<li>必须能够在之后回复他们，所以进程不能显示它曾经被暂停过</li>
+<li>必须快速（上下文转换时非常频繁）</li>
+</ul>
+<p><strong>需要存储什么上下文？</strong></p>
+<ul>
+<li>寄存器（PC、SP，…）,CPU状态，…</li>
+<li>一些时候会比较费时，应当尽可能避免</li>
+</ul>
+<p>希望上下文开销越小越好</p>
+<ul>
+<li>操作系统为活跃进程准备了PCB</li>
+<li>操作系统将PCB放置在一个合适的队列里</li>
+</ul>
+<h3 id="7-4-2-创建和执行进程"><a href="#7-4-2-创建和执行进程" class="headerlink" title="7.4.2 创建和执行进程"></a>7.4.2 创建和执行进程</h3><ul>
+<li>用<code>fork</code>和<code>exec</code>创建进程的示例</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">int pid = fork();	//创建子进程</span><br><span class="line"><span class="keyword">if</span>(pid == 0)&#123;			//子进程在这里继续</span><br><span class="line">	<span class="built_in">exec</span>(<span class="string">&quot;program&quot;</span>, argc, argv0, argv1, ...)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><code>fork()</code>创建一个继承的子进程</p>
+<ul>
+<li>复制父进程的所有变量和内存</li>
+<li>复制父进程的所有CPU寄存器【有一个寄存器例外】</li>
+</ul>
+</li>
+<li><p><code>fork()</code>的返回值</p>
+<ul>
+<li><p>子进程的<code>fork()</code>返回0</p>
+</li>
+<li><p>父进程的<code>fork()</code>返回子进程标识符</p>
+</li>
+<li><p><code>fork()</code>返回值方便后续使用，子进程可以使用<code>getpid()</code>获取<strong>PID</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324085405144.png" alt="image-20210324085405144" style="zoom:50%;">
+
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>系统调用exec（）加载程序取代当前运行的进程</strong></p>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324092555412.png" alt="image-20210324092555412" style="zoom:50%;">
+
+<p><strong><code>exec()</code>的作用</strong></p>
+<ul>
+<li>exec()调用允许一个进程“加载”一个不同的程序并且在main开始执行（事实上_start）</li>
+<li>它允许一个进程指定参数的数量（argc）和它字符串参数数组（argv）</li>
+<li>子进程fork()后exec()时会将<code>stack()&amp;heap()</code>重写</li>
+</ul>
+<p><strong>fork()的简单实现</strong></p>
+<ul>
+<li>分配内存给子进程</li>
+<li>复制父进程的内存和CPU寄存器到子进程中</li>
+<li><strong>开销非常大！</strong></li>
+</ul>
+<p><strong>99%情况中，在调用fork()之后调用exec()</strong></p>
+<ul>
+<li>但是fork()操作中<strong>内存复制</strong>是没有作用的</li>
+<li>子进程可能关闭打开的文件和链接</li>
+<li>开销因此是高的</li>
+</ul>
+<p><strong>改进：vfork</strong></p>
+<ul>
+<li>一个创建进程的系统调用，不需要创建一个同样的内存映像</li>
+<li>一些时候被称为轻量级fork()</li>
+<li>子进程几乎立即调用fork（）</li>
+<li>现在不再使用vfork()，而是改进使用COW【Copy on Write】<strong>「读时共享 写时复制」</strong>只复制了元数据【页表】</li>
+</ul>
+<h3 id="7-4-4-等待和终止进程"><a href="#7-4-4-等待和终止进程" class="headerlink" title="7.4.4 等待和终止进程"></a>7.4.4 等待和终止进程</h3><p>Wait()系统调用是被父进程用来等待子进程的结束</p>
+<ul>
+<li>子进程向父进程返回一个值，父进程必须接受这个值并处理</li>
+<li>wait()系统调用担任这个要求</li>
+</ul>
+<p>父进程配合子进程的exit()后回收所有子进程的资源，最初的进程<strong>【根进程】</strong>结束后直接关机</p>
+<ol>
+<li>进程结束执行后，调用exit()</li>
+<li>这个系统调用：<ul>
+<li>将程序的“结果”作为一个参数，关闭所有打开的文件、链接等</li>
+<li>释放内存，释放大部分支持进程的os结构</li>
+<li>检查父进程是否存活<ul>
+<li>如果存活，<strong>保留结果的值直到父进程需要它</strong>；在这种情况里，进程没有真正死亡，但是进入了僵尸状态（zombie/defunct）</li>
+<li>如果没有，释放所有的数据结构，这个进程死亡</li>
+</ul>
+</li>
+<li>进程终止是最终的垃圾收集【资源回收】</li>
+</ul>
+</li>
+</ol>
+<img src="/Users/zoriswang/Library/Application Support/typora-user-images/image-20210324094738784.png" alt="image-20210324094738784" style="zoom:50%;">
+
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" rel="tag">操作系统</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-OS/六 页面置换算法"
   class="article article-type-post"
   itemscope
@@ -1385,6 +1743,111 @@
 
     
     <article
+  id="post-算法/汉诺塔，快排与数组内逆序"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h2 itemprop="name">
+  <a class="article-title" href="/2021/03/16/%E7%AE%97%E6%B3%95/%E6%B1%89%E8%AF%BA%E5%A1%94%EF%BC%8C%E5%BF%AB%E6%8E%92%E4%B8%8E%E6%95%B0%E7%BB%84%E5%86%85%E9%80%86%E5%BA%8F/"
+    >学习记录--汉诺塔，快排与数组内逆序</a> 
+</h2>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/2021/03/16/%E7%AE%97%E6%B3%95/%E6%B1%89%E8%AF%BA%E5%A1%94%EF%BC%8C%E5%BF%AB%E6%8E%92%E4%B8%8E%E6%95%B0%E7%BB%84%E5%86%85%E9%80%86%E5%BA%8F/" class="article-date">
+  <time datetime="2021-03-16T01:24:27.626Z" itemprop="datePublished">2021-03-16</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>
+  </div>
+   
+    </div>
+      
+    <div class="article-entry" itemprop="articleBody">
+       
+  <script src="/assets/js/APlayer.min.js"> </script><h1 id="一-汉诺塔问题"><a href="#一-汉诺塔问题" class="headerlink" title="一 汉诺塔问题"></a>一 汉诺塔问题</h1><blockquote>
+<p>这里没有用指针，之后再更新指针部分      —11.15</p>
+</blockquote>
+<p>汉诺塔问题一直困扰了我比较久，总结的规律是，递归方式重点在于分为<strong>初始柱【A】、中转柱【B】及目标柱【C】</strong></p>
+<p>那么问题其实就在于它的这个过程要怎么转了，一般过程都是最上面的一个整体（以64个圆盘为例，则把最上方的63块看为整体）<code>A-&gt;C-&gt;B</code><strong>【此时中转柱为C】</strong>而后把最后一个大圆盘<code>A-&gt;C</code><strong>【这里不需要中转柱】</strong>，再接着，以A为中转柱，将B上的圆盘全部转移到C上，即<code>B-&gt;A-&gt;C</code></p>
+<blockquote>
+<p>注意：以上A、B、C柱子是时刻发生变化的，因为这中间圆盘是一个一个取得，则每次这三类柱子得顺序都会发生变化。但如果从宏观上来看，就是三根柱子得大变化。所以，考场上懵的话想想宏观就能很快敲出来了。</p>
+</blockquote>
+<p>核心算法为：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">move</span><span class="params">(<span class="keyword">int</span> n, <span class="keyword">char</span> a, <span class="keyword">char</span> b, <span class="keyword">char</span> c)</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(n == <span class="number">1</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%c --&gt; %c\n&quot;</span>, a, c);					<span class="comment">//若只剩下一个了，直接转移就行啦</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    move(n<span class="number">-1</span>, a, c, b);									<span class="comment">//此时初始柱为a（不一定是A）						</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%c --&gt; %c\n&quot;</span>, a, c);</span><br><span class="line">    move(n<span class="number">-1</span>, b, a, c);									<span class="comment">//此时初试柱为b（不一定是B）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>注意：</strong>在输出的时候，输出的是a，c柱，是当时得初始柱和目标柱，不是A和C柱嗷嗷</p>
+</blockquote>
+<h1 id="二-快速排序"><a href="#二-快速排序" class="headerlink" title="二 快速排序"></a>二 快速排序</h1><blockquote>
+<p>是一道关于分配牛奶得问题，其实用sort直接就出来了，但是因为一直不会快排，内心虚，就学习了下快排怎么写，发现这个分治法有点意思</p>
+</blockquote>
+<p>因为一开始看快排很容易懵，那么怎么理解会更快呢，把分治法称为<strong>“挖坑填数+分治”</strong>就快啦~</p>
+<h2 id="2-1-基本概念"><a href="#2-1-基本概念" class="headerlink" title="2.1 基本概念"></a>2.1 基本概念</h2><p>总的来说就是，先找到一个基准点<code>通常为最左边s[l],或者最右边s[r]</code>，如果选取最左边<code>s[l]</code>为基准点，那么最先比较的则是最右端<code>s[r]</code>，如果比<code>s[l]</code>大，则跳到下一个<code>s[--r]</code>，若比它小，则<code>s[r]</code>填补<code>s[l]</code>的坑位，然后<code>++i</code>，将右边的坑位与左边的坑位再进行比较；知道<code>i == j</code>为止</p>
+<h2 id="2-2-挖坑填数"><a href="#2-2-挖坑填数" class="headerlink" title="2.2 挖坑填数"></a>2.2 挖坑填数</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">change_loc</span><span class="params">(<span class="keyword">int</span> s[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(l &lt; r)&#123;</span><br><span class="line">        <span class="keyword">int</span> x = s[l], i = l, j = r;</span><br><span class="line">        <span class="comment">/*先右端*/</span></span><br><span class="line">        <span class="keyword">while</span>(i &lt; j &amp;&amp; s[j] &gt;= x)&#123;          <span class="comment">//注意这个i&lt;j，容易漏，如果减过头了就麻烦了</span></span><br><span class="line">            --j;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(i &lt; j)&#123;                          <span class="comment">//有可能i=j，所以还要加判断</span></span><br><span class="line">            s[i] = s[j];                    <span class="comment">//填数</span></span><br><span class="line">            ++i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">/*再左端*/</span></span><br><span class="line">        <span class="keyword">while</span>(i &lt; j &amp;&amp; s[i] &lt;= x)&#123;</span><br><span class="line">            ++i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(i &lt; j)&#123;</span><br><span class="line">            s[j] = s[i];</span><br><span class="line">            --j;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    s[i] = x;                               <span class="comment">//当i=j时，填补完毕，可以退出来了</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> i;                               <span class="comment">//返回此时中间点得位置，便于i的左端和右端继续排序</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-3-分治"><a href="#2-3-分治" class="headerlink" title="2.3 分治"></a>2.3 分治</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(<span class="keyword">int</span> s[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(l &lt; r)&#123;</span><br><span class="line">    	<span class="keyword">int</span> i = quick_sort(s, l, r);		<span class="comment">//找到中间点</span></span><br><span class="line">	    quick_sort(s, l, i<span class="number">-1</span>);				<span class="comment">//先左端</span></span><br><span class="line">    	quick_sort(s, i+<span class="number">1</span>, r);				<span class="comment">//再右端</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-4-总结"><a href="#2-4-总结" class="headerlink" title="2.4 总结"></a>2.4 总结</h2><blockquote>
+<p>如果分两个函数来写不够简洁，将<strong>挖坑填数与分治</strong>总结写成：</p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(<span class="keyword">int</span> s[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(l &lt; r)&#123;</span><br><span class="line">        <span class="keyword">int</span> x = s[l], i = l, j = r;</span><br><span class="line">        <span class="keyword">while</span>(i&lt;j)&#123;</span><br><span class="line">            <span class="comment">/*先让左边与右边比较*/</span></span><br><span class="line">            <span class="keyword">while</span>(i&lt;j &amp;&amp; s[j] &gt;= x)&#123;</span><br><span class="line">                --j;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(i &lt; j)&#123;</span><br><span class="line">                s[i++] = s[j];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">while</span>(i&lt;j &amp;&amp; s[i] &lt;= x)&#123;</span><br><span class="line">                ++i;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(i &lt; j)&#123;</span><br><span class="line">                s[j--] = s[i];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        s[i] = x;</span><br><span class="line">        quick_sort(s, l, i<span class="number">-1</span>);</span><br><span class="line">        quick_sort(s, i+<span class="number">1</span>, r);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-5-补充说明–结构体"><a href="#2-5-补充说明–结构体" class="headerlink" title="2.5 补充说明–结构体"></a>2.5 补充说明–结构体</h2><blockquote>
+<p>这里我是用来比较结构体的，但是遇到的问题就是怎么传结构体进去，后面发现了我的定性思维的问题</p>
+</blockquote>
+<p>我在定义结构体时是这么定义的：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">	<span class="keyword">int</span> price;</span><br><span class="line">    <span class="keyword">int</span> num;</span><br><span class="line">&#125;Cow[MAX];</span><br></pre></td></tr></table></figure>
+
+<p>这里问题出在我怎么把一个结构体数组传进去进行比较呢，但这样定义结构体没有普遍性，总的来说就是限制的太死了，换成这样定义就好多了</p>
+<p><strong>改进：</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">    <span class="keyword">int</span> price;</span><br><span class="line">    <span class="keyword">int</span> num;</span><br><span class="line">&#125;Cow;</span><br><span class="line">Cow cow[MAX];</span><br></pre></td></tr></table></figure>
+
+<p>而后在比较时我传值就可以这样</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(Cow c[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>在进行比较时，设置中间变量进行交换时，我就可以把x定义为<code>Cow x = c[l]</code>;这样就不会限制的那么死了。</p>
+<p>灵感来源于看别人进行sort排序时传进去的是</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sort(cow, cow+m, cmp);			<span class="comment">//其中cow为数组首地址，m为长度，cmp为比较函数</span></span><br></pre></td></tr></table></figure>
+
+<p>然后发现原版的sort可以传结构体数组的话，说明就是我的问题了，后面我就按照结构体来定义了，而不是结构体数组。</p>
+<h1 id="三-数组内逆序"><a href="#三-数组内逆序" class="headerlink" title="三 数组内逆序"></a>三 数组内逆序</h1><p>今天卡到的竟然是数组内逆序，我卡了20多分钟，然后用了一种我从没有用过的方法orz…</p>
+<p>具体是这样的，我还是定义为<code>l、r</code>，但是改为了</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*设数组定义为ElemType a[MAX]*/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">change_loc</span><span class="params">(ElemType a[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line"> 	<span class="keyword">if</span>(l&lt;r)&#123;									<span class="comment">/*这个判断容易忘记！*/</span></span><br><span class="line">    	<span class="keyword">while</span>(l&lt;r)&#123;</span><br><span class="line">			ElemType tmp = a[l];</span><br><span class="line">    		a[l] = a[r];</span><br><span class="line">    		a[r] = tmp;</span><br><span class="line">    		l++; r--;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>我觉得这样挺好orz..</p>
+</blockquote>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <footer class="article-footer">
+       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
+
+    </footer>
+  </div>
+
+    
+ 
+   
+</article>
+
+    
+    <article
   id="post-Why/比特币是什么"
   class="article article-type-post"
   itemscope
@@ -1676,208 +2139,6 @@
     <footer class="article-footer">
        
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="tag">区块链</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-算法/汉诺塔，快排与数组内逆序"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/03/16/%E7%AE%97%E6%B3%95/%E6%B1%89%E8%AF%BA%E5%A1%94%EF%BC%8C%E5%BF%AB%E6%8E%92%E4%B8%8E%E6%95%B0%E7%BB%84%E5%86%85%E9%80%86%E5%BA%8F/"
-    >学习记录--汉诺塔，快排与数组内逆序</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/03/16/%E7%AE%97%E6%B3%95/%E6%B1%89%E8%AF%BA%E5%A1%94%EF%BC%8C%E5%BF%AB%E6%8E%92%E4%B8%8E%E6%95%B0%E7%BB%84%E5%86%85%E9%80%86%E5%BA%8F/" class="article-date">
-  <time datetime="2021-03-16T01:24:27.626Z" itemprop="datePublished">2021-03-16</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <script src="/assets/js/APlayer.min.js"> </script><h1 id="一-汉诺塔问题"><a href="#一-汉诺塔问题" class="headerlink" title="一 汉诺塔问题"></a>一 汉诺塔问题</h1><blockquote>
-<p>这里没有用指针，之后再更新指针部分      —11.15</p>
-</blockquote>
-<p>汉诺塔问题一直困扰了我比较久，总结的规律是，递归方式重点在于分为<strong>初始柱【A】、中转柱【B】及目标柱【C】</strong></p>
-<p>那么问题其实就在于它的这个过程要怎么转了，一般过程都是最上面的一个整体（以64个圆盘为例，则把最上方的63块看为整体）<code>A-&gt;C-&gt;B</code><strong>【此时中转柱为C】</strong>而后把最后一个大圆盘<code>A-&gt;C</code><strong>【这里不需要中转柱】</strong>，再接着，以A为中转柱，将B上的圆盘全部转移到C上，即<code>B-&gt;A-&gt;C</code></p>
-<blockquote>
-<p>注意：以上A、B、C柱子是时刻发生变化的，因为这中间圆盘是一个一个取得，则每次这三类柱子得顺序都会发生变化。但如果从宏观上来看，就是三根柱子得大变化。所以，考场上懵的话想想宏观就能很快敲出来了。</p>
-</blockquote>
-<p>核心算法为：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">move</span><span class="params">(<span class="keyword">int</span> n, <span class="keyword">char</span> a, <span class="keyword">char</span> b, <span class="keyword">char</span> c)</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(n == <span class="number">1</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%c --&gt; %c\n&quot;</span>, a, c);					<span class="comment">//若只剩下一个了，直接转移就行啦</span></span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    move(n<span class="number">-1</span>, a, c, b);									<span class="comment">//此时初始柱为a（不一定是A）						</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%c --&gt; %c\n&quot;</span>, a, c);</span><br><span class="line">    move(n<span class="number">-1</span>, b, a, c);									<span class="comment">//此时初试柱为b（不一定是B）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p><strong>注意：</strong>在输出的时候，输出的是a，c柱，是当时得初始柱和目标柱，不是A和C柱嗷嗷</p>
-</blockquote>
-<h1 id="二-快速排序"><a href="#二-快速排序" class="headerlink" title="二 快速排序"></a>二 快速排序</h1><blockquote>
-<p>是一道关于分配牛奶得问题，其实用sort直接就出来了，但是因为一直不会快排，内心虚，就学习了下快排怎么写，发现这个分治法有点意思</p>
-</blockquote>
-<p>因为一开始看快排很容易懵，那么怎么理解会更快呢，把分治法称为<strong>“挖坑填数+分治”</strong>就快啦~</p>
-<h2 id="2-1-基本概念"><a href="#2-1-基本概念" class="headerlink" title="2.1 基本概念"></a>2.1 基本概念</h2><p>总的来说就是，先找到一个基准点<code>通常为最左边s[l],或者最右边s[r]</code>，如果选取最左边<code>s[l]</code>为基准点，那么最先比较的则是最右端<code>s[r]</code>，如果比<code>s[l]</code>大，则跳到下一个<code>s[--r]</code>，若比它小，则<code>s[r]</code>填补<code>s[l]</code>的坑位，然后<code>++i</code>，将右边的坑位与左边的坑位再进行比较；知道<code>i == j</code>为止</p>
-<h2 id="2-2-挖坑填数"><a href="#2-2-挖坑填数" class="headerlink" title="2.2 挖坑填数"></a>2.2 挖坑填数</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">change_loc</span><span class="params">(<span class="keyword">int</span> s[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(l &lt; r)&#123;</span><br><span class="line">        <span class="keyword">int</span> x = s[l], i = l, j = r;</span><br><span class="line">        <span class="comment">/*先右端*/</span></span><br><span class="line">        <span class="keyword">while</span>(i &lt; j &amp;&amp; s[j] &gt;= x)&#123;          <span class="comment">//注意这个i&lt;j，容易漏，如果减过头了就麻烦了</span></span><br><span class="line">            --j;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(i &lt; j)&#123;                          <span class="comment">//有可能i=j，所以还要加判断</span></span><br><span class="line">            s[i] = s[j];                    <span class="comment">//填数</span></span><br><span class="line">            ++i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">/*再左端*/</span></span><br><span class="line">        <span class="keyword">while</span>(i &lt; j &amp;&amp; s[i] &lt;= x)&#123;</span><br><span class="line">            ++i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(i &lt; j)&#123;</span><br><span class="line">            s[j] = s[i];</span><br><span class="line">            --j;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    s[i] = x;                               <span class="comment">//当i=j时，填补完毕，可以退出来了</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> i;                               <span class="comment">//返回此时中间点得位置，便于i的左端和右端继续排序</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-3-分治"><a href="#2-3-分治" class="headerlink" title="2.3 分治"></a>2.3 分治</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(<span class="keyword">int</span> s[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(l &lt; r)&#123;</span><br><span class="line">    	<span class="keyword">int</span> i = quick_sort(s, l, r);		<span class="comment">//找到中间点</span></span><br><span class="line">	    quick_sort(s, l, i<span class="number">-1</span>);				<span class="comment">//先左端</span></span><br><span class="line">    	quick_sort(s, i+<span class="number">1</span>, r);				<span class="comment">//再右端</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-4-总结"><a href="#2-4-总结" class="headerlink" title="2.4 总结"></a>2.4 总结</h2><blockquote>
-<p>如果分两个函数来写不够简洁，将<strong>挖坑填数与分治</strong>总结写成：</p>
-</blockquote>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(<span class="keyword">int</span> s[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(l &lt; r)&#123;</span><br><span class="line">        <span class="keyword">int</span> x = s[l], i = l, j = r;</span><br><span class="line">        <span class="keyword">while</span>(i&lt;j)&#123;</span><br><span class="line">            <span class="comment">/*先让左边与右边比较*/</span></span><br><span class="line">            <span class="keyword">while</span>(i&lt;j &amp;&amp; s[j] &gt;= x)&#123;</span><br><span class="line">                --j;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(i &lt; j)&#123;</span><br><span class="line">                s[i++] = s[j];</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">while</span>(i&lt;j &amp;&amp; s[i] &lt;= x)&#123;</span><br><span class="line">                ++i;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(i &lt; j)&#123;</span><br><span class="line">                s[j--] = s[i];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        s[i] = x;</span><br><span class="line">        quick_sort(s, l, i<span class="number">-1</span>);</span><br><span class="line">        quick_sort(s, i+<span class="number">1</span>, r);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-5-补充说明–结构体"><a href="#2-5-补充说明–结构体" class="headerlink" title="2.5 补充说明–结构体"></a>2.5 补充说明–结构体</h2><blockquote>
-<p>这里我是用来比较结构体的，但是遇到的问题就是怎么传结构体进去，后面发现了我的定性思维的问题</p>
-</blockquote>
-<p>我在定义结构体时是这么定义的：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">	<span class="keyword">int</span> price;</span><br><span class="line">    <span class="keyword">int</span> num;</span><br><span class="line">&#125;Cow[MAX];</span><br></pre></td></tr></table></figure>
-
-<p>这里问题出在我怎么把一个结构体数组传进去进行比较呢，但这样定义结构体没有普遍性，总的来说就是限制的太死了，换成这样定义就好多了</p>
-<p><strong>改进：</strong></p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span>&#123;</span></span><br><span class="line">    <span class="keyword">int</span> price;</span><br><span class="line">    <span class="keyword">int</span> num;</span><br><span class="line">&#125;Cow;</span><br><span class="line">Cow cow[MAX];</span><br></pre></td></tr></table></figure>
-
-<p>而后在比较时我传值就可以这样</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quick_sort</span><span class="params">(Cow c[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>;</span><br></pre></td></tr></table></figure>
-
-<p>在进行比较时，设置中间变量进行交换时，我就可以把x定义为<code>Cow x = c[l]</code>;这样就不会限制的那么死了。</p>
-<p>灵感来源于看别人进行sort排序时传进去的是</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sort(cow, cow+m, cmp);			<span class="comment">//其中cow为数组首地址，m为长度，cmp为比较函数</span></span><br></pre></td></tr></table></figure>
-
-<p>然后发现原版的sort可以传结构体数组的话，说明就是我的问题了，后面我就按照结构体来定义了，而不是结构体数组。</p>
-<h1 id="三-数组内逆序"><a href="#三-数组内逆序" class="headerlink" title="三 数组内逆序"></a>三 数组内逆序</h1><p>今天卡到的竟然是数组内逆序，我卡了20多分钟，然后用了一种我从没有用过的方法orz…</p>
-<p>具体是这样的，我还是定义为<code>l、r</code>，但是改为了</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*设数组定义为ElemType a[MAX]*/</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">change_loc</span><span class="params">(ElemType a[], <span class="keyword">int</span> l, <span class="keyword">int</span> r)</span></span>&#123;</span><br><span class="line"> 	<span class="keyword">if</span>(l&lt;r)&#123;									<span class="comment">/*这个判断容易忘记！*/</span></span><br><span class="line">    	<span class="keyword">while</span>(l&lt;r)&#123;</span><br><span class="line">			ElemType tmp = a[l];</span><br><span class="line">    		a[l] = a[r];</span><br><span class="line">    		a[r] = tmp;</span><br><span class="line">    		l++; r--;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>我觉得这样挺好orz..</p>
-</blockquote>
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
-
-    </footer>
-  </div>
-
-    
- 
-   
-</article>
-
-    
-    <article
-  id="post-算法/字符串+线索二叉树"
-  class="article article-type-post"
-  itemscope
-  itemprop="blogPost"
-  data-scroll-reveal
->
-  <div class="article-inner">
-    
-    <header class="article-header">
-       
-<h2 itemprop="name">
-  <a class="article-title" href="/2021/03/16/%E7%AE%97%E6%B3%95/%E5%AD%97%E7%AC%A6%E4%B8%B2+%E7%BA%BF%E7%B4%A2%E4%BA%8C%E5%8F%89%E6%A0%91/"
-    >字符串+线索二叉树构建</a> 
-</h2>
- 
-
-    </header>
-     
-    <div class="article-meta">
-      <a href="/2021/03/16/%E7%AE%97%E6%B3%95/%E5%AD%97%E7%AC%A6%E4%B8%B2+%E7%BA%BF%E7%B4%A2%E4%BA%8C%E5%8F%89%E6%A0%91/" class="article-date">
-  <time datetime="2021-03-16T01:24:27.625Z" itemprop="datePublished">2021-03-16</time>
-</a> 
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a>
-  </div>
-   
-    </div>
-      
-    <div class="article-entry" itemprop="articleBody">
-       
-  <script src="/assets/js/APlayer.min.js"> </script><h2 id="一-字符串"><a href="#一-字符串" class="headerlink" title="一 字符串"></a>一 字符串</h2><p>今天的上机有几道题提醒了我可能我关于高精度和字符串掌握程度不熟，所以再来回顾一遍</p>
-<h3 id="1-1-高精度存值"><a href="#1-1-高精度存值" class="headerlink" title="1.1 高精度存值"></a>1.1 高精度存值</h3><p>这个使输入一个阶乘的值然后用数组来保存，一开始我的方法是：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> str;</span><br><span class="line"><span class="keyword">int</span> sum = <span class="number">0</span>, count = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=str.length()<span class="number">-1</span>; i&gt;=<span class="number">0</span>; --i)&#123;</span><br><span class="line">    sum += (str[i]-<span class="string">&#x27;0&#x27;</span>)*count;</span><br><span class="line">    count *= <span class="number">10</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">cout</span> &lt;&lt; sum;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>问题在于：依旧相当于直接输出大的值，改善的点是我能输出多位的值了，思路就是错在输出了</p>
-</blockquote>
-<p>所以，正确的方法应该是用数组去存它们的一个个位的值，这个时候我的问题在于怎么一位一位</p>
-<p>地把数存进去，使用的算法是这样的</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MAX 100;</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">factorial</span><span class="params">(<span class="keyword">int</span> n)</span></span>&#123;			<span class="comment">/*n!*/</span></span><br><span class="line">    <span class="keyword">int</span> a[MAX], tmp;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">2</span>; i&lt;=n; ++i)&#123;</span><br><span class="line">        <span class="keyword">int</span> <span class="built_in">cin</span> = <span class="number">0</span>;			<span class="comment">/*每一轮重置一次进位数*/</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>; j&lt;MAX; ++j)&#123;</span><br><span class="line">            tmp = a[j]+<span class="built_in">cin</span>;		<span class="comment">/*把原有的数加上进位*/</span></span><br><span class="line">            <span class="built_in">cin</span> = a[j]/<span class="number">10</span>;</span><br><span class="line">            a[j] = tmp%<span class="number">10</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> i, sum = <span class="number">0</span>, count = <span class="number">1</span>;				<span class="comment">/*记录最大位在哪*/</span></span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; MAX<span class="number">-1</span>; ++i)&#123;</span><br><span class="line">        <span class="keyword">if</span>(a[i] == <span class="number">0</span>)</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> j = i<span class="number">-1</span>; j&gt;=<span class="number">0</span>; --j)&#123;</span><br><span class="line">        sum += a[j]*count;</span><br><span class="line">        count *= <span class="number">10</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="1-2-字符串的一些函数操作"><a href="#1-2-字符串的一些函数操作" class="headerlink" title="1.2 字符串的一些函数操作"></a>1.2 字符串的一些函数操作</h3><h4 id="1-2-1-含有空格的字符串输入"><a href="#1-2-1-含有空格的字符串输入" class="headerlink" title="1.2.1 含有空格的字符串输入"></a>1.2.1 含有空格的字符串输入</h4><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getline(<span class="built_in">cin</span>, str);</span><br></pre></td></tr></table></figure>
-
-<h4 id="1-2-2-字符串的删除与拼接"><a href="#1-2-2-字符串的删除与拼接" class="headerlink" title="1.2.2 字符串的删除与拼接"></a>1.2.2 字符串的删除与拼接</h4><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> s1, s2;		<span class="comment">//s1原串，s2子串</span></span><br><span class="line"><span class="keyword">while</span>(s1.find(s2) &lt; s1.length())&#123;</span><br><span class="line">	s1 = s.erase(s1.find(s2), s2.length());	<span class="comment">/*erase函数(首地址，删除的长度)*/</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h4 id="1-2-3-字符串的公共前缀"><a href="#1-2-3-字符串的公共前缀" class="headerlink" title="1.2.3 字符串的公共前缀"></a>1.2.3 字符串的公共前缀</h4><p>最大问题在输入怎么输入，一般要求输入在一行内如：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">global glossory</span><br></pre></td></tr></table></figure>
-
-<p>我是这么输入的</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">string</span> s1, s2;</span><br><span class="line"><span class="built_in">cin</span> &gt;&gt; s1;</span><br><span class="line">getchar();</span><br><span class="line"><span class="built_in">cin</span> &gt;&gt; s2;</span><br><span class="line"><span class="comment">/*这样也能达成上述输入的效果，然后处理的时候视为两个字符串处理就好啦~*/</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="二-线索二叉树"><a href="#二-线索二叉树" class="headerlink" title="二 线索二叉树"></a>二 线索二叉树</h2><blockquote>
-<p>这个是复习的时候发现没听懂，所以记一下防止期末又忘了</p>
-</blockquote>
-<p>二叉树的核心在于<strong>线索化</strong>，其作用在于把一颗树转化为双向链表，这样能够判断其前缀和后缀是什么。</p>
-<p>其结构体定义为</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">BiThrNode</span>&#123;</span></span><br><span class="line">    ElemType data;							<span class="comment">//结点数据</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">BiThrNode</span> *<span class="title">lchild</span>, *<span class="title">rchild</span>;</span>		<span class="comment">//左右孩子的指针</span></span><br><span class="line">    <span class="keyword">int</span> ltag, rtag;							<span class="comment">//左右孩子的标志</span></span><br><span class="line">&#125;BiThrNode, *BiThrTree;</span><br></pre></td></tr></table></figure>
-
-<p>在我的理解中，难点在于ltag（rtag）是用来做什么的，因为这个我看了很多书都没能理解，在b站上找了懒猫老师的课，听了一边下来感觉大概清楚线索二叉树的线索化是怎么实现的。</p>
-<blockquote>
-<p>以下仅基于自己的理解，给自己复习的，如果有朋友看，可能你会看不懂qwq</p>
-</blockquote>
-<h3 id="①-空结点个数"><a href="#①-空结点个数" class="headerlink" title="① 空结点个数"></a>① 空结点个数</h3><p>一开始我们会按照前序、中序后者后序的组合（不能是中序+后序）建立好了一棵二叉树，但是我们在判断一个结点是否有子树时，会设置它的<code>lchild、rchild</code>为<code>NULL</code>，这样会使很多结点浪费掉了，做个计算</p>
-<p>设这颗二叉树结点个数为<code>n</code>，它有<code>n-1</code>条边，那么空结点数一共为<br>$$<br>2*n-(n-1) = n+1<br>$$<br>怎么理解呢？一个结点能引出两条边，而树的边两端真正连有结点的一共为<code>n-1</code>条，所以拿<code>2*n-(n-1)</code>就是空结点的个数<br>从<code>n+1</code>看来这个浪费的程度有点大，那么如何利用他们呢？</p>
-<h3 id="②-前缀、后缀"><a href="#②-前缀、后缀" class="headerlink" title="② 前缀、后缀"></a>② 前缀、后缀</h3><p>因为我们在建树的过程中，是把原有的顺序拆开的，比如说前序为<code>ABCDEF</code>,中序为<code>CBDAEF</code>,这样搭建出来的树<code>A</code>为根结点，其左孩子为<code>B</code> ，右孩子为 <code>E</code>，但是在中序遍历中，其前缀不为B，后缀为E，也就说明A两端是有子结点的，一般这种情况我们设A的<code>ltag = 0, rtag = 0</code>，表示其有左右孩子，但不一定为其前缀后者后缀形式。</p>
-<p>相反的，我们那这棵树的<code>C</code>作为另一种表示，C没有前缀，C的后缀为B，但我们知道，它没有左孩子与右孩子，这个时候我们把它的<code>lchild、rchild</code>指向其前驱和后继。所以在这里我们设置其<code>ltag = 1, rtag = 1</code>，表示其没有左右孩子，这时它的左右孩子的地址指向的是其在某种遍历方式里的前驱和后继。</p>
-<p>所以<code>ltag、rtag</code>可以看作是一种判断符，分为<code>1/0</code>的情况</p>
-<h3 id="₯③-保存状态结点–pre"><a href="#₯③-保存状态结点–pre" class="headerlink" title="₯③ 保存状态结点–pre"></a>₯③ 保存状态结点–pre</h3><p>那么如何保存其左右结点呢？</p>
-<p>我们先来看整个遍历的代码吧，这个是实现创建线索二叉树【中序遍历】的代码：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">InThreading</span><span class="params">(BiThrTree p)</span></span>&#123;</span><br><span class="line">    <span class="keyword">static</span> BiThrTree pre;			<span class="comment">//设置静态变量，让pre在每一次遍历中都能察觉到</span></span><br><span class="line">	<span class="keyword">if</span>(p == <span class="literal">NULL</span>) <span class="keyword">return</span>;</span><br><span class="line">	InThreding(p-&gt;lchild);			<span class="comment">//先递归到左子树最低点</span></span><br><span class="line">	<span class="keyword">if</span>(!p-&gt;lchild)&#123;					<span class="comment">//如果p没有左孩子</span></span><br><span class="line">		p-&gt;ltag = <span class="number">1</span>;				<span class="comment">//标志其为线索化的结点，即其左子树为其前驱，不是其真实的左孩子</span></span><br><span class="line">		p-&gt;lchild = pre;			<span class="comment">//pre为p上一个节点</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span>(!pre-&gt;rchild)&#123;</span><br><span class="line">		pre-&gt;rtag = <span class="number">1</span>;</span><br><span class="line">		pre-&gt;rchild = p;			<span class="comment">//开头在创建的过程中pre会经过两遍</span></span><br><span class="line">	&#125;</span><br><span class="line">	pre = p;</span><br><span class="line">	InThreading(p-&gt;rchild);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>通过这种方式我们就创建好了一颗线索二叉树</p>
-<p>最后，还有主要的是如果我的<code>ltag/rtag = 0</code>呢？那打印的时候我怎么保证遍历到的是其前驱呢？解决办法依旧是不断递归，假如要打印的是前驱</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">inOrder</span><span class="params">(BiThrTree t)</span></span>&#123;</span><br><span class="line">	BiThrTree p = t-&gt;lchild;			<span class="comment">//p指向t的左子树 </span></span><br><span class="line">	<span class="keyword">while</span>(p-&gt;ltag != <span class="number">0</span>)&#123;</span><br><span class="line">		p = p-&gt;lchild;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="built_in">cout</span> &lt;&lt; p-&gt;data &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">	<span class="keyword">while</span>(p-&gt;rtag &amp;&amp; p-&gt;rchild != t)&#123;	<span class="comment">//防止p指向右孩子出错</span></span><br><span class="line">		p = p-&gt;rchild;</span><br><span class="line">		<span class="built_in">cout</span> &lt;&lt; p-&gt;data &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">	&#125; </span><br><span class="line">	p = p-&gt;rchild;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
- 
-      <!-- reward -->
-      
-    </div>
-    
-
-    <!-- copyright -->
-    
-    <footer class="article-footer">
-       
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
 
     </footer>
   </div>
