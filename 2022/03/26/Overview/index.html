@@ -1,0 +1,392 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>AOS Overview | Sicilienne</title><meta name="keywords" content="OS"><meta name="author" content="Zoris"><meta name="copyright" content="Zoris"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="OS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AOS Overview">
+<meta property="og:url" content="http://example.com/2022/03/26/Overview/index.html">
+<meta property="og:site_name" content="Sicilienne">
+<meta property="og:description" content="OS">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/Warmchay/img/main/1481647608647_.pic.jpg?token=ANJTXTJATRQBRFWLQQ4XG7LCGSB3O">
+<meta property="article:published_time" content="2022-03-26T14:23:12.000Z">
+<meta property="article:modified_time" content="2022-03-26T14:23:21.358Z">
+<meta property="article:author" content="Zoris">
+<meta property="article:tag" content="OS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/Warmchay/img/main/1481647608647_.pic.jpg?token=ANJTXTJATRQBRFWLQQ4XG7LCGSB3O"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/03/26/Overview/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"简","msgToSimplifiedChinese":"繁"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'AOS Overview',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-03-26 22:23:21'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://raw.githubusercontent.com/Warmchay/img/main/1521647611449_.pic.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">1</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">1</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://raw.githubusercontent.com/Warmchay/img/main/1481647608647_.pic.jpg?token=ANJTXTJATRQBRFWLQQ4XG7LCGSB3O')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Sicilienne</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">AOS Overview</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-03-26T14:23:12.000Z" title="发表于 2022-03-26 22:23:12">2022-03-26</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-03-26T14:23:21.358Z" title="更新于 2022-03-26 22:23:21">2022-03-26</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Advanced-OS/">Advanced OS</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="AOS Overview"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h1><h2 id="1-Reading-Critiques"><a href="#1-Reading-Critiques" class="headerlink" title="1 Reading Critiques"></a>1 Reading Critiques</h2><ol>
+<li><strong>Addressing followings:</strong><ul>
+<li><strong>Summary</strong> of major innovations</li>
+<li>What the <strong>problems</strong> the paper <strong>mentioned</strong></li>
+<li>How about the <strong>important related work&#x2F;papers</strong></li>
+<li>What are some <strong>intriguing aspects</strong> of the paper</li>
+<li>How to <strong>test&#x2F;compare&#x2F;analyze the results</strong></li>
+<li>How can the research <strong>improved</strong></li>
+<li>If you writs this paper, then <strong>how would you do</strong>?</li>
+<li><strong>Results</strong> from this paper</li>
+<li>Give the <strong>survey paper list</strong> in the same research area</li>
+</ul>
+</li>
+<li><strong>One Project</strong><ul>
+<li><a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.828/2018/schedule.html">JOS</a> </li>
+<li><a target="_blank" rel="noopener" href="https://github.com/chyyuu/aos_course_info">ReadingList of OS</a><ul>
+<li>find a interesting research topic&#x2F;project</li>
+<li>Analysis&#x2F;parctice deeply</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="2-Rethinking-OS-Components"><a href="#2-Rethinking-OS-Components" class="headerlink" title="2 Rethinking OS Components"></a>2 Rethinking OS Components</h2><img src="https://raw.githubusercontent.com/Warmchay/img/main/%E6%88%AA%E5%B1%8F2022-03-26%20%E4%B8%8B%E5%8D%884.33.19.png" style="zoom:67%;" />
+
+<p><strong>Single-machine OS&#x2F;VMM:</strong></p>
+<ol>
+<li><p>Strategy</p>
+<ul>
+<li><p>how to organize OS for development&#x2F;evolution&#x2F;performance&#x2F;security</p>
+</li>
+<li><p>how to use multi-processor machines</p>
+</li>
+</ul>
+</li>
+<li><p>Components</p>
+<ul>
+<li>Mem management</li>
+<li>Process management</li>
+<li>Synchronization</li>
+<li>File systems &amp; device support</li>
+</ul>
+</li>
+</ol>
+<p><strong>Mem management:</strong></p>
+<ol>
+<li>Purposes<ul>
+<li>Virtual memory</li>
+<li>Swapping: moves #p to disks</li>
+<li>Paging: #p runs only the active pages in mem</li>
+<li>Buffer Cache</li>
+</ul>
+</li>
+<li>Strategy<ul>
+<li>how to share mem with multi-machines</li>
+<li>how to simplify mem management as mem becomes abundant</li>
+</ul>
+</li>
+</ol>
+<p><strong>Process management:</strong></p>
+<ol>
+<li>Purposes<ul>
+<li>多 #p 并发执行</li>
+<li>context switching: Interrupt</li>
+</ul>
+</li>
+<li>Strategy<ul>
+<li>Achive fairness&#x2F;throughput&#x2F;responsiveness</li>
+<li>Reduce&#x2F;avoid the cost</li>
+</ul>
+</li>
+</ol>
+<p><strong>Synchronization:</strong></p>
+<ol>
+<li>Purposes<ul>
+<li>联系 #p，如在 context switching 阶段需要coordinating threads</li>
+</ul>
+</li>
+<li>Strategy<ul>
+<li>Atomic actions</li>
+<li>Mutual exclusion：critical region一个时刻一个 thread 执行</li>
+<li>Semephores: atomic, counter-based locks</li>
+<li>Avoid Deadlock</li>
+</ul>
+</li>
+</ol>
+<p><strong>File Systems:</strong></p>
+<ol>
+<li>Purposes<ul>
+<li>File: data+attributes</li>
+<li>File services. E.g. Naming, Access, <code>chmod</code></li>
+</ul>
+</li>
+<li>Strategy<ul>
+<li>多机间共同运行 File systems</li>
+<li>多机间 copy 时 provide consistency&#x2F;availability&#x2F;reliability </li>
+<li>How to handle large data sets</li>
+</ul>
+</li>
+</ol>
+<p><strong>I&#x2F;O systems:</strong></p>
+<ol>
+<li><p>Purposes:</p>
+<ul>
+<li>速度慢于memory</li>
+<li>Caching</li>
+</ul>
+</li>
+<li><p>Strategy：</p>
+<ol>
+<li>多机间能有共同 share 的 resources 来提高性能</li>
+<li><strong>handle new devices with new characteristics</strong></li>
+</ol>
+<blockquote>
+<p>I’d like to challenge this!</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="3-Performance"><a href="#3-Performance" class="headerlink" title="3 Performance"></a>3 Performance</h2><ul>
+<li><p>如何利用 Multi-core 性能: E.g. AMD 64cores &amp; Intel 48 cores </p>
+</li>
+<li><p>Benchmark: Speedup &#x2F; throughout &#x2F;</p>
+</li>
+</ul>
+<blockquote>
+<p><strong>Kernel synchronizations protecting</strong> the shared data are the main <strong>bottlenecks</strong> on multi-core platform</p>
+</blockquote>
+<h2 id="4-Reliability"><a href="#4-Reliability" class="headerlink" title="4 Reliability"></a>4 Reliability</h2><blockquote>
+<ul>
+<li><p>Includes availability&#x2F;security&#x2F;fault tolerance&#x2F;durability</p>
+</li>
+<li><p>Make sure data services when system crashes, disk crashed , etc</p>
+</li>
+</ul>
+</blockquote>
+<p><strong>Threat Analysis</strong> </p>
+<ol>
+<li>Protect what, why?</li>
+<li>What are the vulnerabilities of those assets</li>
+<li>Who might exploit vulnerabilities</li>
+<li>How to prevent a specific threat</li>
+<li>Consider cost</li>
+</ol>
+<h2 id="5-Correctness-amp-Summary"><a href="#5-Correctness-amp-Summary" class="headerlink" title="5 Correctness &amp; Summary"></a>5 Correctness &amp; Summary</h2><img src="https://raw.githubusercontent.com/Warmchay/img/main/%E6%88%AA%E5%B1%8F2022-03-26%20%E4%B8%8B%E5%8D%8810.19.50.png" style="zoom:67%;" />
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Zoris</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/03/26/Overview/">http://example.com/2022/03/26/Overview/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">Sicilienne</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/OS/">OS</a></div><div class="post_share"><div class="social-share" data-image="https://raw.githubusercontent.com/Warmchay/img/main/1481647608647_.pic.jpg?token=ANJTXTJATRQBRFWLQQ4XG7LCGSB3O" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/gh/overtrue/share.js@master/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Valine# Valine</span><span class="switch-btn"></span><span class="second-comment">Disqus</span></div></div><div class="comment-wrap"><div></div><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Overview"><span class="toc-number">1.</span> <span class="toc-text">Overview</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Reading-Critiques"><span class="toc-number">1.1.</span> <span class="toc-text">1 Reading Critiques</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Rethinking-OS-Components"><span class="toc-number">1.2.</span> <span class="toc-text">2 Rethinking OS Components</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Performance"><span class="toc-number">1.3.</span> <span class="toc-text">3 Performance</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Reliability"><span class="toc-number">1.4.</span> <span class="toc-text">4 Reliability</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Correctness-amp-Summary"><span class="toc-number">1.5.</span> <span class="toc-text">5 Correctness &amp; Summary</span></a></li></ol></li></ol></div></div></div></div></main><footer id="footer" style="background-image: url('https://raw.githubusercontent.com/Warmchay/img/main/1481647608647_.pic.jpg?token=ANJTXTJATRQBRFWLQQ4XG7LCGSB3O')"><div id="footer-wrap"><div class="copyright">&copy;2022 By Zoris</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><div class="js-pjax"><script>function loadDisqus () {
+  var disqus_config = function () {
+    this.page.url = 'http://example.com/2022/03/26/Overview/'
+    this.page.identifier = '2022/03/26/Overview/'
+    this.page.title = 'AOS Overview'
+  };
+
+  window.disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+}
+
+if ('Valine# Valine' === 'Disqus' || !false) {
+  if (false) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><div class="aplayer no-destroy" data-id="7319374102" data-server="netease" data-type="playlist" data-fixed="true" data-autoplay="true"> </div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer@1/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/gh/metowolf/MetingJS@1.2/dist/Meting.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>let pjaxSelectors = ["title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+
+  // removeEventListener scroll 
+  window.tocScrollFn && window.removeEventListener('scroll', window.tocScrollFn)
+  window.scrollCollect && window.removeEventListener('scroll', scrollCollect)
+
+  typeof preloader === 'object' && preloader.initLoading()
+  document.getElementById('rightside').style.cssText = "opacity: ''; transform: ''"
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof chatBtnFn === 'function' && chatBtnFn()
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+
+  typeof preloader === 'object' && preloader.endLoading()
+})
+
+document.addEventListener('pjax:error', (e) => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
