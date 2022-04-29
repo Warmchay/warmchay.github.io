@@ -1,0 +1,548 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Reading | Google File System | Sicilienne</title><meta name="keywords" content="System"><meta name="author" content="Zoris"><meta name="copyright" content="Zoris"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="IntroGFS 设计前的观察 :  设备故障经常发生，GFS由许多台廉价设备作为存储节点组成，设备数量和质量决定任何时间都有部分设备无法工作，甚至有些设备会无法恢复。 文件越来越大。需要重新考虑 I&#x2F;O 操作和 Chunk 大小的参数设计 大部分文件变更是以 Append 而非 Overwirte。 放宽一致性协议，能大幅简化系统，减少应用程序负担，  Design假设 Assumpt">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Reading | Google File System">
+<meta property="og:url" content="http://example.com/2022/04/27/Reading/Reading%20-%20GFS/index.html">
+<meta property="og:site_name" content="Sicilienne">
+<meta property="og:description" content="IntroGFS 设计前的观察 :  设备故障经常发生，GFS由许多台廉价设备作为存储节点组成，设备数量和质量决定任何时间都有部分设备无法工作，甚至有些设备会无法恢复。 文件越来越大。需要重新考虑 I&#x2F;O 操作和 Chunk 大小的参数设计 大部分文件变更是以 Append 而非 Overwirte。 放宽一致性协议，能大幅简化系统，减少应用程序负担，  Design假设 Assumpt">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/Warmchay/img/main/%E6%88%AA%E5%B1%8F2022-04-29%20%E4%B8%8B%E5%8D%8810.47.53.png">
+<meta property="article:published_time" content="2022-04-27T00:20:12.000Z">
+<meta property="article:modified_time" content="2022-04-29T14:54:48.139Z">
+<meta property="article:author" content="Zoris">
+<meta property="article:tag" content="System">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/Warmchay/img/main/%E6%88%AA%E5%B1%8F2022-04-29%20%E4%B8%8B%E5%8D%8810.47.53.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://example.com/2022/04/27/Reading/Reading%20-%20GFS/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"简","msgToSimplifiedChinese":"繁"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Reading | Google File System',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-04-29 22:54:48'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://raw.githubusercontent.com/Warmchay/img/main/1521647611449_.pic.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">15</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">6</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://raw.githubusercontent.com/Warmchay/img/main/%E6%88%AA%E5%B1%8F2022-04-29%20%E4%B8%8B%E5%8D%8810.47.53.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Sicilienne</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Reading | Google File System</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-04-27T00:20:12.000Z" title="发表于 2022-04-27 08:20:12">2022-04-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-04-29T14:54:48.139Z" title="更新于 2022-04-29 22:54:48">2022-04-29</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Reading/">Reading</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Reading | Google File System"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h1><p>GFS 设计前的观察 :</p>
+<ol>
+<li>设备故障经常发生，GFS由许多台廉价设备作为存储节点组成，设备数量和质量决定任何时间都有部分设备无法工作，甚至有些设备会无法恢复。</li>
+<li>文件越来越大。需要重新考虑 I&#x2F;O 操作和 Chunk 大小的参数设计</li>
+<li>大部分文件变更是以 Append 而非 Overwirte。</li>
+<li>放宽一致性协议，能大幅简化系统，减少应用程序负担，</li>
+</ol>
+<h1 id="Design"><a href="#Design" class="headerlink" title="Design"></a>Design</h1><h2 id="假设-Assumptions"><a href="#假设-Assumptions" class="headerlink" title="假设 Assumptions"></a>假设 Assumptions</h2><ol>
+<li>系统由经常发生故障的廉价商用设备组成，而系统能持续监控自身并检测故障、容错和及时恢复的能力。</li>
+<li>系统存储一定数量的大文件，但也能支持小文件</li>
+<li>Workload 主要源于两种 Read 操作: 大规模的流式读取和小规模的随机读取。大规模中同一个 Client 端连续读操作会经常访问同一个区域，小规模中会在文件某个任意偏移位置读几KB</li>
+<li>Workload 还来自很多文件的大规模 Append 写入。一般情况下当写入规模与读取规模相似时，文件一旦写入就不会被修改。</li>
+<li>文件通常在 Producer-Consumer 队列中或 Multi-way Merge 中使用。因此最小化原子性需要的同步开销非常重要，方便文件在被生产后可以同时或者一小段时间后被消费者读取。</li>
+<li>持续高吞吐比低延迟重要。大多数 Apps 应更重视 big data 的处理，而不是对单个 R&#x2F;W 操作有严格的时间要求。</li>
+</ol>
+<h2 id="接口-Interface"><a href="#接口-Interface" class="headerlink" title="接口 Interface"></a>接口 Interface</h2><p>GFS 没有 POSIX 类似的标准 API，但也提供了常用的文件接口。</p>
+<p>文件由文件路径名统一标识，GFS 支持 <code>create, delete, open, close, read, write</code> 等常用文件操作。</p>
+<p>此外，GFS 还支持 snapshot 和 record append 操作。分别在 3.3 和 3.4 中详细说。</p>
+<h2 id="架构-Infra"><a href="#架构-Infra" class="headerlink" title="架构 Infra"></a>架构 Infra</h2><img src="https://raw.githubusercontent.com/Warmchay/img/main/%E6%88%AA%E5%B1%8F2022-04-25%20%E4%B8%8A%E5%8D%8810.39.55.png" style="zoom:50%;" />
+
+<p>一个 GFS 集群包括单个 master 和多个 chunkserver，并被多个 client 访问。如果单个节点允许接受不稳定 app 带来的低可靠性，则这个机器上可以同时运行 chunkserver 和 client。</p>
+<p>文件被划分为若干个固定大小的 chunk，每个 chunk 被全局唯一的 64-bits chunk handle (由 master 分配) 唯一标识。 chunkserver 将 chunk 存储在本地磁盘中 client 通过 (chunk handle, byte range) 唯一确定需要被读写的 chunk 和 chunk 中的数据。</p>
+<blockquote>
+<p><strong>可靠性:</strong> 每个 chunk 会有 3 份 copy，存储在 3 个不同的 chunkserver。用户也可以为不同 namespace 的域指定不同的副本级别。</p>
+</blockquote>
+<p>master 维护系统所有的 metadata，包括 namespace , access control, 文件到 chunk 的映射, chunk location。</p>
+<p>master 也控制着 chunk lease（chunk 租约）, gc of orphaned chunks (孤儿 chunk 回收), chunkserver 间 chunk 的 migration。master 周期性地通过心跳与每个 chunkserver 通信，采集 chunkserver 信息并下达指令。</p>
+<h2 id="单-master"><a href="#单-master" class="headerlink" title="单 master"></a>单 master</h2><p>master 可以通过全局信息做复杂的 chunk placement 和与 replica 相关的决策。但是基于系统瓶颈的考虑，必须最小化 master 参与 R&#x2F;W。</p>
+<p>client 不会直接从 master 读取数据，而是询问 master 它需要与那个 chunkserver 通信。client 会缓存 chunkserver 信息，但不会缓存文件信息。</p>
+<img src="https://raw.githubusercontent.com/Warmchay/img/main/%E6%88%AA%E5%B1%8F2022-04-25%20%E4%B8%8A%E5%8D%8810.39.55.png" style="zoom:50%;" />
+
+<blockquote>
+<p><strong>“读”操作:</strong> </p>
+<ol>
+<li>根据固定的 chunk 大小，client 将 apps 指定的文件名和 chunk 偏移量翻译为文件中的 chunk index (块序号)。</li>
+<li>client 向 master 发送一个包含 (file name, chunk index) 的 request，master 返回相应的 (chunk handle, chunk location) 的信息。client 根据该信息以 (file name, chunk index) 为 key 作缓存</li>
+<li>client 向最近的 replica 所在的 chunkserver 发送 requests，指定文件的 (chunk hanlde, byte range) 。现实中 client 会在同一个 request 中请求多个 chunks，master 也可以返回多个 chunk 的响应，避免 client 与 master 的更多通信，减少额外开销的情况下得到更多信息</li>
+</ol>
+</blockquote>
+<h2 id="Chunk-size"><a href="#Chunk-size" class="headerlink" title="Chunk size"></a>Chunk size</h2><p>chunk size 选择了 64MB，远大于通常的文件系统中的块大小。</p>
+<p><strong>较大的 chunk size 优势:</strong></p>
+<ol>
+<li>减少 client 与 master 的交互次数，因为一个 chunk 足够存储许多的 chunk 位置信息</li>
+<li>chunk 方便 client 在一个 chunk 上执行多个操作，与 chunkserver 保持更长时间的 TCP 连接来减少网络开销</li>
+<li>减少了 master 中保存的元数据大小，方便 metadata 保存在 master 的内存中 (???)</li>
+</ol>
+<p><strong>劣势:</strong></p>
+<ol>
+<li><p>如果多个 client 访问同一个文件，存储这个文件的 chunkserver 会成为 hot spot。</p>
+<blockquote>
+<p>GFS 首次在批处理队列系统中使用时，一个可执行文件可以存在单个 chunk 中，存储这个可执行程序的几台 chunkserver 被几百个并发请求超载。</p>
+<p>通过提高可执行文件的副本数 (replication factor) 并让批处理队列系统错开 Apps 启动时间的方式修复了这个问题。</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="Metadata"><a href="#Metadata" class="headerlink" title="Metadata"></a>Metadata</h2><p>metadata 主要存储三种数据: </p>
+<ol>
+<li>file name</li>
+<li>chunk namespace、文件到 chunk 的映射</li>
+<li>chunk 中每个 replica 的位置</li>
+</ol>
+<p>所有 metadata 存储在 master 的内存中，前两种类型的变更会记录到 log 中以持久化形式存储在 master 的磁盘上，并在远程机器上备份。</p>
+<p>通过 log，可以简单可靠地更新 master 状态，即使 master 故障也不会有 inconsistent 的风险，master 不会持久化地存储 chunk 的位置信息，而是在启动时和当 chunkserver 加入集群时向 chunkserver 询问 chunkserver 存储的 chunk 信息。</p>
+<blockquote>
+<p>这不是存储了 chunk 信息嘛…?</p>
+</blockquote>
+<h3 id="内存数据结构"><a href="#内存数据结构" class="headerlink" title="内存数据结构"></a>内存数据结构</h3><p>metadata 存储在内存中，方便 master 对其快速操作。master 可以快速地周期性扫描整个状态实现 gc、chunkserver 故障时重做 replica、chunkserver 间的chunk migration。4.3和4.4会详细讨论。</p>
+<h3 id="chunk-location"><a href="#chunk-location" class="headerlink" title="chunk location"></a>chunk location</h3><p>master 不会持久化保存哪台 chunkserver 含有给定的 chunk replica，而是在启动的时候从 chunkserver 中获取信息。</p>
+<blockquote>
+<p>Q: 为什么是在启动时获取，而不是持久化保存?</p>
+<p>A:</p>
+<ul>
+<li>chunkserver 启动时比启动后去请求数据要简单(为什么?)</li>
+<li>chunkserver 对其磁盘上有哪些 chunk 有着最终决定权，因为 chunkserver 中的错误会导致 chunk 消失 (如磁盘可能损坏或被禁用) 或一个操作者可能重命名一个chunkserver。</li>
+</ul>
+<p>总而言之，试图在 master 上维护一个持久化的 chunk 位置信息视图是没有意义的。</p>
+</blockquote>
+<h3 id="操作日志-log"><a href="#操作日志-log" class="headerlink" title="操作日志 log"></a>操作日志 log</h3><blockquote>
+<p>metadata 中唯一持久化的记录，所有带有版本号的文件和 chunks 在它们创建时由逻辑时间唯一、永久地确定。</p>
+</blockquote>
+<p>将 log 备份到多台远程主机上，只有当 log 被本地和远程主机均写入到磁盘后才能向客户端发出响应。master 会在 log 被写入前批量合并一些 log 来减少写入和备份操作对系统吞吐量的影响。</p>
+<p>master 通过 replay log 来恢复 GFS 状态，log 要尽可能小以减少启动时间。当日志超过一定大小时，master 会对其状态创建一个 checkpoint。checkpoint 的结构为一个 B-tree 来让它在内存中可以被直接映射，在查找 namespace 时也不需要做额外的解析。</p>
+<p>这一步提高了系统恢复速度，增强了系统的可用性。</p>
+<blockquote>
+<p>Q: 创建 checkpoint 时，若有 Read 请求咋办？</p>
+<p>A:</p>
+<ul>
+<li><p>创建 checkpoint 时，master 会切换到一个新的 log 文件并在一个独立的 thread 中创建 checkpoint，当 checkpoint 创建完成后会被写入 master 本地和远程主机的磁盘中</p>
+</li>
+<li><p>恢复只需要最后一个完整的 checkpoint 和后续的 log，旧的 checkpoint 和 log 可以随意删除，但会保留一段时间来容灾，创建 checkpoint 时发生错误时不会影响日志的正确性，因为恢复代码会检测并跳过不完整的 checkpoint</p>
+</li>
+</ul>
+</blockquote>
+<h2 id="一致性模型"><a href="#一致性模型" class="headerlink" title="一致性模型"></a>一致性模型</h2><h3 id="GFS-提供的保证"><a href="#GFS-提供的保证" class="headerlink" title="GFS 提供的保证"></a>GFS 提供的保证</h3><p>文件 namespace 的变更操作是 atomic 的，仅由 master 处理，namespace lock 保证了原子性和正确性；master 的 log 定义了这些操作的全局总顺序。</p>
+<p><font color=red><b>还没整完,这个一致性分级看得头有点疼</b></font></p>
+<h1 id="系统交互"><a href="#系统交互" class="headerlink" title="系统交互"></a>系统交互</h1><p>设计系统时，希望 master 尽可能少地参与所有操作，这里主要描述 client、master 和 chunkserver 如何交互来实现数据变更、原子的 record append 和 snapshot 操作。</p>
+<h2 id="chunk-lease"><a href="#chunk-lease" class="headerlink" title="chunk lease"></a>chunk lease</h2><p>改变 chunk 或 metadata 的操作称为 “变更”，如 write&#x2F;append，chunk 变更时其每个 replica 也需要变更。</p>
+<p>使用 lease 来维护副本间变更顺序的一致性。 master 向其中一份副本授权一个变更的 lease，称这个副本为 primary。</p>
+<p>chunkserver 收到 lease 及写请求后，才有权限决定多个写操作的执行顺序，此顺序被称为 serial order。当 primary 决定好顺序后，会将带有执行顺序的 lease 返回给 master 节点，master 节点随后将顺序分发给其他的 replica，replica 只能按照 primary 决定的顺序执行。</p>
+<p>这种 lease 机制是为了最小化 master 管理 workload 而设计，lease 初始超时时间为 60s，但是一旦 master 又收到对同一个 chunk 的写操作，primary 就可以向 master 请求延长租约时间。</p>
+<p>即使 master 与一个 primary 的通信丢失，master 仍可以在 old lease 过期后安全地向另一个副本授权 new lease。</p>
+<hr>
+<p><strong>举个栗子:</strong></p>
+<img src="https://raw.githubusercontent.com/Warmchay/img/main/%E6%88%AA%E5%B1%8F2022-04-25%20%E4%B8%8B%E5%8D%885.15.56.png" style="zoom:50%;" />
+
+<ol>
+<li>Client 向 master 询问哪个 chunkserver 持有指定 chunk 的 lease 及 chunk location，如果没有 chunkserver 持有 lease，master 会选择一个 replica 对其授权 (图中没有展示)</li>
+<li>Master 回复给 client 的为 primary 的 chunk handle 和其他副本 (secondary) 的位置。client 同时缓存了这些信息方便后续 update。client 只有当 primary 不可访问或 primary 不再持有 lease 时才需要与 master 通信</li>
+<li>client 将数据推送到所有副本。client 可以按任意顺序推送，每个 chunkserver 都会将推送来的数据缓存在内部的 LRU buffer cache 直到数据被使用或者缓存 age out (超时失效)。</li>
+<li>client 发送写请求给 primary 节点，primary 为多个写操作确定执行的顺序(因为写操作可能来自多个 client)，然后将此顺序应用于本地 I&#x2F;O 写</li>
+<li>primary 节点将写操作请求转发给其他两个 replica，它们都将按照 primary 的顺序执行本地 I&#x2F;O 写</li>
+<li>primary 等待所有的 secondary 副本完成更新</li>
+<li>primary 响应 client，并返回该过程中的错误，包括 replica的错误。如果 primary 自身发生错误，则不会向其他两个 replica 节点进行转发。如果 client 收到写失败响应，则其会重新进行写操作</li>
+</ol>
+<h2 id="Data-Flow-数据流"><a href="#Data-Flow-数据流" class="headerlink" title="Data Flow 数据流"></a>Data Flow 数据流</h2><blockquote>
+<p>两个关键字: <strong>linearly(线型)</strong> <strong>pipeline(管道)</strong></p>
+</blockquote>
+<p>GFS 目标是将数据流和控制流解耦，解耦的方式为以线型的方式传输数据，具体来说传数据的方式为:<br>$$<br>Client \rightarrow Primary \rightarrow Replica \ 1 \rightarrow Replica\ x<br>$$<br>这种方式能利用每台机器的网络带宽，避免网络瓶颈和高延迟链接，最小化通过所有数据的延迟。</p>
+<blockquote>
+<p>Q: 高延迟链接是什么？</p>
+</blockquote>
+<p>具体来说，避免 network bottlenecks 与 high-latency links 的线型链路采用了如下做法：每个节点会将数据转发给最近的还没收到数据的节点</p>
+<blockquote>
+<p>节点通过 IP 地址估算两个节点之间的链路距离。</p>
+</blockquote>
+<p>Data Flow 为了最小化延迟，采用了管道传输模型。</p>
+<blockquote>
+<p>管道传输模型用自来水管道解释即，水（字节）经过一个节点就会去下一个节点。</p>
+</blockquote>
+<p>当一个 chunkserver 接收到一些数据后（收到的字节达到某阈值）立即转发给下一个节点，而不是等此次写操作的所有数据接收完毕。因为 GFS 采用的是全双工网络，因此发送数据时不会降低数据的接受速率。</p>
+<h2 id="Atomic-Record-Appends-原子记录追加"><a href="#Atomic-Record-Appends-原子记录追加" class="headerlink" title="Atomic Record Appends - 原子记录追加"></a>Atomic Record Appends - 原子记录追加</h2><p>GFS 中 Client 仅负责指定要写的数据，GFS 以 at least once 的原子操作进行写，写操作的相关数据一定作为连续的字节序列存放在 GFS 选择的偏移量处，因为 record append 操作总是在文件末尾追加数据，因此这个地址偏移量应当交给 chunkserver 来确定。</p>
+<blockquote>
+<p>如果设计多个 record append 操作，利用 lease 实现并发的安全性。</p>
+</blockquote>
+<p>GFS record append 操作的内部执行逻辑如下：</p>
+<ol>
+<li>Client 确定 file name 和要写入的 byte data(形式上可以选择一个 buffer 来存储要写入的字节数据)</li>
+<li>Client 向 master 请求进行 record，附上要 append 的 file name(不用携带字节数据)</li>
+<li>Master 返回内存中由 metadata 得到关于当前 file 分块存储的最后一个 chunk 的chunk handle 以及 chunk 所在的所有 chunkservers 信息</li>
+<li>之后即 chunk lease 过程</li>
+</ol>
+<p>这之中还涉及如何选择 primary:</p>
+<ul>
+<li>Master 会找到此 file 最后一个 chunk 的 up-to-date version</li>
+<li>Master 选择好 primary 节点后递增当前 chunk 的 chunk version，并通过 Master 的持久化机制持久化</li>
+<li>通过 primary 与其他 chunkserver，发送修改此 chunk 版本号的通知，节点收到通知后会修改版本号，然后持久化</li>
+<li>Primary 选择 file 最后一个 chunk 的末尾 offset 开始写入数据，写入后将此消息转发给其他 chunkserver，其他 chunkserver 对相同的 chunk 在 offset 处写数据。</li>
+</ul>
+<hr>
+<p>一些问题：</p>
+<ol>
+<li><strong>若向 file 追加的数据超过了 chunk 的剩余容量怎么办?</strong></li>
+</ol>
+<ul>
+<li>record append 实际上一次能添加的数据大小最大限制为为 chunksize (64MB) 的 1&#x2F;4</li>
+<li>如果添加数据超过了 chunksize，priamry 会继续向该 chunk append 数据直到 64MB，后通知两个 replicas 执行相同操作。最后响应客户端，告知客户端创建新 chunk 后再继续填充，因为数据实际上没有完全消耗掉。</li>
+</ul>
+<h2 id="Read-读操作"><a href="#Read-读操作" class="headerlink" title="Read 读操作"></a>Read 读操作</h2><ol>
+<li>client -&gt; master: filename + offset (client打算读取的字节范围)</li>
+<li>Master -&gt; client: chunk handle + a list of servers</li>
+<li>client 从 server lists 通过 IP 地址选出最近的 chunkserver，client 会优先向最近的 chunkserver 请求数据读取</li>
+<li>chunkserver 收到数据读取请求后，根据 client 发来的 chunkhandle 进行磁盘 I&#x2F;O 将最终数据返回给 clients</li>
+</ol>
+<h2 id="Snapshot-快照"><a href="#Snapshot-快照" class="headerlink" title="Snapshot - 快照"></a>Snapshot - 快照</h2><blockquote>
+<p>Snapshot 即为文件创建一个副本或直接为一个目录树创建副本(有多个文件)</p>
+</blockquote>
+<p><strong>GFS 使用 standard copy-on-write 技术来实现 snapshot</strong>，其实现方式为:</p>
+<ol>
+<li>当一个 master 节点收到 snapshot 请求时，它首先会 撤销快照涉及到的文件的 chunk 上未完成的 lease，确保对这些 chunk 后续写入时都需要和 master 交互找到 lease 的持有者，这会给 master 优先拷贝这些 chunk 的机会</li>
+<li>当 lease 被收回或者过期后，master 会将对快照的操作记录到日志中并写入到磁盘里，随后 master 会通过在内存中创建一个源文件或源目录树的metadata的副本方式作为 snapshot。新创建的 snapshot 和源文件指向相同的 chunk</li>
+<li>当 client 向 master 请求对这些 chunk 进行写操作时，master 会检测到这些 chunk 的 chunkserver 引用计数大于 1，于是 master 会为这些 chunk 创建相关的 handler，通知拥有这些 chunk 的 chunkserver 创建数据相同的 chunk （这种方式不会在 master 上进行复制，目的是节约 master 带宽与内存）</li>
+<li>最后 client 新的写请求将直接作用于这些新创建的 chunk 上，同时也会被颁发新的 lease</li>
+</ol>
+<h1 id="Master-operation-主节点操作"><a href="#Master-operation-主节点操作" class="headerlink" title="Master operation - 主节点操作"></a>Master operation - 主节点操作</h1><p>master 主要做的工作为：</p>
+<ol>
+<li>所有 namespace 的管理工作</li>
+<li>管理整个系统中的所有 chunk replicas:<ul>
+<li>确定 chunk 实际存储位置</li>
+<li>创建新的 chunk 及其副本</li>
+<li>协调系统的各种操作 （如 R&#x2F;W&#x2F;Snapshot 等），用于保证 chunk 正确且有效地进行备份</li>
+<li>管理 chunkserver 之间的负载均衡</li>
+<li>回收没有被使用的存储空间</li>
+</ul>
+</li>
+</ol>
+<h2 id="namespace-management-amp-locking"><a href="#namespace-management-amp-locking" class="headerlink" title="namespace management &amp; locking"></a>namespace management &amp; locking</h2><blockquote>
+<p>命名空间管理和锁机制</p>
+</blockquote>
+<p>master 节点有很多操作都需要执行很长时间，如 snapshot 必须向 chunkserver 撤回其设计的所有 chunk lease。我们不希望这些耗时的操作会影响 master 节点的其他操作。</p>
+<p>解决方法是通过给 namespace 上锁实现同时进行多个操作及确保操作的正确串行执行顺序。</p>
+<p>GFS 中没有创建一个用于记录当前目录拥有哪些文件的数据结构，也不支持文件和目录的别名。GFS 逻辑上将 namespace 作为一个查询表，将文件路径映射为 metadata。</p>
+<p>如果使用 prefix compression(前缀压缩)，则这个表可以在内存中被高效地表示，namespace 树中每一个节点对应一个 full pathname，拥有一个与之相关联的 read-write lock。</p>
+<p>**Master 节点的每一个操作都必须先获得一系列锁才能够真正的运行 **</p>
+<blockquote>
+<p>锁粒度问题：如果要修改一个 full pathname 表示的目录&#x2F;文件，是给它的上级目录全部上锁吗？上什么锁呢？</p>
+</blockquote>
+<img src="https://spongecaptain.cool/images/img_paper/image-20200721155925807.png" alt="image-20200721155925807" style="zoom:100%;" />
+
+<p>关于写操作涉及的文件&#x2F;目录的锁获取有如下规律:</p>
+<ul>
+<li><strong>最底层的文件&#x2F;目录一定是 write lock</strong></li>
+<li><strong>除了 current file&#x2F;dir，其他所有 dir 仅需要获得 read lock， read lock 是一种共享锁</strong></li>
+</ul>
+<h3 id="Replica-Placement-确定-Replica-的存放位置"><a href="#Replica-Placement-确定-Replica-的存放位置" class="headerlink" title="Replica Placement - 确定 Replica 的存放位置"></a>Replica Placement - 确定 Replica 的存放位置</h3><p>chunk replica placement policy 有两个目的:</p>
+<ol>
+<li>最大化数据 reliability 和 availability</li>
+<li>最大化 network bandwidth utilization</li>
+</ol>
+<p>为了达到上述目的：</p>
+<ol>
+<li>需要在不同的 racks(机架) 上传输 chunk replicas，确保当有一个 rank 发生故障时，其他 racks 的存在保障系统的可靠性和可用性</li>
+<li>由于 chunk replicas 分布存储在不同 rack 的 chunkserver 上，分布式读取降低了每一个 rack 读取 replicas 的带宽压力</li>
+</ol>
+<h2 id="Creation-Re-replication-Rebalancing"><a href="#Creation-Re-replication-Rebalancing" class="headerlink" title="Creation Re-replication Rebalancing"></a>Creation Re-replication Rebalancing</h2><p>chunk replica 出于三个原因被创建：</p>
+<ol>
+<li>chunk creation 创建</li>
+<li>re-replication 重放置</li>
+<li>rebalancing 均衡再建</li>
+</ol>
+<h3 id="chunk-creation"><a href="#chunk-creation" class="headerlink" title="chunk creation"></a>chunk creation</h3><p>默认情况下 master 创建一个 chunk 会另外创建 3 个 replica 分发到对应的 chunkserver 上：</p>
+<ol>
+<li>master 选择将 replica 放置在 <strong>磁盘空间利用率</strong> 低于平均水平的 chunkserver 上，保持所有 chunkserver 在磁盘利用率上的一致性</li>
+<li>限制每一个 chunkserver 上最近创建的 chunk 的个数</li>
+<li>尽量将 replicas of chunk 分散放置在不同的 rack 上</li>
+</ol>
+<h3 id="re-replication"><a href="#re-replication" class="headerlink" title="re- replication"></a>re- replication</h3><p>当 replicas 数量下降到用户阈值时，master 会开始 re-replicate chunk 操作：</p>
+<ol>
+<li>chunkserver unavailable ，比如它给 master 发送这样的状态信息：它的 replica 崩溃了某一个磁盘不可读</li>
+<li>程序员修改了配置 动态增加了 replication 的个数要求</li>
+</ol>
+<p>当 chunk 需要被 re-replicated 时， master 通过以下因素来确定执行优先级:</p>
+<ol>
+<li>根据 replication goal 的配置距离确定优先级。如有一组 replicas 只有 1 个可用，另一组有 2 个可用，前者优先级更高</li>
+<li>最近被读写的文件比最近删除的文件 chunk 有更高的优先级</li>
+<li>若 chunk 的读写可能阻塞客户端，则该 chunk 将有较高的优先级，这能够减少 chunk 故障时对使用 GFS 应用程序的影响</li>
+</ol>
+<h3 id="rebalancing"><a href="#rebalancing" class="headerlink" title="rebalancing"></a>rebalancing</h3><p>master 检查当前 replica 的分布，将相关 replica 移动到更好的磁盘位置。通过这个机制 master 将一个新加入的 chunkserver 自动地逐渐填充，而不是一开始用大量写操作填充它，</p>
+<h2 id="Garbage-Collection"><a href="#Garbage-Collection" class="headerlink" title="Garbage Collection"></a>Garbage Collection</h2><p>当 master 发出删除文件请求后，GFS 不会立即回收文件的物理磁盘存储空间，GFS 提供了定期的垃圾回收机制，用于回收 file 和 chunk 级别的物理磁盘空间。</p>
+<h3 id="Mechanism-机制说明"><a href="#Mechanism-机制说明" class="headerlink" title="Mechanism 机制说明"></a>Mechanism 机制说明</h3><p>当一个文件被删除时，master 会将此删除操作写入日志系统中，但是不会马上向相关 chunkserver 发出删除请求，而是将文件重命名为 hidden name。</p>
+<p>文件重命名仅在 master namespace 中进行，其重命名名字包含接收到删除指令的时间戳。在 master 定期对 namespace 的扫描过程中，会移除所有距删除时间戳 3 天以上的 hidden files。</p>
+<p>当 hidden file 从 namespace 中移除后，该文件在 master 中的所有 metadata 都被移除，chunkserver 会删除磁盘上的相关文件。这种垃圾回收的好处有以下优点:</p>
+<ol>
+<li>方式简单可靠<ul>
+<li>通过定时 heartbeat，master 通知 chunkserver 删除相关 chunk，chunkserver 告知 master 他有什么 chunks</li>
+</ul>
+</li>
+<li>能够平均化垃圾回收成本<ul>
+<li>这种 gc 机制依赖于定时的 namespace 扫描及定时的 heartbeat 通信，因此 gc 最初是分批进行而不是集中进行。并且 master 只有当 idle 时才会扫描 namespace，因此 master 不会因为 gc 而有过多负担</li>
+</ul>
+</li>
+<li>三天的超时删除机制为不可逆删除提供了安全保障</li>
+</ol>
+<h2 id="Stale-Replica-Detection"><a href="#Stale-Replica-Detection" class="headerlink" title="Stale Replica Detection"></a>Stale Replica Detection</h2><p>当 chunkserver 故障或因为宕机而没能正确实施写操作时，chunk replicas 的状态则变为 stale。 master 为每个 chunk 维护一个 chunk version number 来辨别哪些 chunk 是 up-to-date，那些是 stale 的。</p>
+<p>当 master 赋予一个 chunk 新 lease 时，相应的 chunk version 会自增，并将此 version 通知其他 replicas。</p>
+<h1 id="Fault-Tolerance-and-Diagnosis"><a href="#Fault-Tolerance-and-Diagnosis" class="headerlink" title="Fault Tolerance and Diagnosis"></a>Fault Tolerance and Diagnosis</h1><h2 id="High-Availability"><a href="#High-Availability" class="headerlink" title="High Availability"></a>High Availability</h2><p>提升系统总体可用性的策略为: fast recovery 和 replication.</p>
+<ol>
+<li><p><strong>Fast Recovery</strong></p>
+<p>master 及 chunkserver 无论出现什么故障，都能在几秒内恢复故障前的状态。</p>
+</li>
+<li><p><strong>Chunk Replication</strong></p>
+<p>每个 chunk 会被复制到多个分布于不同 rack 的 chunkserver 上，可以为 namespace 不同区域制定不同的 replication 级别(默认级别为 3，即有三份 replicas)</p>
+</li>
+<li><p><strong>Master Replication</strong></p>
+<p>Master 使用日志系统及 checkpoint 确保 master 状态信息的可靠性，只有当内存 snapshot 被刷新到本地磁盘或远程磁盘上，才会认为修改状态提交了。</p>
+</li>
+</ol>
+<p>master 还提供 shadow master，当 master 宕机时，shadow master 提供文件系统的只读访问。shadow master 通过读取 master 日志系统的 replicas 进行状态的更新，后日志的先后顺序执行操作。</p>
+<blockquote>
+<p>shadow master 不参与和其他 chunserver 进行通信，如不存在心跳机制</p>
+</blockquote>
+<h2 id="Data-Integrity-数据完整性"><a href="#Data-Integrity-数据完整性" class="headerlink" title="Data Integrity - 数据完整性"></a>Data Integrity - 数据完整性</h2><blockquote>
+<p>chunkserver 通过 checksum 检测存储的数据是否损坏</p>
+</blockquote>
+<p>一个 chunk 被划分为 64KB 的 block，每个 block 有其对应的 32-bit checksum。</p>
+<p>client 向 chunkserver 发送读数据的请求时，chunkserver 首先对读操作涉及的所有 block 块作 checksum。若不匹配，返回错误并向 master 报告错误。</p>
+<p>请求者接收到此响应后，会从其他 replica 上读数据，master 则会从另一个 replica 上 clone chunk，并指示 chunkserver 删除其 replica。</p>
+<h2 id="Diagonostic-Tools-诊断工具"><a href="#Diagonostic-Tools-诊断工具" class="headerlink" title="Diagonostic Tools - 诊断工具"></a>Diagonostic Tools - 诊断工具</h2><p>GFS 会生成 diagnostic 日志 (chunkserver 的日志系统)，记录一些比较重要的事件:</p>
+<ul>
+<li>Chunkserver 上线或离线</li>
+<li>RPC 的请求或响应</li>
+</ul>
+<h1 id="Measurements"><a href="#Measurements" class="headerlink" title="Measurements"></a>Measurements</h1><p>略</p>
+<h1 id="Experience-使用经验"><a href="#Experience-使用经验" class="headerlink" title="Experience 使用经验"></a>Experience 使用经验</h1><p>流处理中消息送达的方式分为三种:</p>
+<ol>
+<li><p><strong>At-most-once</strong></p>
+<p>消息保证至少发送<strong>成功</strong>一次，也就是可能会重复发送，即一个消息可能会成功发送 1~n 次；</p>
+</li>
+<li><p><strong>At-least-once</strong></p>
+<p>消息只保证最多发送一次，那就是要么成功，要么失败，即一个消息可能会成功发送 0-1 次；</p>
+</li>
+<li><p><strong>Exactly-once</strong></p>
+<p>消息保证发送成功且仅发送成功一次，这种理想情况基本不存在</p>
+</li>
+</ol>
+<h1 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://cs.stanford.edu/~matei/courses/2015/6.S897/slides/gfs.pdf">Stanford 6.S897: The Google File System</a></li>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Google_File_System">Wikipedia: Google File System</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/33944479">ZhiHu: Google File System 论文详析</a></li>
+<li><a target="_blank" rel="noopener" href="https://mrcroxx.github.io/posts/paper-reading/gfs-sosp2003/#back-to-top">MrCroxx: 《The Google File System》论文翻译（GFS-SOSP2003）</a></li>
+<li><a target="_blank" rel="noopener" href="https://spongecaptain.cool/post/paper/googlefilesystem/">Spongecaptain’s Blog: Google File System-GFS 论文阅读</a></li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">Zoris</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2022/04/27/Reading/Reading%20-%20GFS/">http://example.com/2022/04/27/Reading/Reading%20-%20GFS/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">Sicilienne</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/System/">System</a></div><div class="post_share"><div class="social-share" data-image="https://raw.githubusercontent.com/Warmchay/img/main/%E6%88%AA%E5%B1%8F2022-04-29%20%E4%B8%8B%E5%8D%8810.47.53.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/gh/overtrue/share.js@master/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/04/28/Reading/Reading%20-%20CDBTune/"><img class="prev-cover" src="https://raw.githubusercontent.com/Warmchay/img/main/%E6%88%AA%E5%B1%8F2022-04-29%20%E4%B8%8B%E5%8D%8810.47.53.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Reading | CDBTune</div></div></a></div><div class="next-post pull-right"><a href="/2022/04/26/Reading/Reading%20-%20Ottertune/"><img class="next-cover" src="https://raw.githubusercontent.com/Warmchay/img/main/%E6%88%AA%E5%B1%8F2022-04-29%20%E4%B8%8B%E5%8D%8810.47.53.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Reading | OtterTune</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/04/23/Gossip/%E7%B3%BB%E7%BB%9F%E7%A0%94%E7%A9%B6%E7%9A%84%E4%B8%80%E7%82%B9%E6%80%9D%E8%80%83/" title="系统研究的一点思考"><img class="cover" src="https://raw.githubusercontent.com/Warmchay/img/main/%E6%88%AA%E5%B1%8F2022-04-29%20%E4%B8%8B%E5%8D%8810.50.15.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-04-23</div><div class="title">系统研究的一点思考</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Valine# Valine</span><span class="switch-btn"></span><span class="second-comment">Disqus</span></div></div><div class="comment-wrap"><div></div><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Intro"><span class="toc-number">1.</span> <span class="toc-text">Intro</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Design"><span class="toc-number">2.</span> <span class="toc-text">Design</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%81%87%E8%AE%BE-Assumptions"><span class="toc-number">2.1.</span> <span class="toc-text">假设 Assumptions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8E%A5%E5%8F%A3-Interface"><span class="toc-number">2.2.</span> <span class="toc-text">接口 Interface</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9E%B6%E6%9E%84-Infra"><span class="toc-number">2.3.</span> <span class="toc-text">架构 Infra</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%95-master"><span class="toc-number">2.4.</span> <span class="toc-text">单 master</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Chunk-size"><span class="toc-number">2.5.</span> <span class="toc-text">Chunk size</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Metadata"><span class="toc-number">2.6.</span> <span class="toc-text">Metadata</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="toc-number">2.6.1.</span> <span class="toc-text">内存数据结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#chunk-location"><span class="toc-number">2.6.2.</span> <span class="toc-text">chunk location</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%93%8D%E4%BD%9C%E6%97%A5%E5%BF%97-log"><span class="toc-number">2.6.3.</span> <span class="toc-text">操作日志 log</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E8%87%B4%E6%80%A7%E6%A8%A1%E5%9E%8B"><span class="toc-number">2.7.</span> <span class="toc-text">一致性模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#GFS-%E6%8F%90%E4%BE%9B%E7%9A%84%E4%BF%9D%E8%AF%81"><span class="toc-number">2.7.1.</span> <span class="toc-text">GFS 提供的保证</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%B3%BB%E7%BB%9F%E4%BA%A4%E4%BA%92"><span class="toc-number">3.</span> <span class="toc-text">系统交互</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#chunk-lease"><span class="toc-number">3.1.</span> <span class="toc-text">chunk lease</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Data-Flow-%E6%95%B0%E6%8D%AE%E6%B5%81"><span class="toc-number">3.2.</span> <span class="toc-text">Data Flow 数据流</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Atomic-Record-Appends-%E5%8E%9F%E5%AD%90%E8%AE%B0%E5%BD%95%E8%BF%BD%E5%8A%A0"><span class="toc-number">3.3.</span> <span class="toc-text">Atomic Record Appends - 原子记录追加</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Read-%E8%AF%BB%E6%93%8D%E4%BD%9C"><span class="toc-number">3.4.</span> <span class="toc-text">Read 读操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Snapshot-%E5%BF%AB%E7%85%A7"><span class="toc-number">3.5.</span> <span class="toc-text">Snapshot - 快照</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Master-operation-%E4%B8%BB%E8%8A%82%E7%82%B9%E6%93%8D%E4%BD%9C"><span class="toc-number">4.</span> <span class="toc-text">Master operation - 主节点操作</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#namespace-management-amp-locking"><span class="toc-number">4.1.</span> <span class="toc-text">namespace management &amp; locking</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Replica-Placement-%E7%A1%AE%E5%AE%9A-Replica-%E7%9A%84%E5%AD%98%E6%94%BE%E4%BD%8D%E7%BD%AE"><span class="toc-number">4.1.1.</span> <span class="toc-text">Replica Placement - 确定 Replica 的存放位置</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Creation-Re-replication-Rebalancing"><span class="toc-number">4.2.</span> <span class="toc-text">Creation Re-replication Rebalancing</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#chunk-creation"><span class="toc-number">4.2.1.</span> <span class="toc-text">chunk creation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#re-replication"><span class="toc-number">4.2.2.</span> <span class="toc-text">re- replication</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rebalancing"><span class="toc-number">4.2.3.</span> <span class="toc-text">rebalancing</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Garbage-Collection"><span class="toc-number">4.3.</span> <span class="toc-text">Garbage Collection</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Mechanism-%E6%9C%BA%E5%88%B6%E8%AF%B4%E6%98%8E"><span class="toc-number">4.3.1.</span> <span class="toc-text">Mechanism 机制说明</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Stale-Replica-Detection"><span class="toc-number">4.4.</span> <span class="toc-text">Stale Replica Detection</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Fault-Tolerance-and-Diagnosis"><span class="toc-number">5.</span> <span class="toc-text">Fault Tolerance and Diagnosis</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#High-Availability"><span class="toc-number">5.1.</span> <span class="toc-text">High Availability</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Data-Integrity-%E6%95%B0%E6%8D%AE%E5%AE%8C%E6%95%B4%E6%80%A7"><span class="toc-number">5.2.</span> <span class="toc-text">Data Integrity - 数据完整性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Diagonostic-Tools-%E8%AF%8A%E6%96%AD%E5%B7%A5%E5%85%B7"><span class="toc-number">5.3.</span> <span class="toc-text">Diagonostic Tools - 诊断工具</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Measurements"><span class="toc-number">6.</span> <span class="toc-text">Measurements</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Experience-%E4%BD%BF%E7%94%A8%E7%BB%8F%E9%AA%8C"><span class="toc-number">7.</span> <span class="toc-text">Experience 使用经验</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%95%E7%94%A8"><span class="toc-number">8.</span> <span class="toc-text">引用</span></a></li></ol></div></div></div></div></main><footer id="footer" style="background-image: url('https://raw.githubusercontent.com/Warmchay/img/main/%E6%88%AA%E5%B1%8F2022-04-29%20%E4%B8%8B%E5%8D%8810.47.53.png')"><div id="footer-wrap"><div class="copyright">&copy;2022 By Zoris</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">简</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><div class="js-pjax"><script>function loadDisqus () {
+  var disqus_config = function () {
+    this.page.url = 'http://example.com/2022/04/27/Reading/Reading%20-%20GFS/'
+    this.page.identifier = '2022/04/27/Reading/Reading - GFS/'
+    this.page.title = 'Reading | Google File System'
+  };
+
+  window.disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+}
+
+if ('Valine# Valine' === 'Disqus' || !false) {
+  if (false) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><div class="aplayer no-destroy" data-id="7319374102" data-server="netease" data-type="playlist" data-fixed="true" data-autoplay="true"> </div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer@1/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/gh/metowolf/MetingJS@1.2/dist/Meting.min.js"></script><script src="https://cdn.jsdelivr.net/npm/pjax/pjax.min.js"></script><script>let pjaxSelectors = ["title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+
+  // removeEventListener scroll 
+  window.tocScrollFn && window.removeEventListener('scroll', window.tocScrollFn)
+  window.scrollCollect && window.removeEventListener('scroll', scrollCollect)
+
+  typeof preloader === 'object' && preloader.initLoading()
+  document.getElementById('rightside').style.cssText = "opacity: ''; transform: ''"
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof chatBtnFn === 'function' && chatBtnFn()
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+
+  typeof preloader === 'object' && preloader.endLoading()
+})
+
+document.addEventListener('pjax:error', (e) => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
